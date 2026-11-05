@@ -1,18 +1,16 @@
 import { HttpErrorResponse, type HttpInterceptorFn, type HttpRequest } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, from, switchMap, throwError } from 'rxjs';
+import { API_BASE_URL } from '../api/api-client';
+import { ANONYMOUS_AUTH_PATHS } from './auth-api';
 import { AuthStore } from './auth-store';
-
-const ANONYMOUS = [
-  '/api/v1/auth/login',
-  '/api/v1/auth/register',
-  '/api/v1/auth/refresh',
-  '/api/v1/auth/logout',
-];
 
 /** Adds the bearer token to API calls; on 401 refreshes once and retries. */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  if (!req.url.startsWith('/api/') || ANONYMOUS.includes(req.url)) return next(req);
+  const baseUrl = inject(API_BASE_URL);
+  const isApi = req.url.startsWith(`${baseUrl}/`);
+  if (!isApi || ANONYMOUS_AUTH_PATHS.some((path) => req.url === `${baseUrl}${path}`))
+    return next(req);
   const auth = inject(AuthStore);
 
   return from(auth.accessToken()).pipe(

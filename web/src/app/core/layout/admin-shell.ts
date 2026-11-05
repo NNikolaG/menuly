@@ -1,5 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AppMenu, type AppMenuItem } from '../../shared/ui';
 import { AuthStore } from '../auth/auth-store';
 
@@ -8,7 +8,7 @@ const LOGOUT = 'logout';
 /** Frame of every signed-in page: header with tenant and account menu, page below. */
 @Component({
   selector: 'app-admin-shell',
-  imports: [RouterOutlet, RouterLink, AppMenu],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, AppMenu],
   template: `
     <header>
       <a routerLink="/" i18n="@@shell.brand">Menuly</a>
@@ -21,6 +21,24 @@ const LOGOUT = 'logout';
         />
       }
     </header>
+    <nav i18n-aria-label="@@shell.nav" aria-label="Glavna navigacija">
+      <a
+        routerLink="/pregled"
+        routerLinkActive
+        #overview="routerLinkActive"
+        [attr.aria-current]="overview.isActive ? 'page' : null"
+        i18n="@@shell.nav.overview"
+        >Pregled</a
+      >
+      <a
+        routerLink="/objekti"
+        routerLinkActive
+        #venues="routerLinkActive"
+        [attr.aria-current]="venues.isActive ? 'page' : null"
+        i18n="@@shell.nav.venues"
+        >Objekti</a
+      >
+    </nav>
     <main>
       <router-outlet />
     </main>

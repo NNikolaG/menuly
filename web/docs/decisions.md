@@ -87,3 +87,13 @@ Why: one build and deploy for both, and the guest menu never loads admin code (l
 
 `@angular/aria` for composite widgets (first: `AppMenu`), `@angular/cdk` for overlays.
 Why: the admin shell's account menu is the first primitive that needs them (#5).
+
+## #19 — API base URL from `environment.ts` (2026-11-05)
+
+`environment.apiBaseUrl` → `API_BASE_URL` token; supersedes the hard-coded relative `/api` paths of #8 (the value is still `/api`).
+Why: one place to point the app at another API (staging, a direct URL) without touching features.
+
+## #20 — `ApiClient` + one API class per resource (2026-11-05)
+
+Reads as `httpResource` signals through `ApiClient.resource`, writes as Observables failing with `ApiError`; features never use `HttpClient` directly. `VenuesApi` is the template.
+Why: same shape for every feature, base URL and error mapping in one place, and signal reads that reload on their own.

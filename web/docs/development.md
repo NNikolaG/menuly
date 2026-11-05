@@ -8,13 +8,14 @@ src/
 ├── main.ts
 ├── styles.css              # only global style entry, declares the layer order
 ├── styles/                 # reset, tokens, base, patterns, utilities
+├── environments/           # environment.ts (prod), environment.development.ts: apiBaseUrl
 ├── locale/                 # messages.xlf (extracted), messages.en.xlf (English)
 └── app/
     ├── app.ts              # root component, renders <router-outlet />
     ├── app.config.ts       # app-wide providers
     ├── app.routes.ts       # route tree: tenant host, public, protected
     ├── core/
-    │   ├── api/            # shared API types, error helper
+    │   ├── api/            # ApiClient, ApiError, shared API types
     │   ├── auth/           # AuthStore, interceptor, guards
     │   ├── host/           # which host we run on (app or tenant subdomain)
     │   └── layout/         # admin shell, title strategy, not-found page
@@ -24,6 +25,7 @@ src/
         ├── auth/           # login, registration
         ├── dashboard/
         ├── design/         # /design
+        ├── venues/         # /objekti, template for feature APIs
         └── public-menu/    # guest menu on the tenant subdomain
 ```
 
@@ -53,9 +55,33 @@ App-wide providers live only in `app.config.ts`:
 
 ## Data
 
-- Relative `/api/…` paths, never absolute URLs. `/api/v1/x` reaches the API's `/v1/x`: in dev through `proxy.conf.json` (to `localhost:8080`), in Docker through nginx (`API_UPSTREAM`).
-- Read with `httpResource`; write with `await firstValueFrom(...)`, then `reload()` the affected resources.
-- Response types are hand-written next to the feature; shared ones go in `core/api/`.
+Every API call goes through `ApiClient` (`core/api/api-client.ts`); nothing else injects `HttpClient`.
+
+- **Base URL:** `environment.apiBaseUrl` (`src/environments/`), provided as `API_BASE_URL` in `app.config.ts`. It is `/api` in both builds: `/api/v1/x` reaches the API's `/v1/x` through `proxy.conf.json` in dev and nginx (`API_UPSTREAM`) in Docker. An absolute URL works too, but then the API's CORS must allow the web origin.
+- **Paths** are API paths (`/v1/venues`), never with the base URL.
+- **One API class per resource**, next to its feature (`features/venues/venues-api.ts`), or in `core/` when app-wide (`core/auth/auth-api.ts`). Response types next to it; shared ones in `core/api/api-types.ts`.
+- **Reads** are signal resources: `xxxResource()` returns `api.resource<T>(() => path | { path, query } | undefined)` (an `httpResource`). Call it in a field initializer; it reloads when the signals it reads change and stays idle on `undefined`. Templates use `isLoading()`, `error()`, `value()`, `reload()`.
+- **Writes** return Observables (`api.post/patch/delete`) that fail with `ApiError` (`status`, `code`). In components: `await firstValueFrom(api.create(...))`, then `reload()` the affected resources.
+- **Errors:** `toApiError(error)` turns anything (also a resource's `error()`) into `ApiError`; map `code` to a Serbian message, never show the API's English `message`.
+- Format values with Angular pipes (`date`, `currency`, `number`); they follow the build's locale.
+
+```ts
+@Injectable({ providedIn: 'root' })
+export class VenuesApi {
+  private readonly api = inject(ApiClient);
+
+  listResource() {
+    return this.api.resource<VenueList>(() => '/v1/venues');
+  }
+
+  create(input: VenueInput): Observable<Venue> {
+    return this.api.post('/v1/venues', input);
+  }
+}
+
+// in a component
+protected readonly venues = inject(VenuesApi).listResource();
+```
 
 ## i18n
 
