@@ -30,14 +30,6 @@
           <context context-type="linenumber">11</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="shell.brand" datatype="html">
-        <source>Menuly</source>
-        <target>Menuly</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/core/layout/admin-shell.ts</context>
-          <context context-type="linenumber">14,15</context>
-        </context-group>
-      </trans-unit>
       <trans-unit id="shell.switchTenant" datatype="html">
         <source>Pređi na <x id="tenant" equiv-text="membership.tenant_name"/></source>
         <target>Switch to <x id="tenant" equiv-text="membership.tenant_name"/></target>
@@ -320,6 +312,110 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/ui/field/field.ts</context>
           <context context-type="linenumber">46</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shell.nav.overview" datatype="html">
+        <source>Pregled</source>
+        <target>Overview</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/layout/admin-shell.ts</context>
+          <context context-type="linenumber">29</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shell.nav" datatype="html">
+        <source>Glavna navigacija</source>
+        <target>Main navigation</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/layout/admin-shell.ts</context>
+          <context context-type="linenumber">45,46</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shell.theme.light" datatype="html">
+        <source>Tema: svetla</source>
+        <target>Theme: light</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/layout/admin-shell.ts</context>
+          <context context-type="linenumber">207</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shell.theme.dark" datatype="html">
+        <source>Tema: tamna</source>
+        <target>Theme: dark</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/layout/admin-shell.ts</context>
+          <context context-type="linenumber">209</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shell.theme.system" datatype="html">
+        <source>Tema: kao sistem</source>
+        <target>Theme: system</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/layout/admin-shell.ts</context>
+          <context context-type="linenumber">211</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.brand.label" datatype="html">
+        <source>Menuly · digitalni meni</source>
+        <target>Menuly · digital menu</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/auth-layout.ts</context>
+          <context context-type="linenumber">12,13</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.brand.headline" datatype="html">
+        <source> Meni koji ne mora da se štampa. </source>
+        <target>A menu you never have to print.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/auth-layout.ts</context>
+          <context context-type="linenumber">14,16</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.brand.ticket" datatype="html">
+        <source>Sto 12</source>
+        <target>Table 12</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/auth-layout.ts</context>
+          <context context-type="linenumber">26,27</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.brand.ticketMeta" datatype="html">
+        <source>Skeniraj QR</source>
+        <target>Scan the QR</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/auth-layout.ts</context>
+          <context context-type="linenumber">29,30</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.brand.ocrLabel" datatype="html">
+        <source>Uvoz menija</source>
+        <target>Menu import</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/auth-layout.ts</context>
+          <context context-type="linenumber">34,35</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.brand.ocr" datatype="html">
+        <source>Slikaj papirni meni, a stavke i cene se same upišu.</source>
+        <target>Photograph a paper menu and its items and prices fill themselves in.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/auth-layout.ts</context>
+          <context context-type="linenumber">36,38</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.brand.priceLabel" datatype="html">
+        <source>Cena se menja odmah</source>
+        <target>Prices change instantly</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/auth-layout.ts</context>
+          <context context-type="linenumber">40,41</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.brand.priceItem" datatype="html">
+        <source>Espresso</source>
+        <target>Espresso</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/auth-layout.ts</context>
+          <context context-type="linenumber">42,43</context>
         </context-group>
       </trans-unit>
     </body>

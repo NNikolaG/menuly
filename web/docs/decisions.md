@@ -96,7 +96,7 @@ Why: keeps the design's names recognizable while following `docs/ui.md` (semanti
 ## #20 — Lucide icons via `@lucide/angular` (2026-11-05)
 
 Nikola asked for Lucide. `@lucide/angular` (standalone, signal-based; the older `lucide-angular` stops at Angular 21), one component per icon (`<svg lucideLogOut>`), defaults `strokeWidth: 1.5, size: 18` in `app.config.ts` as the design asks.
-Why: the design calls for one 1.5px line icon set; Lucide is the requested one. Cost: each icon component carries a compiled template (~4 kB raw, compresses well) and the package is one module, so icons used anywhere land in the chunk of the first eager user (`AppMenu`); revisit with a single data-driven icon primitive if `main` nears the budget.
+Why: the design calls for one 1.5px line icon set; Lucide is the requested one. Cost: each icon component carries a compiled template (~4 kB raw, ~1 kB gzipped), and the package is one module, so every icon used anywhere lands in the initial bundle (the shell uses them). The initial-bundle warning budget is raised from 500 kB to 600 kB for this; if it nears that, replace the per-icon components with one data-driven icon primitive.
 
 ## #21 — Onest + JetBrains Mono from Google Fonts (2026-11-05)
 
