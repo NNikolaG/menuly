@@ -1,6 +1,6 @@
 # Menuly: specifikacija proizvoda i MVP
 
-Status: **nacrt v0.1** (2026-11-05). Menja se kroz PR-ove; odluke koje menjaju obim ulaze u ovaj fajl.
+Status: **nacrt v0.2** (2026-11-05). Menja se kroz PR-ove; odluke koje menjaju obim ulaze u ovaj fajl.
 
 Jezik: dokument je na srpskom, nazivi entiteta, polja i API-ja su na engleskom (kao u kodu).
 
@@ -40,7 +40,8 @@ Oznake: **MVP** ulazi u prvu verziju, **V2** odmah posle MVP-a, **Kasnije** idej
 | Više objekata (lokacija) po tenantu | MVP |
 | Prijava preko Google / Apple naloga | V2 |
 | 2FA | Kasnije |
-| Pretplate i naplata (planovi, limiti) | V2 (u MVP-u samo polje `plan` i ručni limiti) |
+| Pretplate i naplata (planovi) | V2 (MVP je besplatan; postoji samo polje `plan`) |
+| Limit OCR uvoza po objektu (podrazumevano 3, platform admin može da poveća) | MVP |
 
 ### 3.2 Uvoz menija (OCR)
 
@@ -71,7 +72,8 @@ Oznake: **MVP** ulazi u prvu verziju, **V2** odmah posle MVP-a, **Kasnije** idej
 | Zakazane cene i vremenski meniji (happy hour, doručak do 11h) | V2 |
 | Različite cene po objektu za isti meni | V2 |
 | Alergeni i oznake (vegan, ljuto, bez glutena) | MVP (ručno) |
-| Višejezični meni (sr / en, ručni prevod) | V2 |
+| Sadržaj menija na sr-Latn i en (ručni unos prevoda naziva i opisa, srpski je obavezan) | MVP |
+| Automatski predlog prevoda | V2 |
 | Duplikat menija, šabloni | V2 |
 
 ### 3.4 Promocije i kombo ponude
@@ -100,7 +102,7 @@ Oznake: **MVP** ulazi u prvu verziju, **V2** odmah posle MVP-a, **Kasnije** idej
 
 | Funkcija | Faza |
 |---|---|
-| Javni URL po objektu: `menuly.app/{venue-slug}` | MVP |
+| Javni URL: poddomen po tenantu, slug po objektu: `{tenant-slug}.menuly.app/{venue-slug}` | MVP |
 | Generisanje QR koda (PNG/SVG) za štampu | MVP |
 | QR po stolu (`?table=12`) | V2 (potrebno za porudžbine) |
 | Brzo učitavanje na slabom mobilnom internetu, keš | MVP |
@@ -128,19 +130,19 @@ Oznake: **MVP** ulazi u prvu verziju, **V2** odmah posle MVP-a, **Kasnije** idej
 
 Vlasnik se registruje, doda objekat, slika postojeći meni, ispravi ono što OCR nije dobro prepoznao, podesi boje i logo, odštampa QR, i od tada menja cene, dostupnost i kombo ponude iz web admina, a gosti uvek vide ažuran meni.
 
-Van MVP-a namerno ostaju: porudžbine, plaćanja, naplata pretplate, mobilna aplikacija, višejezičnost, zakazane cene.
+Van MVP-a namerno ostaju: porudžbine, plaćanja, naplata pretplate, mobilna aplikacija, zakazane cene. MVP je besplatan; jedino ograničenje je broj OCR uvoza po objektu, jer se posle prvog uvoza meni održava ručno.
 
 ## 5. Glavni tokovi
 
 ### 5.1 Onboarding
 
-1. Registracija: ime, email, lozinka, naziv biznisa. Kreiraju se `tenant`, `user`, `membership(owner)`.
-2. Prvi objekat: naziv, adresa, slug (predlaže se iz naziva), valuta (podrazumevano RSD).
+1. Registracija: ime, email, lozinka, naziv biznisa i poddomen (`tenant.slug`, predlaže se iz naziva). Kreiraju se `tenant`, `user`, `membership(owner)`.
+2. Prvi objekat: naziv, adresa, slug (predlaže se iz naziva, jedinstven unutar tenanta), valuta (podrazumevano RSD).
 3. Izbor: "Uvezi postojeći meni" (OCR) ili "Počni od praznog".
 
 ### 5.2 Uvoz menija preko OCR-a
 
-1. Korisnik učita 1 do N slika/PDF-ova. Kreira se `import_job` u statusu `uploaded`, fajlovi idu u object storage.
+1. Korisnik učita 1 do N slika/PDF-ova (najviše 20 stranica po uvozu). Ako je objekat iskoristio limit uvoza, API vraća grešku sa porukom da se postojeći meni menja ručno. Kreira se `import_job` u statusu `uploaded`, fajlovi idu u object storage.
 2. Pozadinski worker obrađuje stranice (`processing`), rezultat je strukturisan JSON po stranici (vidi odeljak 7).
 3. Status `ready_for_review`: admin prikazuje original i prepoznate stavke jedno pored drugog; nesigurna polja su označena.
 4. Korisnik ispravlja, briše, spaja kategorije, pa potvrđuje.
@@ -164,12 +166,13 @@ Van MVP-a namerno ostaju: porudžbine, plaćanja, naplata pretplate, mobilna apl
 
 1. Izbor teme, logo, boje, font; live pregled javnog menija.
 2. Meni ima status `draft` / `published`. Samo objavljen meni vidi gost; jedan objekat ima tačno jedan aktivni objavljeni meni u MVP-u.
-3. Preuzimanje QR koda (PNG/SVG) koji vodi na `/{venue-slug}`.
+3. Preuzimanje QR koda (PNG/SVG) koji vodi na `https://{tenant-slug}.menuly.app/{venue-slug}`.
 
 ### 5.6 Gost
 
 1. Skenira QR, otvara se javni meni (bez prijave, bez kolačića za praćenje).
-2. Vidi kategorije, stavke, cene, oznake, promocije; stavke "nema na stanju" su prikazane kao nedostupne ili sakrivene (podešavanje).
+2. Vidi kategorije, stavke, cene, oznake, promocije. Stavke "nema na stanju" ostaju vidljive, označene kao nedostupne, i prikazuju se na dnu svoje kategorije (sakrivanje kao podešavanje u V2).
+3. Jezik: podrazumevano srpski (latinica), prekidač za engleski; gde prevod ne postoji prikazuje se srpski tekst.
 
 ## 6. Domenski model (osnovni entiteti)
 
@@ -177,11 +180,11 @@ Svi entiteti osim `user` i `platform` tabela imaju `tenant_id`. ID-jevi su UUID 
 
 | Entitet | Ključna polja | Napomena |
 |---|---|---|
-| `tenant` | id, name, plan, status, created_at | Biznis koji plaća. |
+| `tenant` | id, name, slug (globalno jedinstven, poddomen), plan, status, created_at | Biznis. Rezervisani slugovi: `www`, `api`, `app`, `admin`. |
 | `user` | id, email, password_hash, name, locale | Globalan, nije vezan za tenant. |
 | `membership` | tenant_id, user_id, role, venue_ids (opciono) | Uloga u tenantu; prazno `venue_ids` = svi objekti. |
 | `invitation` | tenant_id, email, role, token, expires_at | |
-| `venue` | tenant_id, name, slug (globalno jedinstven), address, phone, currency, timezone, opening_hours (jsonb), active_menu_id | Lokacija / objekat. |
+| `venue` | tenant_id, name, slug (jedinstven unutar tenanta), address, phone, currency, timezone, opening_hours (jsonb), active_menu_id, ocr_import_limit (default 3) | Lokacija / objekat. |
 | `menu` | tenant_id, venue_id, name, status (draft/published), theme_id, published_at | |
 | `category` | tenant_id, menu_id, name, description, position, is_visible | |
 | `menu_item` | tenant_id, category_id, name, description, image_url, tags (text[]), allergens (text[]), position, is_available, is_visible | |
@@ -227,13 +230,13 @@ Rezervna opcija ako LLM bude preskup ili nedostupan: Google Cloud Vision za teks
 - **Auth:** kratkotrajan JWT access token + refresh token u bazi (moguće opozivanje).
 - **Fajlovi:** S3-kompatibilan storage (MinIO lokalno), potpisani URL-ovi za upload.
 - **Pozadinski poslovi:** OCR ide u red poslova u Postgresu (npr. River), bez dodatne infrastrukture u MVP-u.
-- **Lokalizacija:** UI na srpskom (latinica), kod i API na engleskom; vreme u UTC, prikaz po `venue.timezone`.
+- **Lokalizacija:** UI (admin i javni meni) na sr-Latn i en preko Angular i18n ključeva; kod i API na engleskom. Prevodivi sadržaj menija (`name`, `description` kategorija, stavki, varijanti, promocija) čuva se kao `translations jsonb`, npr. `{"en": {"name": "..."}}`, a osnovna polja su na srpskom. API prima `?lang=en`; vreme u UTC, prikaz po `venue.timezone`.
 - **Docker:** `docker compose up` diže API, Postgres, MinIO i web.
 - **API:** REST + JSON, OpenAPI specifikacija u repou kao ugovor između BE i web/iOS.
 
-## 9. Otvorena pitanja za Nikolu
+## 9. Odluke (2026-11-05)
 
-1. Da li gost u MVP-u vidi stavke "nema na stanju" (precrtano) ili se one skrivaju?
-2. Domen i format javnog linka (`menuly.app/{slug}` ili poddomen po objektu)?
-3. Da li u MVP-u već treba engleska verzija menija za turiste, ili je to sigurno V2?
-4. Naplata: da li MVP ide besplatno za prve klijente, ili odmah treba plan i limit (npr. broj OCR uvoza mesečno)?
+1. Stavke "nema na stanju" su vidljive gostima, na dnu svoje kategorije.
+2. Javni link: poddomen po tenantu, slug po objektu (`{tenant-slug}.menuly.app/{venue-slug}`). Treba wildcard DNS i TLS sertifikat za `*.menuly.app`.
+3. Engleski ulazi u MVP: UI preko i18n ključeva, sadržaj menija kroz ručne prevode.
+4. MVP je besplatan. Broj OCR uvoza je ograničen po objektu (podrazumevano 3), jer se posle prvog uvoza digitalni meni menja ručno.
