@@ -1,0 +1,49 @@
+name: backend
+
+on:
+  pull_request:
+    paths: ["backend/**", ".github/workflows/backend.yml"]
+  push:
+    branches: [main]
+    paths: ["backend/**", ".github/workflows/backend.yml"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: menuly
+          POSTGRES_PASSWORD: menuly
+          POSTGRES_DB: menuly_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U menuly" --health-interval 2s --health-timeout 3s --health-retries 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: backend/go.mod
+          cache-dependency-path: backend/go.sum
+      - name: Create app role
+        run: |
+          PGPASSWORD=menuly psql -h localhost -U menuly -d menuly_test \
+            -c "CREATE ROLE menuly_app LOGIN PASSWORD 'menuly_app';"
+      - name: Lint
+        run: |
+          test -z "$(gofmt -l .)" || (gofmt -l . && exit 1)
+          go vet ./...
+      - name: sqlc generated code is up to date
+        run: |
+          go run github.com/sqlc-dev/sqlc/cmd/sqlc@v1.29.0 diff
+      - name: Test
+        env:
+          TEST_DATABASE_URL: postgres://menuly_app:menuly_app@localhost:5432/menuly_test?sslmode=disable
+          TEST_MIGRATE_DATABASE_URL: postgres://menuly:menuly@localhost:5432/menuly_test?sslmode=disable
+        run: go test -count=1 -race ./...
+      - name: Docker build
+        run: docker build -t menuly-api .

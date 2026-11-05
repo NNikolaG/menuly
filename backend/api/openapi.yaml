@@ -1,0 +1,303 @@
+openapi: 3.1.0
+info:
+  title: Menuly API
+  version: 0.1.0
+  description: |
+    Multi-tenant API for Menuly. All authenticated routes act inside the tenant
+    carried by the access token (`tid` claim). Switch tenants with
+    `POST /v1/auth/switch-tenant`.
+
+    Errors always have the shape `{"error": {"code": "...", "message": "..."}}`.
+servers:
+  - url: http://localhost:8080
+security:
+  - bearer: []
+paths:
+  /healthz:
+    get:
+      summary: Liveness
+      security: []
+      responses:
+        "200": { description: OK }
+  /readyz:
+    get:
+      summary: Readiness (checks the database)
+      security: []
+      responses:
+        "200": { description: Ready }
+        "503": { description: Database unavailable }
+
+  /v1/auth/register:
+    post:
+      summary: Register an owner and create their tenant
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, password, business_name]
+              properties:
+                name: { type: string }
+                email: { type: string, format: email }
+                password: { type: string, minLength: 8 }
+                business_name: { type: string }
+                locale: { type: string, default: sr-Latn }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/TokenPair"
+                  - type: object
+                    properties:
+                      user: { $ref: "#/components/schemas/User" }
+                      tenant: { $ref: "#/components/schemas/Tenant" }
+        "409": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+  /v1/auth/login:
+    post:
+      summary: Log in
+      description: Without `tenant_id` the first active tenant of the user is used.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string }
+                password: { type: string }
+                tenant_id: { type: string, format: uuid }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TokenPair" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+  /v1/auth/refresh:
+    post:
+      summary: Rotate the refresh token
+      description: Each refresh token works once. Reusing a used token revokes all sessions of the user.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RefreshRequest" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TokenPair" }
+        "401": { $ref: "#/components/responses/Error" }
+  /v1/auth/logout:
+    post:
+      summary: Revoke a refresh token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RefreshRequest" }
+      responses:
+        "204": { description: Revoked (also returned for unknown tokens) }
+  /v1/auth/switch-tenant:
+    post:
+      summary: Get tokens for another tenant the user belongs to
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [tenant_id]
+              properties:
+                tenant_id: { type: string, format: uuid }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TokenPair" }
+        "403": { $ref: "#/components/responses/Error" }
+
+  /v1/me:
+    get:
+      summary: Current user, tenant, role and all memberships
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user: { $ref: "#/components/schemas/User" }
+                  tenant: { $ref: "#/components/schemas/Tenant" }
+                  role: { $ref: "#/components/schemas/Role" }
+                  memberships:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        tenant_id: { type: string, format: uuid }
+                        tenant_name: { type: string }
+                        tenant_status: { type: string }
+                        role: { $ref: "#/components/schemas/Role" }
+        "401": { $ref: "#/components/responses/Error" }
+
+  /v1/venues:
+    get:
+      summary: List venues of the current tenant
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: "#/components/schemas/Venue" }
+    post:
+      summary: Create a venue (owner)
+      description: When `slug` is omitted it is generated from `name` (Serbian Latin/Cyrillic transliterated).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/VenueInput"
+                - required: [name]
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Venue" }
+        "403": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+  /v1/venues/{venueID}:
+    parameters:
+      - { name: venueID, in: path, required: true, schema: { type: string, format: uuid } }
+    get:
+      summary: Get a venue
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Venue" }
+        "404": { $ref: "#/components/responses/Error" }
+    patch:
+      summary: Update a venue (owner, manager). Omitted fields are unchanged.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/VenueInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Venue" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+    delete:
+      summary: Delete a venue (owner)
+      responses:
+        "204": { description: Deleted }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    Error:
+      description: Error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: object
+                properties:
+                  code: { type: string, examples: [validation_failed, slug_taken, forbidden] }
+                  message: { type: string }
+  schemas:
+    Role:
+      type: string
+      enum: [owner, manager, staff]
+    TokenPair:
+      type: object
+      properties:
+        token_type: { type: string, const: Bearer }
+        access_token: { type: string }
+        access_token_expires_at: { type: string, format: date-time }
+        refresh_token: { type: string }
+        refresh_token_expires_at: { type: string, format: date-time }
+        tenant_id: { type: string, format: uuid }
+        role: { $ref: "#/components/schemas/Role" }
+    RefreshRequest:
+      type: object
+      required: [refresh_token]
+      properties:
+        refresh_token: { type: string }
+    User:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        email: { type: string }
+        name: { type: string }
+        locale: { type: string }
+    Tenant:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        plan: { type: string }
+        status: { type: string, enum: [active, suspended] }
+    VenueInput:
+      type: object
+      properties:
+        name: { type: string }
+        slug: { type: string, pattern: "^[a-z0-9]+(-[a-z0-9]+)*$", maxLength: 60 }
+        address: { type: string }
+        phone: { type: string }
+        currency: { type: string, pattern: "^[A-Z]{3}$", default: RSD }
+        timezone: { type: string, default: Europe/Belgrade }
+        opening_hours: { type: object, additionalProperties: true }
+    Venue:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        tenant_id: { type: string, format: uuid }
+        name: { type: string }
+        slug: { type: string }
+        address: { type: string }
+        phone: { type: string }
+        currency: { type: string }
+        timezone: { type: string }
+        opening_hours: { type: object, additionalProperties: true }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
