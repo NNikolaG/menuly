@@ -8,6 +8,8 @@ COPY . .
 RUN npm run build
 
 FROM nginx:1.27-alpine
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Where /api/ is proxied to; the compose service name by default.
+ENV API_UPSTREAM=http://api:8080
+COPY nginx/default.conf.template /etc/nginx/templates/default.conf.template
 COPY --from=build /app/dist/menuly/browser /usr/share/nginx/html
 EXPOSE 80

@@ -1,8 +1,8 @@
 # menuly frontend
 
-TODO: product in one line.
+Admin panel and public guest menu for Menuly, a multi-tenant menu digitization SaaS. Product spec: `../docs/product/mvp.md` (once merged); API contract: `../backend/api/openapi.yaml`.
 
-Angular 22 (zoneless, signals) · plain CSS with `@layer` · Vitest · Oxlint · npm.
+Angular 22 (zoneless, signals) · Angular Aria + CDK · plain CSS with `@layer` · Vitest · Oxlint · npm.
 
 ## Commands
 
@@ -10,7 +10,7 @@ npm only: `npm start` · `npm run test:ci` · `npm run lint` · `npm run build`.
 
 ## Read before you change
 
-- Structure, imports, providers, data, routes, forms, tests → `docs/development.md`
+- Structure, imports, providers, hosts, routes, auth, data, forms, i18n, tests → `docs/development.md`
 - Styles, tokens, primitives, components, `/design` → `docs/ui.md`
 - Dependencies or anything structural → `docs/decisions.md`; larger work gets a plan in `docs/plans/<name>.md` first.
 - Angular APIs → the `angular-developer` skill, not memory.

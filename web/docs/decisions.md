@@ -62,3 +62,28 @@ Why: the web app is dockerized like the backend; nginx is small and standard for
 
 `@angular/localize` with explicit `@@` keys for all UI text; source `sr-Latn`, translation `en`; one build per locale under `/sr-Latn/` and `/en/`. Supersedes the manual `LOCALE_ID` from #10.
 Why: first-party, no runtime library, no translation lookup cost; switching language is a navigation between locale paths, which also keeps URLs shareable and indexable.
+
+## #14 — Web app lives in `web/` (2026-11-05)
+
+Moved from `apps/web/` to match the monorepo layout in the root README (`backend/`, `web/`, `ios/`).
+Why: one convention for the whole repo.
+
+## #15 — Serbian at the site root, English under `/en/` (2026-11-05)
+
+Supersedes the `/sr-Latn/` path from #13: the source locale builds to the root.
+Why: the guest URL stays `{tenant}.menuly.app/{venue}` as the MVP spec says; the cost is that `en` can't be a venue slug.
+
+## #16 — Hand-written auth on `HttpClient` + signals (2026-11-05)
+
+`AuthStore`, a functional interceptor and functional guards in `core/auth/`; tokens in `localStorage`; no auth library.
+Why: the API's auth is plain JWT + rotating refresh token in the request body, which needs little code; a library would add more surface than it saves. Revisit if the API moves the refresh token to an httpOnly cookie.
+
+## #17 — One app, two hosts (2026-11-05)
+
+The tenant subdomain serves only the public menu; the app host serves auth and admin. The host is read once (`APP_HOST`) and routes pick a tree with `canMatch`.
+Why: one build and deploy for both, and the guest menu never loads admin code (lazy).
+
+## #18 — Angular Aria + CDK installed (2026-11-05)
+
+`@angular/aria` for composite widgets (first: `AppMenu`), `@angular/cdk` for overlays.
+Why: the admin shell's account menu is the first primitive that needs them (#5).

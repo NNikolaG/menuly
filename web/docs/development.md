@@ -6,16 +6,25 @@
 src/
 ├── index.html
 ├── main.ts
-├── styles.css            # only global style entry, declares the layer order
-├── styles/               # reset, tokens, base, patterns, utilities
+├── styles.css              # only global style entry, declares the layer order
+├── styles/                 # reset, tokens, base, patterns, utilities
+├── locale/                 # messages.xlf (extracted), messages.en.xlf (English)
 └── app/
-    ├── app.ts            # root component, renders <router-outlet />
-    ├── app.config.ts     # app-wide providers
-    ├── app.routes.ts     # lazy feature routes
-    ├── core/             # app-wide, domain-aware
+    ├── app.ts              # root component, renders <router-outlet />
+    ├── app.config.ts       # app-wide providers
+    ├── app.routes.ts       # route tree: tenant host, public, protected
+    ├── core/
+    │   ├── api/            # shared API types, error helper
+    │   ├── auth/           # AuthStore, interceptor, guards
+    │   ├── host/           # which host we run on (app or tenant subdomain)
+    │   └── layout/         # admin shell, title strategy, not-found page
     ├── shared/
-    │   └── ui/           # primitives
-    └── features/         # one lazy folder per feature
+    │   └── ui/             # primitives + barrel (index.ts)
+    └── features/           # one lazy folder per feature
+        ├── auth/           # login, registration
+        ├── dashboard/
+        ├── design/         # /design
+        └── public-menu/    # guest menu on the tenant subdomain
 ```
 
 ## Layers
@@ -44,7 +53,7 @@ App-wide providers live only in `app.config.ts`:
 
 ## Data
 
-- Relative `/api/…` paths, never absolute URLs. In dev they are proxied by `proxy.conf.json`, added with the first API call.
+- Relative `/api/…` paths, never absolute URLs. `/api/v1/x` reaches the API's `/v1/x`: in dev through `proxy.conf.json` (to `localhost:8080`), in Docker through nginx (`API_UPSTREAM`).
 - Read with `httpResource`; write with `await firstValueFrom(...)`, then `reload()` the affected resources.
 - Response types are hand-written next to the feature; shared ones go in `core/api/`.
 
@@ -53,12 +62,40 @@ App-wide providers live only in `app.config.ts`:
 - Built-in Angular i18n (`@angular/localize`): source locale `sr-Latn`, translation `en` in `src/locale/messages.en.xlf`.
 - Every UI string gets an explicit key: `i18n="@@feature.thing"` in templates, `` $localize`:@@feature.thing:Tekst` `` in code. Source text in Serbian.
 - After adding or changing text: `npm run i18n:extract`, then copy new units into `messages.en.xlf` with an English `<target>`.
-- The production build emits one app per locale: `dist/menuly/browser/sr-Latn/` and `/en/`. `npm start` serves Serbian, `npm run start:en` English.
+- The production build emits one app per locale: Serbian at the root (`dist/menuly/browser/`), English under `/en/`. `npm start` serves Serbian, `npm run start:en` English. A venue slug can't be `en`.
+- A missing translation fails the build (`i18nMissingTranslation: error`).
 
-## Routes and forms
+## Hosts and routes
 
-- Every feature is lazy and every route has a Serbian `title`.
-- Signal Forms only.
+One app serves two hosts (`core/host/app-host.ts`):
+
+- **Tenant subdomain** `{tenant}.menuly.app` (locally `{tenant}.localhost:4200`): only the public menu, `/{venue-slug}`. No sign-in. Matched first by `tenantHostGuard`, which swallows every URL on that host.
+- **App host** (`app.menuly.app`, `localhost`, anything else): everything below.
+
+| Route                              | Access                         | Guard                                                         |
+| ---------------------------------- | ------------------------------ | ------------------------------------------------------------- |
+| `/prijava`, `/registracija`        | guests only                    | `guestGuard` (signed-in → `/`)                                |
+| `/design`                          | open                           | none                                                          |
+| `/` → `/pregled`, every other path | signed in, inside `AdminShell` | `authGuard` (`canMatch`; signed-out → `/prijava?returnUrl=…`) |
+| role-limited pages                 | listed roles only              | `roleGuard('owner', …)` on the route                          |
+
+- Protected pages are children of the `AdminShell` route; add a feature there as `{ path: '<sr-slug>', loadChildren: … }`.
+- Every feature is lazy and every route has a Serbian `title` (`$localize`); `AppTitleStrategy` appends ` · Menuly`.
+- Route paths are Serbian (`/prijava`, `/pregled`), code names English.
+- An empty-path parent whose children don't match still matches an empty URL and renders nothing; give guest routes their own path instead of an empty-path wrapper.
+
+## Auth
+
+- `AuthStore` (`core/auth/`) owns the session: access + refresh token from `/v1/auth/*`, persisted in `localStorage`, exposed as signals (`isAuthenticated`, `role`, `tenantId`) and `me` (`httpResource` of `/v1/me`, reloads on tenant switch).
+- `authInterceptor` adds `Authorization: Bearer …` to `/api/` calls except login, register, refresh and logout; it refreshes a token that expires within 30 s before sending, and on a 401 refreshes once and retries.
+- Refresh is single-flight: each refresh token works once, and reusing one revokes every session of the user.
+- A rejected refresh signs out and goes to `/prijava?returnUrl=…`.
+- Map API errors with `apiErrorCode(error)` to Serbian messages; never show the API's English `message`.
+
+## Forms
+
+- Signal Forms only (`form`, validators, `submit`, `[formField]`), wrapped in `AppField` + `AppInput`.
+- Server errors go to a page `error` signal shown with `role="alert"`.
 
 ## Tests
 
@@ -67,9 +104,9 @@ App-wide providers live only in `app.config.ts`:
 
 ## Docker
 
-`Dockerfile` builds the app with Node and serves `dist/menuly/browser` with nginx (`nginx.conf`): `/` redirects to `/sr-Latn/`, each locale has its own SPA fallback.
+`Dockerfile` builds the app with Node and serves `dist/menuly/browser` with nginx (`nginx/default.conf.template`): Serbian at `/`, English at `/en/`, each with its own SPA fallback, and `/api/` proxied to `API_UPSTREAM` (default `http://api:8080`, the compose service).
 
 ```sh
 docker build -t menuly-web .
-docker run --rm -p 8080:80 menuly-web
+docker run --rm -p 8081:80 -e API_UPSTREAM=http://host.docker.internal:8080 menuly-web
 ```

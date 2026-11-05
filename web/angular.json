@@ -25,7 +25,8 @@
               }
             ],
             "styles": ["src/styles.css"],
-            "polyfills": ["@angular/localize/init"]
+            "polyfills": ["@angular/localize/init"],
+            "i18nMissingTranslation": "error"
           },
           "configurations": {
             "production": {
@@ -68,7 +69,10 @@
               "buildTarget": "menuly:build:development,en"
             }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "development",
+          "options": {
+            "proxyConfig": "proxy.conf.json"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test"
@@ -77,7 +81,7 @@
       "i18n": {
         "sourceLocale": {
           "code": "sr-Latn",
-          "subPath": "sr-Latn"
+          "subPath": ""
         },
         "locales": {
           "en": {

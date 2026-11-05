@@ -2,19 +2,23 @@ server {
   listen 80;
   root /usr/share/nginx/html;
 
-  location = / {
-    return 302 /sr-Latn/;
-  }
-
-  location /sr-Latn/ {
-    try_files $uri $uri/ /sr-Latn/index.html;
+  # /api/v1/... -> ${API_UPSTREAM}/v1/...
+  location /api/ {
+    proxy_pass ${API_UPSTREAM}/;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
   }
 
   location /en/ {
     try_files $uri $uri/ /en/index.html;
   }
 
-  location ~ ^/(sr-Latn|en)/index\.html$ {
+  location / {
+    try_files $uri $uri/ /index.html;
+  }
+
+  location ~ ^/(en/)?index\.html$ {
     add_header Cache-Control "no-cache";
   }
 

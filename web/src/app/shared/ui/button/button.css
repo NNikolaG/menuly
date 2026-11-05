@@ -1,0 +1,7 @@
+[appButton] {
+  cursor: pointer;
+}
+
+[appButton]:disabled {
+  cursor: not-allowed;
+}
