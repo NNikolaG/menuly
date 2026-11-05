@@ -57,3 +57,8 @@ Why: `CLAUDE.md` loads on every task; detailed rules are read only when relevant
 
 Multi-stage `Dockerfile`, static files served by nginx with SPA fallback.
 Why: the web app is dockerized like the backend; nginx is small and standard for static SPAs.
+
+## #13 — Built-in Angular i18n, sr-Latn + en (2026-11-05)
+
+`@angular/localize` with explicit `@@` keys for all UI text; source `sr-Latn`, translation `en`; one build per locale under `/sr-Latn/` and `/en/`. Supersedes the manual `LOCALE_ID` from #10.
+Why: first-party, no runtime library, no translation lookup cost; switching language is a navigation between locale paths, which also keeps URLs shareable and indexable.

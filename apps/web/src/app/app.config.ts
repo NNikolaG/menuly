@@ -1,11 +1,7 @@
-import { registerLocaleData } from '@angular/common';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import localeSrLatn from '@angular/common/locales/sr-Latn';
-import { ApplicationConfig, LOCALE_ID, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter, withComponentInputBinding, withInMemoryScrolling } from '@angular/router';
 import { routes } from './app.routes';
-
-registerLocaleData(localeSrLatn);
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -16,6 +12,5 @@ export const appConfig: ApplicationConfig = {
       withInMemoryScrolling({ scrollPositionRestoration: 'enabled', anchorScrolling: 'enabled' }),
     ),
     provideHttpClient(withInterceptors([])),
-    { provide: LOCALE_ID, useValue: 'sr-Latn' },
   ],
 };

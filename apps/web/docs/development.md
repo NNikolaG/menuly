@@ -40,13 +40,20 @@ App-wide providers live only in `app.config.ts`:
 
 - `provideRouter` with `withComponentInputBinding()` and `withInMemoryScrolling({ scrollPositionRestoration: 'enabled', anchorScrolling: 'enabled' })`.
 - `provideHttpClient(withInterceptors([...]))` exactly once; a second call silently skips the interceptors.
-- `LOCALE_ID` is `sr-Latn`, registered with `registerLocaleData`.
+- No manual `LOCALE_ID`: each localized build sets it (see i18n).
 
 ## Data
 
 - Relative `/api/…` paths, never absolute URLs. In dev they are proxied by `proxy.conf.json`, added with the first API call.
 - Read with `httpResource`; write with `await firstValueFrom(...)`, then `reload()` the affected resources.
 - Response types are hand-written next to the feature; shared ones go in `core/api/`.
+
+## i18n
+
+- Built-in Angular i18n (`@angular/localize`): source locale `sr-Latn`, translation `en` in `src/locale/messages.en.xlf`.
+- Every UI string gets an explicit key: `i18n="@@feature.thing"` in templates, `` $localize`:@@feature.thing:Tekst` `` in code. Source text in Serbian.
+- After adding or changing text: `npm run i18n:extract`, then copy new units into `messages.en.xlf` with an English `<target>`.
+- The production build emits one app per locale: `dist/menuly/browser/sr-Latn/` and `/en/`. `npm start` serves Serbian, `npm run start:en` English.
 
 ## Routes and forms
 
@@ -60,7 +67,7 @@ App-wide providers live only in `app.config.ts`:
 
 ## Docker
 
-`Dockerfile` builds the app with Node and serves `dist/menuly/browser` with nginx (`nginx.conf`, SPA fallback to `index.html`).
+`Dockerfile` builds the app with Node and serves `dist/menuly/browser` with nginx (`nginx.conf`): `/` redirects to `/sr-Latn/`, each locale has its own SPA fallback.
 
 ```sh
 docker build -t menuly-web .

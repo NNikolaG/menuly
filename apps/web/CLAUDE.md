@@ -26,6 +26,6 @@ npm only: `npm start` · `npm run test:ci` · `npm run lint` · `npm run build`.
 ## Conventions
 
 - Standalone components, signal APIs (`signal`, `computed`, `input`, `output`, `model`), `@if`/`@for`/`@switch`, `inject()`. OnPush is the default — don't set it.
-- UI text in Serbian (Latin); code, comments and commits in English.
+- UI text in Serbian (Latin), every string with an `@@` i18n key and an English translation (`docs/development.md` → i18n); code, comments and commits in English.
 - Commits: `type(scope): summary` (`feat`, `fix`, `refactor`, `test`, `docs`, `chore`).
 - New lasting rule → one line in the matching doc; a changed decision → new entry in `docs/decisions.md`.
