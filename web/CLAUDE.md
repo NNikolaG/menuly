@@ -26,6 +26,7 @@ npm only: `npm start` · `npm run test:ci` · `npm run lint` · `npm run build`.
 ## Conventions
 
 - Standalone components, signal APIs (`signal`, `computed`, `input`, `output`, `model`), `@if`/`@for`/`@switch`, `inject()`. OnPush is the default — don't set it.
+- Angular ecosystem first: built-in pipes (`date`, `currency`, `number`, which follow the build's locale), `httpResource`/`rxResource`, Signal Forms, Angular Aria, CDK. Hand-written code or a library only when none fits.
 - UI text in Serbian (Latin), every string with an `@@` i18n key and an English translation (`docs/development.md` → i18n); code, comments and commits in English.
 - Commits: `type(scope): summary` (`feat`, `fix`, `refactor`, `test`, `docs`, `chore`).
 - New lasting rule → one line in the matching doc; a changed decision → new entry in `docs/decisions.md`.
