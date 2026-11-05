@@ -184,7 +184,7 @@ Svi entiteti osim `user` i `platform` tabela imaju `tenant_id`. ID-jevi su UUID 
 | `user` | id, email, password_hash, name, locale | Globalan, nije vezan za tenant. |
 | `membership` | tenant_id, user_id, role, venue_ids (opciono) | Uloga u tenantu; prazno `venue_ids` = svi objekti. |
 | `invitation` | tenant_id, email, role, token, expires_at | |
-| `venue` | tenant_id, name, slug (jedinstven unutar tenanta), address, phone, currency, timezone, opening_hours (jsonb), active_menu_id, ocr_import_limit (default 3) | Lokacija / objekat. |
+| `venue` | tenant_id, name, slug (jedinstven unutar tenanta), address, phone, currency, timezone, opening_hours (jsonb), active_menu_id, ocr_import_limit (default 3) | Lokacija / objekat. Rezervisani slugovi: `en`, `sr`, `api`, `assets`. |
 | `menu` | tenant_id, venue_id, name, status (draft/published), theme_id, published_at | |
 | `category` | tenant_id, menu_id, name, description, position, is_visible | |
 | `menu_item` | tenant_id, category_id, name, description, image_url, tags (text[]), allergens (text[]), position, is_available, is_visible | |
