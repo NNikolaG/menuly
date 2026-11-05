@@ -7,6 +7,7 @@ import {
   LucideLogOut,
   LucideMonitor,
   LucideMoon,
+  LucideStore,
   LucideSun,
   type LucideIcon,
 } from '@lucide/angular';
@@ -28,6 +29,11 @@ const NAV: NavItem[] = [
     path: '/pregled',
     label: $localize`:@@shell.nav.overview:Pregled`,
     icon: LucideLayoutGrid,
+  },
+  {
+    path: '/objekti',
+    label: $localize`:@@shell.nav.venues:Objekti`,
+    icon: LucideStore,
   },
 ];
 

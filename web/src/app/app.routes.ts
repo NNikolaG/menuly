@@ -33,6 +33,7 @@ export const routes: Routes = [
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'pregled' },
       { path: 'pregled', loadChildren: () => import('./features/dashboard/dashboard.routes') },
+      { path: 'objekti', loadChildren: () => import('./features/venues/venues.routes') },
       {
         path: '**',
         title: $localize`:@@notFound.pageTitle:Stranica nije pronađena`,

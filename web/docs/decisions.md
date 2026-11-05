@@ -88,17 +88,27 @@ Why: one build and deploy for both, and the guest menu never loads admin code (l
 `@angular/aria` for composite widgets (first: `AppMenu`), `@angular/cdk` for overlays.
 Why: the admin shell's account menu is the first primitive that needs them (#5).
 
-## #19 — "Receipt" design system as tokens, patterns and primitives (2026-11-05)
+## #19 — API base URL from `environment.ts` (2026-11-05)
+
+`environment.apiBaseUrl` → `API_BASE_URL` token; supersedes the hard-coded relative `/api` paths of #8 (the value is still `/api`).
+Why: one place to point the app at another API (staging, a direct URL) without touching features.
+
+## #20 — `ApiClient` + one API class per resource (2026-11-05)
+
+Reads as `httpResource` signals through `ApiClient.resource`, writes as Observables failing with `ApiError`; features never use `HttpClient` directly. `VenuesApi` is the template.
+Why: same shape for every feature, base URL and error mapping in one place, and signal reads that reload on their own.
+
+## #21 — "Receipt" design system as tokens, patterns and primitives (2026-11-05)
 
 The Claude Design export "Receipt" is the source: its values live in `tokens.css` as `--color-*` (via `light-dark()`), `--type-*`, `--space-*`, `--radius-*` and size tokens; its `r-*` classes become patterns without the prefix and with `data-*` variants (`r-badge--success` → `.badge[data-tone='success']`); behavior pieces are primitives. Tenant accent presets are `[data-tenant='<key>']` in `tokens.css`; font presets are left out until a venue can pick one.
 Why: keeps the design's names recognizable while following `docs/ui.md` (semantic tokens, `data-*` variants, behavior only in primitives).
 
-## #20 — Lucide icons via `@lucide/angular` (2026-11-05)
+## #22 — Lucide icons via `@lucide/angular` (2026-11-05)
 
 Nikola asked for Lucide. `@lucide/angular` (standalone, signal-based; the older `lucide-angular` stops at Angular 21), one component per icon (`<svg lucideLogOut>`), defaults `strokeWidth: 1.5, size: 18` in `app.config.ts` as the design asks.
 Why: the design calls for one 1.5px line icon set; Lucide is the requested one. Cost: each icon component carries a compiled template (~4 kB raw, ~1 kB gzipped), and the package is one module, so every icon used anywhere lands in the initial bundle (the shell uses them). The initial-bundle warning budget is raised from 500 kB to 600 kB for this; if it nears that, replace the per-icon components with one data-driven icon primitive.
 
-## #21 — Onest + JetBrains Mono from Google Fonts (2026-11-05)
+## #23 — Onest + JetBrains Mono from Google Fonts (2026-11-05)
 
 Loaded with a `<link>` in `index.html` (`display=swap`), no font package.
 Why: the design's fonts, both with Serbian Latin diacritics and Cyrillic; no dependency. Self-host if privacy or offline use requires it.

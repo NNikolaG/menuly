@@ -40,6 +40,8 @@ jobs:
       - name: sqlc generated code is up to date
         run: |
           go run github.com/sqlc-dev/sqlc/cmd/sqlc@v1.29.0 diff
+      - name: OpenAPI spec is valid
+        run: npx -y @redocly/cli@1.25.0 lint api/openapi.yaml
       - name: Test
         env:
           TEST_DATABASE_URL: postgres://menuly_app:menuly_app@localhost:5432/menuly_test?sslmode=disable

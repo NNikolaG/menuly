@@ -9,7 +9,7 @@ import {
   submit,
 } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
-import { apiErrorCode } from '../../core/api/api-error';
+import { toApiError } from '../../core/api/api-error';
 import { AuthStore } from '../../core/auth/auth-store';
 import { AppButton, AppField, AppInput } from '../../shared/ui';
 import { AuthLayout } from './auth-layout';
@@ -146,14 +146,14 @@ export default class RegisterPage {
         });
         await this.router.navigateByUrl('/');
       } catch (error) {
-        this.error.set(registerErrorMessage(apiErrorCode(error)));
+        this.error.set(registerErrorMessage(toApiError(error).code));
       }
       return undefined;
     });
   }
 }
 
-function registerErrorMessage(code: string | null): string {
+function registerErrorMessage(code: string): string {
   switch (code) {
     case 'email_taken':
       return $localize`:@@auth.register.emailTaken:Nalog sa ovim emailom već postoji.`;

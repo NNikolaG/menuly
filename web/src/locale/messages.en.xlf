@@ -23,11 +23,35 @@
         <target>Page not found</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.routes.ts</context>
-          <context context-type="linenumber">38</context>
+          <context context-type="linenumber">39</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/public-menu/public-menu.routes.ts</context>
           <context context-type="linenumber">11</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shell.nav" datatype="html">
+        <source>Glavna navigacija</source>
+        <target>Main navigation</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/layout/admin-shell.ts</context>
+          <context context-type="linenumber">24,25</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shell.nav.overview" datatype="html">
+        <source>Pregled</source>
+        <target>Overview</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/layout/admin-shell.ts</context>
+          <context context-type="linenumber">25,26</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shell.nav.venues" datatype="html">
+        <source>Objekti</source>
+        <target>Venues</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/layout/admin-shell.ts</context>
+          <context context-type="linenumber">26,29</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shell.switchTenant" datatype="html">
@@ -35,7 +59,7 @@
         <target>Switch to <x id="tenant" equiv-text="membership.tenant_name"/></target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/core/layout/admin-shell.ts</context>
-          <context context-type="linenumber">41</context>
+          <context context-type="linenumber">45</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shell.logout" datatype="html">
@@ -43,7 +67,7 @@
         <target>Sign out</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/core/layout/admin-shell.ts</context>
-          <context context-type="linenumber">43</context>
+          <context context-type="linenumber">47</context>
         </context-group>
       </trans-unit>
       <trans-unit id="notFound.heading" datatype="html">
@@ -282,6 +306,62 @@
           <context context-type="linenumber">6</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="venues.heading" datatype="html">
+        <source>Objekti</source>
+        <target>Venues</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
+          <context context-type="linenumber">9,10</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="common.loading" datatype="html">
+        <source>Učitavanje…</source>
+        <target>Loading…</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
+          <context context-type="linenumber">11,12</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.loadError" datatype="html">
+        <source>Objekti nisu učitani.</source>
+        <target>Venues could not be loaded.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
+          <context context-type="linenumber">13,14</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="common.retry" datatype="html">
+        <source>Pokušaj ponovo</source>
+        <target>Try again</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
+          <context context-type="linenumber">14,16</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.createdAt" datatype="html">
+        <source>Dodat <x id="INTERPOLATION" equiv-text="{{ venue.created_at | date: &apos;mediumDate&apos; }}"/></source>
+        <target>Added <x id="INTERPOLATION" equiv-text="{{ venue.created_at | date: &apos;mediumDate&apos; }}"/></target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
+          <context context-type="linenumber">20,21</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.empty" datatype="html">
+        <source>Još nema objekata.</source>
+        <target>No venues yet.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
+          <context context-type="linenumber">23,28</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.pageTitle" datatype="html">
+        <source>Objekti</source>
+        <target>Venues</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venues.routes.ts</context>
+          <context context-type="linenumber">6</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="ui.field.required" datatype="html">
         <source>Obavezno polje.</source>
         <target>This field is required.</target>
@@ -314,28 +394,12 @@
           <context context-type="linenumber">46</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="shell.nav.overview" datatype="html">
-        <source>Pregled</source>
-        <target>Overview</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/core/layout/admin-shell.ts</context>
-          <context context-type="linenumber">29</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="shell.nav" datatype="html">
-        <source>Glavna navigacija</source>
-        <target>Main navigation</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/core/layout/admin-shell.ts</context>
-          <context context-type="linenumber">45,46</context>
-        </context-group>
-      </trans-unit>
       <trans-unit id="shell.theme.light" datatype="html">
         <source>Tema: svetla</source>
         <target>Theme: light</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/core/layout/admin-shell.ts</context>
-          <context context-type="linenumber">207</context>
+          <context context-type="linenumber">213</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shell.theme.dark" datatype="html">
@@ -343,7 +407,7 @@
         <target>Theme: dark</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/core/layout/admin-shell.ts</context>
-          <context context-type="linenumber">209</context>
+          <context context-type="linenumber">215</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shell.theme.system" datatype="html">
@@ -351,7 +415,7 @@
         <target>Theme: system</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/core/layout/admin-shell.ts</context>
-          <context context-type="linenumber">211</context>
+          <context context-type="linenumber">217</context>
         </context-group>
       </trans-unit>
       <trans-unit id="auth.brand.label" datatype="html">

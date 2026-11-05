@@ -21,6 +21,8 @@ type Server struct {
 
 type Options struct {
 	CORSAllowedOrigins []string
+	// DocsEnabled serves Swagger UI at /docs and the spec at /openapi.yaml.
+	DocsEnabled bool
 }
 
 func New(database *db.DB, issuer *auth.Issuer) *Server {
@@ -29,6 +31,7 @@ func New(database *db.DB, issuer *auth.Issuer) *Server {
 
 func (s *Server) Handler(opts Options) http.Handler {
 	r := chi.NewRouter()
+	editors := requireRole(auth.RoleOwner, auth.RoleManager)
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
 	r.Use(requestLogger)
@@ -47,6 +50,10 @@ func (s *Server) Handler(opts Options) http.Handler {
 		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
 	})
 	r.Get("/readyz", s.handleReady)
+	if opts.DocsEnabled {
+		r.Get("/openapi.yaml", handleOpenAPI)
+		r.Get("/docs", handleDocs)
+	}
 
 	r.Route("/v1", func(r chi.Router) {
 		r.Route("/auth", func(r chi.Router) {
@@ -66,9 +73,42 @@ func (s *Server) Handler(opts Options) http.Handler {
 				r.With(requireRole(auth.RoleOwner)).Post("/", s.handleCreateVenue)
 				r.Route("/{venueID}", func(r chi.Router) {
 					r.Get("/", s.handleGetVenue)
-					r.With(requireRole(auth.RoleOwner, auth.RoleManager)).Patch("/", s.handleUpdateVenue)
+					r.With(editors).Patch("/", s.handleUpdateVenue)
 					r.With(requireRole(auth.RoleOwner)).Delete("/", s.handleDeleteVenue)
+					r.Get("/menus", s.handleListMenus)
+					r.With(editors).Post("/menus", s.handleCreateMenu)
 				})
+			})
+
+			// Menu editing: reads for every member, writes for owner/manager.
+			// Staff may only toggle item availability/visibility.
+			r.Route("/menus/{menuID}", func(r chi.Router) {
+				r.Get("/", s.handleGetMenu)
+				r.With(editors).Patch("/", s.handleUpdateMenu)
+				r.With(editors).Delete("/", s.handleDeleteMenu)
+				r.With(editors).Post("/publish", s.handlePublishMenu)
+				r.With(editors).Post("/unpublish", s.handleUnpublishMenu)
+				r.With(editors).Post("/categories", s.handleCreateCategory)
+				r.With(editors).Put("/categories/order", s.handleReorderCategories)
+				r.With(editors).Post("/price-adjustments", s.handlePriceAdjustment)
+			})
+			r.Route("/categories/{categoryID}", func(r chi.Router) {
+				r.With(editors).Patch("/", s.handleUpdateCategory)
+				r.With(editors).Delete("/", s.handleDeleteCategory)
+				r.With(editors).Post("/items", s.handleCreateItem)
+				r.With(editors).Put("/items/order", s.handleReorderItems)
+			})
+			r.Route("/items/{itemID}", func(r chi.Router) {
+				r.Get("/", s.handleGetItem)
+				r.With(editors).Patch("/", s.handleUpdateItem)
+				r.With(editors).Delete("/", s.handleDeleteItem)
+				r.Patch("/status", s.handleUpdateItemStatus)
+				r.With(editors).Post("/variants", s.handleCreateVariant)
+			})
+			r.Route("/variants/{variantID}", func(r chi.Router) {
+				r.With(editors).Patch("/", s.handleUpdateVariant)
+				r.With(editors).Delete("/", s.handleDeleteVariant)
+				r.Get("/price-history", s.handlePriceHistory)
 			})
 		})
 	})
