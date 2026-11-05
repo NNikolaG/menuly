@@ -2,3 +2,4 @@ package-lock.json
 dist
 .angular
 node_modules
+design-system/receipt

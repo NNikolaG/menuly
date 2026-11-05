@@ -113,7 +113,12 @@ Why: the design calls for one 1.5px line icon set; Lucide is the requested one. 
 Loaded with a `<link>` in `index.html` (`display=swap`), no font package.
 Why: the design's fonts, both with Serbian Latin diacritics and Cyrillic; no dependency. Self-host if privacy or offline use requires it.
 
-## #24 — Menu editor on CDK drag-drop and CDK Dialog (2026-11-05)
+## #24 — Seeded Bauhaus pattern replaces block strips (2026-11-05)
+
+The designer's handoff (`design-system/receipt/`, kept unchanged as reference) makes the brand signature a pattern generated from a seed. `generatePattern` is ported to TS in `shared/ui/pattern/` (FNV-1a over UTF-16 code units + mulberry32; call order and weights unchanged, snapshot-tested against the original JS) and drawn by `AppPattern`. Colors are `--color-brand-*` instead of the handoff's `--brand-*`, and classes follow #21 (`.pattern`, `data-kind`, `data-rot`, `data-fluid`). `.blocks` is removed.
+Why: the same venue must look the same on web, POS, print and native, so nothing is stored or drawn by hand; the seed is always app data.
+
+## #25 — Menu editor on CDK drag-drop and CDK Dialog (2026-11-05)
 
 Categories and items are reordered with `@angular/cdk/drag-drop` (handle button per row, keyboard-free for now), edits open in CDK dialogs (`CategoryDialog`, `ItemDialog`, shared `ConfirmDialog`). Order is saved with one `PUT …/order {ids}` per drop, after an optimistic local move.
 Why: stays in the Angular ecosystem (no extra libs), and one request per drop matches the backend's order endpoints.
