@@ -1,8 +1,9 @@
-import { HttpClient, HttpErrorResponse, httpResource } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import type { Me, Role, Tenant, TokenPair, User } from '../api/api-types';
+import { toApiError } from '../api/api-error';
+import type { Role, TokenPair } from '../api/api-types';
+import { AuthApi, type LoginRequest, type RegisterRequest } from './auth-api';
 
 interface Session {
   accessToken: string;
@@ -13,27 +14,13 @@ interface Session {
   role: Role;
 }
 
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
-
-export interface RegisterRequest {
-  name: string;
-  email: string;
-  password: string;
-  business_name: string;
-  tenant_slug?: string;
-  locale?: string;
-}
-
 const STORAGE_KEY = 'menuly.session';
 /** Refresh this long before the access token expires, so a request never leaves with a dying token. */
 const EXPIRY_MARGIN_MS = 30_000;
 
 @Injectable({ providedIn: 'root' })
 export class AuthStore {
-  private readonly http = inject(HttpClient);
+  private readonly authApi = inject(AuthApi);
   private readonly router = inject(Router);
   private readonly session = signal<Session | null>(readSession());
   private refreshing: Promise<string | null> | null = null;
@@ -43,25 +30,18 @@ export class AuthStore {
   readonly tenantId = computed(() => this.session()?.tenantId ?? null);
 
   /** Current user, tenant and memberships; reloads when the tenant changes. */
-  readonly me = httpResource<Me>(() => (this.tenantId() ? { url: '/api/v1/me' } : undefined));
+  readonly me = this.authApi.meResource(this.tenantId);
 
   async login(request: LoginRequest): Promise<void> {
-    this.setSession(await firstValueFrom(this.http.post<TokenPair>('/api/v1/auth/login', request)));
+    this.setSession(await firstValueFrom(this.authApi.login(request)));
   }
 
   async register(request: RegisterRequest): Promise<void> {
-    const response = await firstValueFrom(
-      this.http.post<TokenPair & { user: User; tenant: Tenant }>('/api/v1/auth/register', request),
-    );
-    this.setSession(response);
+    this.setSession(await firstValueFrom(this.authApi.register(request)));
   }
 
   async switchTenant(tenantId: string): Promise<void> {
-    this.setSession(
-      await firstValueFrom(
-        this.http.post<TokenPair>('/api/v1/auth/switch-tenant', { tenant_id: tenantId }),
-      ),
-    );
+    this.setSession(await firstValueFrom(this.authApi.switchTenant(tenantId)));
     await this.router.navigateByUrl('/');
   }
 
@@ -69,9 +49,7 @@ export class AuthStore {
     const refreshToken = this.session()?.refreshToken;
     this.setSession(null);
     if (refreshToken) {
-      await firstValueFrom(
-        this.http.post('/api/v1/auth/logout', { refresh_token: refreshToken }),
-      ).catch(() => undefined);
+      await firstValueFrom(this.authApi.logout(refreshToken)).catch(() => undefined);
     }
     await this.router.navigateByUrl('/prijava');
   }
@@ -95,13 +73,11 @@ export class AuthStore {
     const session = this.session();
     if (!session) return null;
     try {
-      const pair = await firstValueFrom(
-        this.http.post<TokenPair>('/api/v1/auth/refresh', { refresh_token: session.refreshToken }),
-      );
+      const pair = await firstValueFrom(this.authApi.refresh(session.refreshToken));
       this.setSession(pair);
       return pair.access_token;
     } catch (error) {
-      if (error instanceof HttpErrorResponse && error.status === 401) {
+      if (toApiError(error).status === 401) {
         this.setSession(null);
         await this.router.navigate(['/prijava'], { queryParams: { returnUrl: this.router.url } });
       }

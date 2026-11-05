@@ -1,7 +1,7 @@
 import { Component, inject, input, signal } from '@angular/core';
 import { email, form, FormField, required, submit } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
-import { apiErrorCode } from '../../core/api/api-error';
+import { toApiError } from '../../core/api/api-error';
 import { AuthStore } from '../../core/auth/auth-store';
 import { AppButton, AppField, AppInput } from '../../shared/ui';
 
@@ -73,14 +73,14 @@ export default class LoginPage {
         await this.auth.login(field().value());
         await this.router.navigateByUrl(this.returnUrl() ?? '/');
       } catch (error) {
-        this.error.set(loginErrorMessage(apiErrorCode(error)));
+        this.error.set(loginErrorMessage(toApiError(error).code));
       }
       return undefined;
     });
   }
 }
 
-function loginErrorMessage(code: string | null): string {
+function loginErrorMessage(code: string): string {
   switch (code) {
     case 'invalid_credentials':
       return $localize`:@@auth.login.invalidCredentials:Pogrešan email ili lozinka.`;
