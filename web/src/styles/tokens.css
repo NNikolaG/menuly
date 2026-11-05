@@ -1,1 +1,335 @@
-/* Raw ramps and semantic design tokens (custom properties) only. */
+/* Raw ramps and semantic design tokens (custom properties) only. Source: the "Receipt" design system. */
+
+:root {
+  color-scheme: light dark;
+
+  /* ---------- Ramps (raw; components never use these) ---------- */
+  --n-0: #ffffff;
+  --n-25: #fafaf8;
+  --n-50: #f3f3f0;
+  --n-100: #e8e8e4;
+  --n-200: #d5d5d0;
+  --n-300: #b6b6b0;
+  --n-400: #8d8d87;
+  --n-500: #6a6a65;
+  --n-600: #51514d;
+  --n-700: #393936;
+  --n-800: #262624;
+  --n-850: #1c1c1b;
+  --n-900: #141414;
+  --n-950: #0b0b0b;
+  --orange-300: #ffad66;
+  --orange-500: #ff7300;
+  --amber-100: #ffefc7;
+  --amber-300: #ffcd5c;
+  --amber-500: #ffaf1f;
+  --amber-700: #8a5900;
+  --amber-900: #2a1d04;
+  --blue-100: #e6eaff;
+  --blue-300: #b4c0ff;
+  --blue-400: #8a9cff;
+  --blue-600: #3a55e0;
+  --blue-700: #1742b8;
+  --blue-900: #101a3d;
+  --pink-300: #f5a0c0;
+  --green-100: #dcf2e3;
+  --green-300: #7fd3a0;
+  --green-700: #0f6339;
+  --green-900: #0b2416;
+  --red-100: #fde3e0;
+  --red-300: #ff9a8f;
+  --red-600: #c8261b;
+  --red-900: #2e0d0a;
+
+  /* ---------- Semantic colors (light, dark) ---------- */
+  --color-bg: light-dark(var(--n-25), var(--n-900));
+  --color-surface: light-dark(var(--n-0), var(--n-850));
+  --color-surface-sunken: light-dark(var(--n-50), var(--n-950));
+  --color-surface-raised: light-dark(var(--n-0), var(--n-800));
+  --color-surface-hover: light-dark(var(--n-50), var(--n-800));
+  --color-surface-inverse: light-dark(var(--n-900), var(--n-25));
+  --color-border: light-dark(var(--n-200), var(--n-700));
+  --color-border-strong: var(--n-500);
+  --color-text: light-dark(var(--n-900), var(--n-25));
+  --color-text-muted: light-dark(var(--n-600), var(--n-300));
+  --color-text-subtle: light-dark(var(--n-500), var(--n-400));
+  --color-text-inverse: light-dark(var(--n-25), var(--n-900));
+  --color-text-disabled: light-dark(var(--n-300), var(--n-600));
+  --color-focus: light-dark(var(--blue-600), var(--blue-400));
+  --color-info: light-dark(var(--blue-600), var(--blue-300));
+  --color-info-subtle: light-dark(var(--blue-100), var(--blue-900));
+  --color-success: light-dark(var(--green-700), var(--green-300));
+  --color-success-subtle: light-dark(var(--green-100), var(--green-900));
+  --color-warning: light-dark(var(--amber-700), var(--amber-300));
+  --color-warning-subtle: light-dark(var(--amber-100), var(--amber-900));
+  --color-danger: light-dark(var(--red-600), var(--red-300));
+  --color-danger-subtle: light-dark(var(--red-100), var(--red-900));
+  --color-on-danger: light-dark(var(--n-0), var(--n-900));
+  --color-shadow-soft: light-dark(rgb(20 20 20 / 0.06), rgb(0 0 0 / 0.5));
+  --color-shadow-near: light-dark(rgb(20 20 20 / 0.06), rgb(0 0 0 / 0.4));
+  --color-shadow-far: light-dark(rgb(20 20 20 / 0.12), rgb(0 0 0 / 0.6));
+
+  /* Tenant layer: the only five tokens a venue may change, via [data-tenant]. Default: ink. */
+  --color-accent: light-dark(var(--n-900), var(--n-25));
+  --color-accent-hover: light-dark(var(--n-700), var(--orange-300));
+  --color-on-accent: light-dark(var(--n-0), var(--n-900));
+  --color-accent-text: light-dark(var(--n-900), var(--n-25));
+  --color-accent-subtle: light-dark(var(--n-100), var(--n-800));
+
+  /* Brand layer: login, POS, ads. Same in both themes. */
+  --color-brand-orange: var(--orange-500);
+  --color-brand-amber: var(--amber-500);
+  --color-brand-periwinkle: var(--blue-400);
+  --color-brand-cobalt: var(--blue-700);
+  --color-brand-pink: var(--pink-300);
+  --color-brand-ink: var(--n-900);
+  --color-brand-paper: var(--n-0);
+  --color-on-brand-ink: var(--n-25);
+  --color-on-brand-cobalt: var(--n-0);
+  --color-on-brand-tile: var(--n-900);
+  --color-paper-text: var(--n-900);
+  --color-paper-text-muted: var(--n-600);
+  --color-paper-text-subtle: var(--n-500);
+  --color-paper-rule: var(--n-300);
+  --color-paper-control-border: var(--n-500);
+  --color-pos-surface: var(--n-800);
+  --color-pos-text-disabled: var(--n-400);
+
+  /* ---------- Typography ---------- */
+  --font-sans: 'Onest', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  --type-display-xl: 500 96px/0.92 var(--font-sans);
+  --type-display-lg: 500 64px/0.95 var(--font-sans);
+  --type-display-md: 500 44px/1 var(--font-sans);
+  --type-h1: 600 30px/36px var(--font-sans);
+  --type-h2: 600 22px/28px var(--font-sans);
+  --type-h3: 600 17px/24px var(--font-sans);
+  --type-h4: 600 15px/20px var(--font-sans);
+  --type-dialog-title: 600 19px/26px var(--font-sans);
+  --type-body-lg: 400 17px/26px var(--font-sans);
+  --type-body: 400 15px/22px var(--font-sans);
+  --type-body-strong: 600 15px/22px var(--font-sans);
+  --type-body-sm: 400 13px/18px var(--font-sans);
+  --type-label: 500 13px/18px var(--font-sans);
+  --type-control: 600 15px/22px var(--font-sans);
+  --type-control-sm: 600 13px/18px var(--font-sans);
+  --type-control-lg: 600 16px/22px var(--font-sans);
+  --type-nav: 500 15px/20px var(--font-sans);
+  --type-chip: 500 15px/22px var(--font-sans);
+  --type-segment: 500 13px/18px var(--font-sans);
+  --type-stat: 500 44px/1 var(--font-sans);
+  --type-ticket-title: 500 32px/0.98 var(--font-sans);
+  --type-receipt-title: 500 52px/0.9 var(--font-sans);
+  --type-receipt-total: 500 48px/1 var(--font-sans);
+  --type-brand-headline: 500 56px/0.95 var(--font-sans);
+  --type-brand-number: 500 72px/0.9 var(--font-sans);
+  --type-pos-cat: 500 17px/22px var(--font-sans);
+  --type-pos-tile: 600 18px/22px var(--font-sans);
+  --type-mark: 600 15px/1 var(--font-sans);
+  --type-receipt-line: 400 15px/20px var(--font-sans);
+
+  --type-eyebrow: 500 11px/16px var(--font-mono);
+  --type-label-mono: 500 12px/16px var(--font-mono);
+  --type-meta: 400 13px/18px var(--font-mono);
+  --type-meta-sm: 400 12px/16px var(--font-mono);
+  --type-ticket-meta: 400 12px/18px var(--font-mono);
+  --type-meta-xs: 400 11px/16px var(--font-mono);
+  --type-tag: 400 12px/16px var(--font-mono);
+  --type-price: 500 15px/22px var(--font-mono);
+  --type-price-row: 500 15px/24px var(--font-mono);
+  --type-price-lg: 500 20px/26px var(--font-mono);
+  --type-pos-price: 400 14px/18px var(--font-mono);
+  --type-pos-qty: 500 14px/30px var(--font-mono);
+
+  --tracking-display-xl: -0.035em;
+  --tracking-display-lg: -0.03em;
+  --tracking-display-md: -0.025em;
+  --tracking-h1: -0.02em;
+  --tracking-h2: -0.015em;
+  --tracking-h3: -0.01em;
+  --tracking-control: -0.005em;
+  --tracking-tight: -0.04em;
+  --tracking-meta: 0.02em;
+  --tracking-mono: 0.04em;
+  --tracking-ticket: 0.06em;
+  --tracking-badge: 0.08em;
+  --tracking-receipt: 0.1em;
+  --tracking-eyebrow: 0.12em;
+
+  /* ---------- Space, radius, size ---------- */
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-11: 44px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-24: 96px;
+  --space-half: 2px;
+  --space-1-5: 6px;
+  --space-2-5: 10px;
+
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-sm-inner: 6px;
+  --radius-md: 12px;
+  --radius-pos: 14px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+
+  --control-sm: 32px;
+  --control-md: 40px;
+  --control-lg: 48px;
+  --control-xl: 56px;
+  --touch-min: 44px;
+  --sidebar-width: 248px;
+  --topbar-height: 56px;
+  --menu-max-width: 640px;
+  --content-max-width: 1200px;
+  --dialog-width: 440px;
+  --menu-min-width: 200px;
+  --field-min-width: 240px;
+  --textarea-min-height: 88px;
+  --text-measure: 52ch;
+  --size-dot: 6px;
+  --size-swatch: 12px;
+  --size-mark: 32px;
+  --size-badge: 24px;
+  --size-tag: 22px;
+  --size-nav-item: 36px;
+  --size-segment: 30px;
+  --size-switch-width: 40px;
+  --size-switch-height: 24px;
+  --size-switch-knob: 16px;
+  --size-icon: 18px;
+  --size-icon-sm: 16px;
+  --size-ticket: 320px;
+  --size-ticket-art: 160px;
+  --size-ticket-punch-width: 96px;
+  --size-ticket-punch-height: 26px;
+  --size-receipt: 330px;
+  --size-receipt-punch-width: 88px;
+  --size-receipt-punch-height: 22px;
+  --size-pos-nav: 180px;
+  --size-pos-cat: 64px;
+  --size-pos-tile: 132px;
+  --size-pos-qty: 30px;
+  --size-bento-row: 120px;
+  --size-brand-row: 180px;
+
+  --stroke-hairline: 1px;
+  --stroke-control: 1px;
+  --stroke-focus: 2px;
+  --focus-offset: 2px;
+
+  /* ---------- Shadow, motion, layers ---------- */
+  --shadow-sm: 0 1px 2px var(--color-shadow-soft);
+  --shadow-lg: 0 12px 32px var(--color-shadow-far), 0 2px 6px var(--color-shadow-near);
+
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 320ms;
+  --press-scale: 0.98;
+
+  --z-sticky: 10;
+  --z-sidebar: 20;
+  --z-overlay: 40;
+  --z-dialog: 50;
+  --z-toast: 60;
+}
+
+[data-theme='light'] {
+  color-scheme: light;
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+/* ---------- Tenant presets: [data-tenant] on the dashboard or public menu wrapper ---------- */
+[data-tenant='tinta'] {
+  --color-accent: light-dark(#141414, #fafaf8);
+  --color-accent-hover: light-dark(#3e3e3e, #d8d8d6);
+  --color-on-accent: light-dark(#ffffff, #141414);
+  --color-accent-text: light-dark(#141414, #fafaf8);
+  --color-accent-subtle: light-dark(#e8e8e8, #393938);
+}
+
+[data-tenant='narandza'] {
+  --color-accent: light-dark(#c2410c, #ff8a4c);
+  --color-accent-hover: light-dark(#a7380a, #dc7844);
+  --color-on-accent: light-dark(#ffffff, #141414);
+  --color-accent-text: light-dark(#b03a0a, #ff8a4c);
+  --color-accent-subtle: light-dark(#f9ece7, #3a271d);
+}
+
+[data-tenant='espresso'] {
+  --color-accent: light-dark(#6f4a35, #d0a383);
+  --color-accent-hover: light-dark(#5f402e, #b48e72);
+  --color-on-accent: light-dark(#ffffff, #141414);
+  --color-accent-text: light-dark(#6f4a35, #d0a383);
+  --color-accent-subtle: light-dark(#f1edeb, #322b26);
+}
+
+[data-tenant='bordo'] {
+  --color-accent: light-dark(#8c1d3a, #ec8aa2);
+  --color-accent-hover: light-dark(#781932, #cc788d);
+  --color-on-accent: light-dark(#ffffff, #141414);
+  --color-accent-text: light-dark(#8c1d3a, #ec8aa2);
+  --color-accent-subtle: light-dark(#f4e8eb, #37272b);
+}
+
+[data-tenant='maslina'] {
+  --color-accent: light-dark(#59652a, #b3c071);
+  --color-accent-hover: light-dark(#4d5724, #9ba663);
+  --color-on-accent: light-dark(#ffffff, #141414);
+  --color-accent-text: light-dark(#59652a, #b3c071);
+  --color-accent-subtle: light-dark(#eef0ea, #2d3023);
+}
+
+[data-tenant='teget'] {
+  --color-accent: light-dark(#1f3a8a, #9db0ff);
+  --color-accent-hover: light-dark(#1b3277, #8899dc);
+  --color-on-accent: light-dark(#ffffff, #141414);
+  --color-accent-text: light-dark(#1f3a8a, #9db0ff);
+  --color-accent-subtle: light-dark(#e9ebf3, #2a2d3a);
+}
+
+[data-tenant='kobalt'] {
+  --color-accent: light-dark(#2f4bd6, #9db0ff);
+  --color-accent-hover: light-dark(#2840b8, #8899dc);
+  --color-on-accent: light-dark(#ffffff, #141414);
+  --color-accent-text: light-dark(#2f4bd6, #9db0ff);
+  --color-accent-subtle: light-dark(#eaedfb, #2a2d3a);
+}
+
+[data-tenant='smaragd'] {
+  --color-accent: light-dark(#0f6e66, #5fcdbf);
+  --color-accent-hover: light-dark(#0d5f58, #54b1a5);
+  --color-on-accent: light-dark(#ffffff, #141414);
+  --color-accent-text: light-dark(#0f6e66, #5fcdbf);
+  --color-accent-subtle: light-dark(#e7f0f0, #20322f);
+}
+
+[data-tenant='senf'] {
+  --color-accent: #e0a100;
+  --color-accent-hover: light-dark(#ca9100, #c18c03);
+  --color-on-accent: #141414;
+  --color-accent-text: light-dark(#7d5a00, #e0a100);
+  --color-accent-subtle: light-dark(#fcf6e6, #352b11);
+}
+
+[data-tenant='roze'] {
+  --color-accent: #f08bb0;
+  --color-accent-hover: light-dark(#d87d9e, #cf7999);
+  --color-on-accent: #141414;
+  --color-accent-text: light-dark(#a12a5d, #f08bb0);
+  --color-accent-subtle: light-dark(#fef3f7, #37272d);
+}

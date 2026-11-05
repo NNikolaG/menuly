@@ -1,0 +1,50 @@
+label:has(> [appSwitch]) {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-block-size: var(--touch-min);
+  font: var(--type-body);
+  cursor: pointer;
+}
+
+[appSwitch] {
+  appearance: none;
+  position: relative;
+  flex: none;
+  inline-size: var(--size-switch-width);
+  block-size: var(--size-switch-height);
+  border: var(--stroke-control) solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-sunken);
+  cursor: pointer;
+  transition: background-color var(--duration-fast);
+}
+
+[appSwitch]::after {
+  content: '';
+  position: absolute;
+  inset-block-start: calc(var(--space-1) - var(--stroke-control));
+  inset-inline-start: calc(var(--space-1) - var(--stroke-control));
+  inline-size: var(--size-switch-knob);
+  block-size: var(--size-switch-knob);
+  border-radius: var(--radius-pill);
+  background: var(--color-text-muted);
+  transition:
+    translate var(--duration-fast),
+    background-color var(--duration-fast);
+}
+
+[appSwitch]:checked {
+  background: var(--color-text);
+  border-color: var(--color-text);
+}
+
+[appSwitch]:checked::after {
+  translate: var(--size-switch-knob) 0;
+  background: var(--color-surface);
+}
+
+[appSwitch]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

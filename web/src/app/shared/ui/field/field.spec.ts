@@ -7,7 +7,12 @@ import { AppField } from './field';
 @Component({
   imports: [AppField, AppInput, FormField],
   template: `
-    <app-field label="Email" controlId="email" [field]="form.email">
+    <app-field
+      label="Email"
+      controlId="email"
+      hint="Na ovu adresu stiže račun."
+      [field]="form.email"
+    >
       <input appInput id="email" [formField]="form.email" />
     </app-field>
   `,
@@ -17,12 +22,13 @@ class Host {
 }
 
 describe('AppField', () => {
-  it('shows the error and links it to the input only after the field is touched', async () => {
+  it('links the hint, and after the field is touched the error instead', async () => {
     const fixture = TestBed.createComponent(Host);
     await fixture.whenStable();
     const input: HTMLInputElement = fixture.nativeElement.querySelector('input');
     expect(fixture.nativeElement.querySelector('label').htmlFor).toBe('email');
     expect(input.hasAttribute('aria-invalid')).toBe(false);
+    expect(input.getAttribute('aria-describedby')).toBe('email-hint');
 
     fixture.componentInstance.form.email().markAsTouched();
     await fixture.whenStable();
@@ -31,5 +37,6 @@ describe('AppField', () => {
     expect(fixture.nativeElement.querySelector('#email-error').textContent).toContain(
       'Obavezno polje.',
     );
+    expect(fixture.nativeElement.querySelector('#email-hint')).toBeNull();
   });
 });
