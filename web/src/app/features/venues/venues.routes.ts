@@ -15,6 +15,11 @@ export default [
   },
   {
     path: ':venueId',
+    title: $localize`:@@venue.pageTitle:Objekat`,
+    loadComponent: () => import('./venue-page'),
+  },
+  {
+    path: ':venueId/izmena',
     title: $localize`:@@venues.editPageTitle:Izmena objekta`,
     canActivate: [roleGuard('owner', 'manager')],
     loadComponent: () => import('./venue-form-page'),

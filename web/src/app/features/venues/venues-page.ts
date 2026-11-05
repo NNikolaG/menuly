@@ -5,8 +5,7 @@ import { LucidePencil, LucidePlus, LucideTrash2 } from '@lucide/angular';
 import { firstValueFrom } from 'rxjs';
 import { toApiError } from '../../core/api/api-error';
 import { AuthStore } from '../../core/auth/auth-store';
-import { AppButton } from '../../shared/ui';
-import { DeleteVenueDialog } from './delete-venue-dialog';
+import { AppButton, ConfirmDialog, type ConfirmDialogData } from '../../shared/ui';
 import type { Venue } from '../../core/venues/venue';
 import { venuePublicUrl } from '../../core/venues/venue-public-url';
 import { VenuesApi } from '../../core/venues/venues-api';
@@ -62,7 +61,9 @@ import { VenuesApi } from '../../core/venues/venues-api';
               @for (venue of items; track venue.id) {
                 <tr>
                   <td>
-                    <strong>{{ venue.name }}</strong>
+                    <a class="venue-link" [routerLink]="venue.id"
+                      ><strong>{{ venue.name }}</strong></a
+                    >
                     @if (venue.address) {
                       <span class="table__sub">{{ venue.address }}</span>
                     }
@@ -76,7 +77,7 @@ import { VenuesApi } from '../../core/venues/venues-api';
                         appButton
                         variant="ghost"
                         size="sm"
-                        [routerLink]="venue.id"
+                        [routerLink]="[venue.id, 'izmena']"
                         [attr.aria-label]="editLabel(venue)"
                       >
                         <svg lucidePencil aria-hidden="true"></svg>
@@ -126,6 +127,15 @@ import { VenuesApi } from '../../core/venues/venues-api';
       }
     }
 
+    .venue-link {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .venue-link:hover {
+      text-decoration: underline;
+    }
+
     td[data-num] .row {
       justify-content: flex-end;
     }
@@ -166,7 +176,13 @@ export default class VenuesPage {
   }
 
   protected async confirmDelete(venue: Venue): Promise<void> {
-    const ref = this.dialog.open<boolean, Venue>(DeleteVenueDialog, { data: venue });
+    const ref = this.dialog.open<boolean, ConfirmDialogData>(ConfirmDialog, {
+      data: {
+        title: $localize`:@@venues.delete.title:Obriši objekat?`,
+        body: $localize`:@@venues.delete.body:Objekat „${venue.name}:name:“ i njegovi meniji se brišu. Gosti više neće moći da otvore njegov meni.`,
+        confirm: $localize`:@@venues.delete.confirm:Obriši objekat`,
+      },
+    });
     if (!(await firstValueFrom(ref.closed))) return;
     this.error.set('');
     this.deleting.set(venue.id);

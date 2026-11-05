@@ -30,7 +30,7 @@ function toModel(venue: Venue | undefined): VenueModel {
   };
 }
 
-/** Create (`/objekti/novi`) and edit (`/objekti/:venueId`) a venue. */
+/** Create (`/objekti/novi`) and edit (`/objekti/:venueId/izmena`) a venue. */
 @Component({
   selector: 'app-venue-form-page',
   imports: [FormField, RouterLink, AppButton, AppField, AppInput, LucideArrowLeft],
@@ -177,10 +177,10 @@ export default class VenueFormPage {
       const input: VenueInput = { ...value, slug: value.slug || undefined };
       const id = this.venueId();
       try {
-        await firstValueFrom(
+        const saved = await firstValueFrom(
           id ? this.api.update(id, input) : this.api.create({ ...input, name: value.name }),
         );
-        await this.router.navigateByUrl('/objekti');
+        await this.router.navigate(['/objekti', saved.id]);
       } catch (error) {
         this.error.set(errorMessage(toApiError(error).code));
       }

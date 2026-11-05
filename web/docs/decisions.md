@@ -112,3 +112,8 @@ Why: the design calls for one 1.5px line icon set; Lucide is the requested one. 
 
 Loaded with a `<link>` in `index.html` (`display=swap`), no font package.
 Why: the design's fonts, both with Serbian Latin diacritics and Cyrillic; no dependency. Self-host if privacy or offline use requires it.
+
+## #24 — Menu editor on CDK drag-drop and CDK Dialog (2026-11-05)
+
+Categories and items are reordered with `@angular/cdk/drag-drop` (handle button per row, keyboard-free for now), edits open in CDK dialogs (`CategoryDialog`, `ItemDialog`, shared `ConfirmDialog`). Order is saved with one `PUT …/order {ids}` per drop, after an optimistic local move.
+Why: stays in the Angular ecosystem (no extra libs), and one request per drop matches the backend's order endpoints.

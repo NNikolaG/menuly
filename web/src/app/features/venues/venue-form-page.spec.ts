@@ -13,7 +13,7 @@ describe('VenueFormPage', () => {
       providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
     });
     http = TestBed.inject(HttpTestingController);
-    vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+    vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
   });
 
   const tick = () => new Promise((resolve) => setTimeout(resolve));
@@ -46,7 +46,7 @@ describe('VenueFormPage', () => {
     });
     request.flush(venueFixture());
     await tick();
-    expect(TestBed.inject(Router).navigateByUrl).toHaveBeenCalledWith('/objekti');
+    expect(TestBed.inject(Router).navigate).toHaveBeenCalledWith(['/objekti', 'v1']);
   });
 
   it('does not submit an invalid slug', async () => {
