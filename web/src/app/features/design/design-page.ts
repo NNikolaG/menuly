@@ -18,6 +18,7 @@ import {
   AppField,
   AppInput,
   AppMenu,
+  AppPattern,
   AppSegmented,
   AppSwitch,
   type AppMenuItem,
@@ -99,6 +100,7 @@ const RADII = ['xs', 'sm', 'md', 'lg', 'pill'];
     AppField,
     AppInput,
     AppMenu,
+    AppPattern,
     AppSegmented,
     AppSwitch,
     LucideChartColumn,
@@ -478,7 +480,7 @@ const RADII = ['xs', 'sm', 'md', 'lg', 'pill'];
       </section>
 
       <section class="stack">
-        <h2>Brend: Ticket, BrandTile, Blocks</h2>
+        <h2>Brend: Ticket, BrandTile, Pattern</h2>
         <div class="brand brand-demo stack">
           <div class="brand-grid">
             <div class="brand-tile" data-color="cobalt" data-span="2">
@@ -505,12 +507,7 @@ const RADII = ['xs', 'sm', 'md', 'lg', 'pill'];
           <div class="row" data-gap="6">
             <div class="ticket">
               <div class="ticket__art">
-                <div class="blocks">
-                  <span data-color="cobalt" data-weight="2"></span>
-                  <span data-color="orange"></span>
-                  <span data-color="amber" data-weight="3"></span>
-                  <span data-color="pink"></span>
-                </div>
+                <app-pattern seed="Kafana Zora" [cols]="4" [rows]="2" [fluid]="true" />
                 <span class="ticket__punch"></span>
               </div>
               <div class="ticket__body">
@@ -530,20 +527,59 @@ const RADII = ['xs', 'sm', 'md', 'lg', 'pill'];
       </section>
 
       <section class="stack">
+        <h2>AppPattern</h2>
+        <div class="brand brand-demo pattern-demo">
+          <app-pattern seed="Kafana Mornar" />
+          <app-pattern seed="Bar Dva Jelena" />
+          <app-pattern seed="Kafana Mornar" [cols]="4" [rows]="2" [cell]="80" />
+          <app-pattern seed="0412" [cols]="8" [rows]="1" [cell]="24" [big]="false" />
+          <app-pattern seed="Kafa" [cols]="1" [rows]="1" [cell]="24" [big]="false" />
+        </div>
+      </section>
+
+      <section class="stack">
         <h2>POS: PosTile + Receipt</h2>
         <div class="brand brand-demo pos-demo">
           <nav class="pos-nav" aria-label="Kategorije">
             <button type="button" class="pos-cat" data-color="amber" aria-current="true">
-              <span class="pos-cat__swatch"></span> Kafa
+              <app-pattern
+                class="pos-cat__swatch"
+                seed="Kafa"
+                [cols]="1"
+                [rows]="1"
+                [big]="false"
+              />
+              Kafa
             </button>
             <button type="button" class="pos-cat" data-color="periwinkle">
-              <span class="pos-cat__swatch"></span> Sokovi
+              <app-pattern
+                class="pos-cat__swatch"
+                seed="Sokovi"
+                [cols]="1"
+                [rows]="1"
+                [big]="false"
+              />
+              Sokovi
             </button>
             <button type="button" class="pos-cat" data-color="pink">
-              <span class="pos-cat__swatch"></span> Deserti
+              <app-pattern
+                class="pos-cat__swatch"
+                seed="Deserti"
+                [cols]="1"
+                [rows]="1"
+                [big]="false"
+              />
+              Deserti
             </button>
             <button type="button" class="pos-cat" data-color="cobalt">
-              <span class="pos-cat__swatch"></span> Roštilj
+              <app-pattern
+                class="pos-cat__swatch"
+                seed="Roštilj"
+                [cols]="1"
+                [rows]="1"
+                [big]="false"
+              />
+              Roštilj
             </button>
           </nav>
           <div class="pos-grid">
@@ -692,6 +728,13 @@ const RADII = ['xs', 'sm', 'md', 'lg', 'pill'];
       padding: var(--space-6);
       border-radius: var(--radius-lg);
       overflow-x: auto;
+    }
+
+    .pattern-demo {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: start;
+      gap: var(--space-4);
     }
 
     .pos-demo {

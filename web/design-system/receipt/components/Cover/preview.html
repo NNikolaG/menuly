@@ -1,0 +1,31 @@
+<!-- @dsCard height=300 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Cover</title>
+<style>
+  html, body { margin: 0; background: var(--brand-ink); }
+  .cv { position: relative; width: 960px; height: 300px; overflow: hidden; background: var(--brand-ink); }
+  .cv-text { position: absolute; left: 48px; bottom: 40px; max-width: 420px; }
+  .cv-name { font: 500 104px/0.92 var(--font-sans); letter-spacing: -0.04em; color: var(--brand-paper); margin: 0; }
+  .cv-tag { font: 400 13px/18px var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--n-300); margin: 16px 0 0; }
+  .cv-pattern { position: absolute; left: 480px; top: 0; }
+</style>
+</head>
+<body>
+<!--
+  blocks: the Bauhaus Pattern itself — 8×5 cells of 60px seeded with "Receipt": brand-ink, brand-paper and 3 of brand-orange/amber/periwinkle/cobalt/pink.
+  arrangement: one flush field from x=480 to the right edge, full height; the name on the ink ground to its left.
+  pattern: "geometric, modular" — the system's own generated pattern, because the README makes it the brand signature.
+  scales: cell 60px (space-12 + space-3), radius-none inside the field.
+-->
+<div class="cv">
+  <div class="cv-pattern" data-pattern="Receipt" data-cols="8" data-rows="5" data-cell="60"></div>
+  <div class="cv-text">
+    <h1 class="cv-name">Receipt</h1>
+    <p class="cv-tag">Design system za digitalne menije</p>
+  </div>
+</div>
+<script src="../Pattern/bauhaus-pattern.js"></script>
+<script>ReceiptPattern.renderAll();</script>
+</body>
+</html>
