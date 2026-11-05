@@ -2,6 +2,12 @@
 
 Go + Postgres, multi-tenant. Specifikacija proizvoda: [../docs/product/mvp.md](../docs/product/mvp.md). API ugovor: [api/openapi.yaml](api/openapi.yaml).
 
+## API dokumentacija (za web i iOS)
+
+- **Izvor istine:** [`api/openapi.yaml`](api/openapi.yaml) (OpenAPI 3.1). Svaka operacija ima `operationId`, pa se iz nje može generisati klijent za Angular (npr. `openapi-generator` ili `ng-openapi-gen`).
+- **Interaktivno:** pokrenut API servira Swagger UI na `http://localhost:8080/docs` i sam spec na `/openapi.yaml` (isključuje se sa `DOCS_ENABLED=false`).
+- **Ne može da zastari:** test `TestOpenAPICoversRoutes` pada ako neka ruta u routeru nije u spec-u, ili ako spec opisuje rutu koja ne postoji. CI još proverava validnost spec-a (Redocly).
+
 ## Pokretanje
 
 ```sh
@@ -73,6 +79,18 @@ Objekti (`/v1/venues`): čitanje svi članovi, kreiranje i brisanje `owner`, izm
 
 Javni meni je na `{tenant-slug}.menuly.app/{venue-slug}`. `tenants.slug` je globalno jedinstven i služi kao poddomen (bira se pri registraciji kao `tenant_slug` ili se pravi iz naziva biznisa; rezervisani su `www`, `api`, `app`, `admin` i još par tehničkih imena). `venues.slug` je jedinstven samo unutar tenanta i ne sme biti `en`, `sr`, `api` ni `assets` (te putanje koristi web app). `venues.ocr_import_limit` (podrazumevano 3) ograničava broj OCR uvoza po objektu.
 
+## Meniji
+
+Hijerarhija: objekat → meni → kategorija → stavka → varijanta (cena). Stavka uvek ima bar jednu varijantu; stavka sa jednom cenom ima varijantu sa praznim `label`. Cene su `price_minor` u najmanjoj jedinici valute objekta.
+
+- `GET /v1/menus/{id}` vraća celo stablo za admin editor, sortirano po `position`.
+- Redosled (drag & drop): `PUT .../categories/order` i `PUT .../items/order` sa svim ID-jevima u novom redosledu.
+- Objava: `POST /v1/menus/{id}/publish`; objekat ima najviše jedan objavljen meni (`venue.active_menu_id`).
+- Svaka promena cene (pojedinačna ili masovna `POST /v1/menus/{id}/price-adjustments`) upisuje red u `price_changes`.
+- Prevodi: `translations` jsonb, npr. `{"en": {"name": "Drinks"}}`; osnovna polja su na srpskom.
+- Uloge: svi čitaju; `owner` i `manager` uređuju; `staff` sme samo `PATCH /v1/items/{id}/status` (nema na stanju / sakrij).
+- Deca referenciraju roditelja preko `(id, tenant_id)`, pa ni direktan SQL ne može da veže stavku za kategoriju drugog tenanta.
+
 ## Struktura
 
 ```
@@ -93,5 +111,6 @@ backend/
 - Pozivnice za članove tima i reset lozinke (treba slanje emaila).
 - Ograničenje `manager`/`staff` na određene objekte (`memberships.venue_ids` postoji u šemi, provera još ne).
 - `platform_admin` rute (kolona `users.is_platform_admin` postoji).
-- Domen menija: meniji, kategorije, stavke, varijante, istorija cena, promocije, tema, OCR uvoz, javni meni.
+- Javni meni (keširan JSON po `{tenant}.menuly.app/{venue}`, `?lang=en`, nedostupne stavke na dnu kategorije).
+- Promocije / kombo, tema menija, upload slika (MinIO), OCR uvoz.
 - Rate limiting za login/register.

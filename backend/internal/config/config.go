@@ -26,6 +26,8 @@ type Config struct {
 	AccessTokenTTL  time.Duration `env:"ACCESS_TOKEN_TTL" envDefault:"15m"`
 	RefreshTokenTTL time.Duration `env:"REFRESH_TOKEN_TTL" envDefault:"720h"`
 
+	DocsEnabled bool `env:"DOCS_ENABLED" envDefault:"true"`
+
 	CORSAllowedOrigins []string `env:"CORS_ALLOWED_ORIGINS" envSeparator:"," envDefault:"http://localhost:4200"`
 }
 
