@@ -1,13 +1,27 @@
 openapi: 3.1.0
 info:
   title: Menuly API
-  version: 0.1.0
+  version: 0.2.0
   description: |
     Multi-tenant API for Menuly. All authenticated routes act inside the tenant
     carried by the access token (`tid` claim). Switch tenants with
     `POST /v1/auth/switch-tenant`.
 
     Errors always have the shape `{"error": {"code": "...", "message": "..."}}`.
+    Validation errors are 422 `validation_failed`; a resource of another tenant is always 404.
+
+    Prices are integers in the minor unit of the venue currency (`price_minor`: 35000 = 350,00 RSD).
+    Text fields are Serbian; other languages go in `translations`.
+
+    Interactive docs: `/docs` (Swagger UI) on a running API.
+tags:
+  - { name: System }
+  - { name: Auth }
+  - { name: Venues }
+  - { name: Menus }
+  - { name: Categories }
+  - { name: Items }
+  - { name: Prices }
 servers:
   - url: http://localhost:8080
 security:
@@ -15,20 +29,43 @@ security:
 paths:
   /healthz:
     get:
+      operationId: healthz
+      tags: [System]
       summary: Liveness
       security: []
       responses:
         "200": { description: OK }
   /readyz:
     get:
+      operationId: readyz
+      tags: [System]
       summary: Readiness (checks the database)
       security: []
       responses:
         "200": { description: Ready }
         "503": { description: Database unavailable }
 
+  /openapi.yaml:
+    get:
+      operationId: getOpenApi
+      tags: [System]
+      summary: This OpenAPI document
+      security: []
+      responses:
+        "200": { description: OK }
+  /docs:
+    get:
+      operationId: getDocs
+      tags: [System]
+      summary: Swagger UI for this document
+      security: []
+      responses:
+        "200": { description: HTML page }
+
   /v1/auth/register:
     post:
+      operationId: register
+      tags: [Auth]
       summary: Register an owner and create their tenant
       security: []
       requestBody:
@@ -68,6 +105,8 @@ paths:
         "422": { $ref: "#/components/responses/Error" }
   /v1/auth/login:
     post:
+      operationId: login
+      tags: [Auth]
       summary: Log in
       description: Without `tenant_id` the first active tenant of the user is used.
       security: []
@@ -92,6 +131,8 @@ paths:
         "403": { $ref: "#/components/responses/Error" }
   /v1/auth/refresh:
     post:
+      operationId: refreshToken
+      tags: [Auth]
       summary: Rotate the refresh token
       description: Each refresh token works once. Reusing a used token revokes all sessions of the user.
       security: []
@@ -109,6 +150,8 @@ paths:
         "401": { $ref: "#/components/responses/Error" }
   /v1/auth/logout:
     post:
+      operationId: logout
+      tags: [Auth]
       summary: Revoke a refresh token
       security: []
       requestBody:
@@ -120,6 +163,8 @@ paths:
         "204": { description: Revoked (also returned for unknown tokens) }
   /v1/auth/switch-tenant:
     post:
+      operationId: switchTenant
+      tags: [Auth]
       summary: Get tokens for another tenant the user belongs to
       requestBody:
         required: true
@@ -140,6 +185,8 @@ paths:
 
   /v1/me:
     get:
+      operationId: getMe
+      tags: [Auth]
       summary: Current user, tenant, role and all memberships
       responses:
         "200":
@@ -165,6 +212,8 @@ paths:
 
   /v1/venues:
     get:
+      operationId: listVenues
+      tags: [Venues]
       summary: List venues of the current tenant
       responses:
         "200":
@@ -178,6 +227,8 @@ paths:
                     type: array
                     items: { $ref: "#/components/schemas/Venue" }
     post:
+      operationId: createVenue
+      tags: [Venues]
       summary: Create a venue (owner)
       description: |
         When `slug` is omitted it is generated from `name` (Serbian Latin/Cyrillic transliterated).
@@ -203,6 +254,8 @@ paths:
     parameters:
       - { name: venueID, in: path, required: true, schema: { type: string, format: uuid } }
     get:
+      operationId: getVenue
+      tags: [Venues]
       summary: Get a venue
       responses:
         "200":
@@ -212,6 +265,8 @@ paths:
               schema: { $ref: "#/components/schemas/Venue" }
         "404": { $ref: "#/components/responses/Error" }
     patch:
+      operationId: updateVenue
+      tags: [Venues]
       summary: Update a venue (owner, manager). Omitted fields are unchanged.
       requestBody:
         required: true
@@ -229,13 +284,459 @@ paths:
         "409": { $ref: "#/components/responses/Error" }
         "422": { $ref: "#/components/responses/Error" }
     delete:
+      operationId: deleteVenue
+      tags: [Venues]
       summary: Delete a venue (owner)
       responses:
         "204": { description: Deleted }
         "403": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
 
+  /v1/venues/{venueID}/menus:
+    parameters:
+      - $ref: "#/components/parameters/VenueID"
+    get:
+      operationId: listMenus
+      tags: [Menus]
+      summary: List menus of a venue (without content)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/Menu" } }
+        "404": { $ref: "#/components/responses/Error" }
+    post:
+      operationId: createMenu
+      tags: [Menus]
+      summary: Create a draft menu (owner, manager)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string, maxLength: 200 }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Menu" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+
+  /v1/menus/{menuID}:
+    parameters:
+      - $ref: "#/components/parameters/MenuID"
+    get:
+      operationId: getMenu
+      tags: [Menus]
+      summary: Full menu tree for the admin editor
+      description: |
+        Categories, their items and each item's variants, every level ordered by `position`.
+        Hidden and unavailable entries are included (this is the admin view, not the public menu).
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MenuTree" }
+        "404": { $ref: "#/components/responses/Error" }
+    patch:
+      operationId: updateMenu
+      tags: [Menus]
+      summary: Rename a menu (owner, manager)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string, maxLength: 200 }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Menu" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+    delete:
+      operationId: deleteMenu
+      tags: [Menus]
+      summary: Delete a menu with all its content (owner, manager)
+      responses:
+        "204": { description: Deleted }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+  /v1/menus/{menuID}/publish:
+    parameters:
+      - $ref: "#/components/parameters/MenuID"
+    post:
+      operationId: publishMenu
+      tags: [Menus]
+      summary: Publish (owner, manager)
+      description: |
+        Makes this the venue's only published menu: any other published menu of the venue
+        goes back to `draft`, and `venue.active_menu_id` points to this menu.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Menu" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+  /v1/menus/{menuID}/unpublish:
+    parameters:
+      - $ref: "#/components/parameters/MenuID"
+    post:
+      operationId: unpublishMenu
+      tags: [Menus]
+      summary: Back to draft (owner, manager); clears venue.active_menu_id if it was published
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Menu" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+  /v1/menus/{menuID}/categories:
+    parameters:
+      - $ref: "#/components/parameters/MenuID"
+    post:
+      operationId: createCategory
+      tags: [Categories]
+      summary: Add a category at the end of the menu (owner, manager)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/CategoryInput"
+                - required: [name]
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Category" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+  /v1/menus/{menuID}/categories/order:
+    parameters:
+      - $ref: "#/components/parameters/MenuID"
+    put:
+      operationId: reorderCategories
+      tags: [Categories]
+      summary: Reorder categories (drag & drop) (owner, manager)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/OrderInput" }
+      responses:
+        "200":
+          description: Categories in the new order
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/Category" } }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+  /v1/menus/{menuID}/price-adjustments:
+    parameters:
+      - $ref: "#/components/parameters/MenuID"
+    post:
+      operationId: adjustPrices
+      tags: [Prices]
+      summary: Bulk price change for the whole menu or one category (owner, manager)
+      description: |
+        Exactly one of `percent` or `amount_minor`. Each changed price is written to the price history.
+        Example: `{"category_id": "...", "percent": 10, "round_to_minor": 1000}` raises drinks by 10%
+        and rounds to the nearest 10 RSD.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                category_id: { type: string, format: uuid, description: "Limit to one category of this menu" }
+                percent: { type: number, minimum: -90, maximum: 500, description: "+10 = 10% more" }
+                amount_minor: { type: integer, format: int64, description: "Added to every price (negative to lower)" }
+                round_to_minor: { type: integer, format: int64, minimum: 0, default: 0, description: "Round to the nearest multiple; 0 = no rounding" }
+      responses:
+        "200":
+          description: Number of prices that changed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  updated: { type: integer }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+
+  /v1/categories/{categoryID}:
+    parameters:
+      - $ref: "#/components/parameters/CategoryID"
+    patch:
+      operationId: updateCategory
+      tags: [Categories]
+      summary: Update a category (owner, manager). Omitted fields are unchanged.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CategoryInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Category" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+    delete:
+      operationId: deleteCategory
+      tags: [Categories]
+      summary: Delete a category and its items (owner, manager)
+      responses:
+        "204": { description: Deleted }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+  /v1/categories/{categoryID}/items:
+    parameters:
+      - $ref: "#/components/parameters/CategoryID"
+    post:
+      operationId: createItem
+      tags: [Items]
+      summary: Add an item at the end of the category (owner, manager)
+      description: Send `price_minor` for a single price, or `variants` for sizes (not both).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ItemCreate" }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ItemWithVariants" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+  /v1/categories/{categoryID}/items/order:
+    parameters:
+      - $ref: "#/components/parameters/CategoryID"
+    put:
+      operationId: reorderItems
+      tags: [Items]
+      summary: Reorder items in a category (owner, manager)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/OrderInput" }
+      responses:
+        "204": { description: Reordered }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+
+  /v1/items/{itemID}:
+    parameters:
+      - $ref: "#/components/parameters/ItemID"
+    get:
+      operationId: getItem
+      tags: [Items]
+      summary: Get an item with its variants
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ItemWithVariants" }
+        "404": { $ref: "#/components/responses/Error" }
+    patch:
+      operationId: updateItem
+      tags: [Items]
+      summary: Update an item (owner, manager). Omitted fields are unchanged.
+      description: Setting `category_id` moves the item to the end of another category of the same menu.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/ItemInput"
+                - type: object
+                  properties:
+                    category_id: { type: string, format: uuid }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ItemWithVariants" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+    delete:
+      operationId: deleteItem
+      tags: [Items]
+      summary: Delete an item (owner, manager)
+      responses:
+        "204": { description: Deleted }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+  /v1/items/{itemID}/status:
+    parameters:
+      - $ref: "#/components/parameters/ItemID"
+    patch:
+      operationId: updateItemStatus
+      tags: [Items]
+      summary: Quick toggle "nema na stanju" / hide (every role, including staff)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              minProperties: 1
+              properties:
+                is_available: { type: boolean }
+                is_visible: { type: boolean }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Item" }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+  /v1/items/{itemID}/variants:
+    parameters:
+      - $ref: "#/components/parameters/ItemID"
+    post:
+      operationId: createVariant
+      tags: [Items]
+      summary: Add a variant (size) to an item (owner, manager). Max 20 per item.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/VariantInput"
+                - required: [price_minor]
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Variant" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+
+  /v1/variants/{variantID}:
+    parameters:
+      - $ref: "#/components/parameters/VariantID"
+    patch:
+      operationId: updateVariant
+      tags: [Prices]
+      summary: Change a variant's label or price (owner, manager)
+      description: A changed `price_minor` is written to the price history.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/VariantInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Variant" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+    delete:
+      operationId: deleteVariant
+      tags: [Items]
+      summary: Delete a variant (owner, manager)
+      description: The last variant of an item cannot be deleted (409 `last_variant`); delete the item instead.
+      responses:
+        "204": { description: Deleted }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+  /v1/variants/{variantID}/price-history:
+    parameters:
+      - $ref: "#/components/parameters/VariantID"
+    get:
+      operationId: getPriceHistory
+      tags: [Prices]
+      summary: Price history of a variant (newest first, last 100)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/PriceChange" } }
+        "404": { $ref: "#/components/responses/Error" }
+
 components:
+  parameters:
+    VenueID:
+      name: venueID
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    MenuID:
+      name: menuID
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    CategoryID:
+      name: categoryID
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    ItemID:
+      name: itemID
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    VariantID:
+      name: variantID
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
   securitySchemes:
     bearer:
       type: http
@@ -311,5 +812,148 @@ components:
         timezone: { type: string }
         opening_hours: { type: object, additionalProperties: true }
         ocr_import_limit: { type: integer, description: "OCR imports allowed for this venue (read-only, default 3)" }
+        active_menu_id: { type: [string, "null"], format: uuid, description: "The published menu guests see" }
         created_at: { type: string, format: date-time }
         updated_at: { type: string, format: date-time }
+    Translations:
+      type: object
+      description: |
+        Translations keyed by 2-letter language code (not `sr`; Serbian is the base field).
+        Example: `{"en": {"name": "Drinks", "description": "..."}}`. Send `null` or `{}` to clear.
+      additionalProperties:
+        type: object
+        additionalProperties: { type: string }
+      example: { en: { name: Drinks } }
+    OrderInput:
+      type: object
+      required: [ids]
+      description: Every child ID exactly once, in the new order.
+      properties:
+        ids: { type: array, items: { type: string, format: uuid } }
+    Menu:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        tenant_id: { type: string, format: uuid }
+        venue_id: { type: string, format: uuid }
+        name: { type: string }
+        status: { type: string, enum: [draft, published] }
+        published_at: { type: [string, "null"], format: date-time }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    MenuTree:
+      allOf:
+        - $ref: "#/components/schemas/Menu"
+        - type: object
+          properties:
+            categories:
+              type: array
+              items:
+                allOf:
+                  - $ref: "#/components/schemas/Category"
+                  - type: object
+                    properties:
+                      items: { type: array, items: { $ref: "#/components/schemas/ItemWithVariants" } }
+    CategoryInput:
+      type: object
+      properties:
+        name: { type: string, maxLength: 200 }
+        description: { type: string }
+        translations: { $ref: "#/components/schemas/Translations" }
+        is_visible: { type: boolean, default: true }
+    Category:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        tenant_id: { type: string, format: uuid }
+        menu_id: { type: string, format: uuid }
+        name: { type: string }
+        description: { type: string }
+        translations: { $ref: "#/components/schemas/Translations" }
+        position: { type: integer }
+        is_visible: { type: boolean }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    ItemInput:
+      type: object
+      properties:
+        name: { type: string, maxLength: 200 }
+        description: { type: string }
+        translations:
+          allOf:
+            - $ref: "#/components/schemas/Translations"
+          description: "Allowed fields: name, description"
+        image_url: { type: string, format: uri }
+        tags: { type: array, maxItems: 20, items: { type: string, maxLength: 40 }, description: "Lowercased and de-duplicated, e.g. vegan, ljuto" }
+        allergens: { type: array, maxItems: 20, items: { type: string, maxLength: 40 } }
+        is_available: { type: boolean, default: true, description: "false = nema na stanju" }
+        is_visible: { type: boolean, default: true }
+    ItemCreate:
+      allOf:
+        - $ref: "#/components/schemas/ItemInput"
+        - type: object
+          required: [name]
+          properties:
+            price_minor: { type: integer, format: int64, minimum: 0, description: "Single price; creates one variant with an empty label" }
+            variants:
+              type: array
+              minItems: 1
+              maxItems: 20
+              items:
+                allOf:
+                  - $ref: "#/components/schemas/VariantInput"
+                  - required: [price_minor]
+    Item:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        tenant_id: { type: string, format: uuid }
+        category_id: { type: string, format: uuid }
+        name: { type: string }
+        description: { type: string }
+        translations: { $ref: "#/components/schemas/Translations" }
+        image_url: { type: string }
+        tags: { type: array, items: { type: string } }
+        allergens: { type: array, items: { type: string } }
+        position: { type: integer }
+        is_available: { type: boolean }
+        is_visible: { type: boolean }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    ItemWithVariants:
+      allOf:
+        - $ref: "#/components/schemas/Item"
+        - type: object
+          properties:
+            variants: { type: array, items: { $ref: "#/components/schemas/Variant" } }
+    VariantInput:
+      type: object
+      properties:
+        label: { type: string, maxLength: 100, description: "e.g. 0,5 l; empty for a single price" }
+        translations:
+          allOf:
+            - $ref: "#/components/schemas/Translations"
+          description: "Allowed field: label"
+        price_minor: { type: integer, format: int64, minimum: 0, description: "Minor units of the venue currency (35000 = 350,00 RSD)" }
+    Variant:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        tenant_id: { type: string, format: uuid }
+        item_id: { type: string, format: uuid }
+        label: { type: string }
+        translations: { $ref: "#/components/schemas/Translations" }
+        price_minor: { type: integer, format: int64 }
+        position: { type: integer }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    PriceChange:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        tenant_id: { type: string, format: uuid }
+        variant_id: { type: string, format: uuid }
+        old_price_minor: { type: integer, format: int64 }
+        new_price_minor: { type: integer, format: int64 }
+        changed_by: { type: [string, "null"], format: uuid }
+        changed_at: { type: string, format: date-time }

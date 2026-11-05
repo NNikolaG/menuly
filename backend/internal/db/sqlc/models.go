@@ -11,6 +11,31 @@ import (
 	"github.com/google/uuid"
 )
 
+type Category struct {
+	ID           uuid.UUID       `json:"id"`
+	TenantID     uuid.UUID       `json:"tenant_id"`
+	MenuID       uuid.UUID       `json:"menu_id"`
+	Name         string          `json:"name"`
+	Description  string          `json:"description"`
+	Translations json.RawMessage `json:"translations"`
+	Position     int32           `json:"position"`
+	IsVisible    bool            `json:"is_visible"`
+	CreatedAt    time.Time       `json:"created_at"`
+	UpdatedAt    time.Time       `json:"updated_at"`
+}
+
+type ItemVariant struct {
+	ID           uuid.UUID       `json:"id"`
+	TenantID     uuid.UUID       `json:"tenant_id"`
+	ItemID       uuid.UUID       `json:"item_id"`
+	Label        string          `json:"label"`
+	Translations json.RawMessage `json:"translations"`
+	PriceMinor   int64           `json:"price_minor"`
+	Position     int32           `json:"position"`
+	CreatedAt    time.Time       `json:"created_at"`
+	UpdatedAt    time.Time       `json:"updated_at"`
+}
+
 type Membership struct {
 	TenantID  uuid.UUID   `json:"tenant_id"`
 	UserID    uuid.UUID   `json:"user_id"`
@@ -18,6 +43,44 @@ type Membership struct {
 	VenueIds  []uuid.UUID `json:"venue_ids"`
 	CreatedAt time.Time   `json:"created_at"`
 	UpdatedAt time.Time   `json:"updated_at"`
+}
+
+type Menu struct {
+	ID          uuid.UUID  `json:"id"`
+	TenantID    uuid.UUID  `json:"tenant_id"`
+	VenueID     uuid.UUID  `json:"venue_id"`
+	Name        string     `json:"name"`
+	Status      string     `json:"status"`
+	PublishedAt *time.Time `json:"published_at"`
+	CreatedAt   time.Time  `json:"created_at"`
+	UpdatedAt   time.Time  `json:"updated_at"`
+}
+
+type MenuItem struct {
+	ID           uuid.UUID       `json:"id"`
+	TenantID     uuid.UUID       `json:"tenant_id"`
+	CategoryID   uuid.UUID       `json:"category_id"`
+	Name         string          `json:"name"`
+	Description  string          `json:"description"`
+	Translations json.RawMessage `json:"translations"`
+	ImageUrl     string          `json:"image_url"`
+	Tags         []string        `json:"tags"`
+	Allergens    []string        `json:"allergens"`
+	Position     int32           `json:"position"`
+	IsAvailable  bool            `json:"is_available"`
+	IsVisible    bool            `json:"is_visible"`
+	CreatedAt    time.Time       `json:"created_at"`
+	UpdatedAt    time.Time       `json:"updated_at"`
+}
+
+type PriceChange struct {
+	ID            uuid.UUID  `json:"id"`
+	TenantID      uuid.UUID  `json:"tenant_id"`
+	VariantID     uuid.UUID  `json:"variant_id"`
+	OldPriceMinor int64      `json:"old_price_minor"`
+	NewPriceMinor int64      `json:"new_price_minor"`
+	ChangedBy     *uuid.UUID `json:"changed_by"`
+	ChangedAt     time.Time  `json:"changed_at"`
 }
 
 type RefreshToken struct {
@@ -64,4 +127,5 @@ type Venue struct {
 	OcrImportLimit int32           `json:"ocr_import_limit"`
 	CreatedAt      time.Time       `json:"created_at"`
 	UpdatedAt      time.Time       `json:"updated_at"`
+	ActiveMenuID   *uuid.UUID      `json:"active_menu_id"`
 }

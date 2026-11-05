@@ -31,18 +31,20 @@ import (
 )
 
 var (
-	srv      *httptest.Server
-	appDB    *db.DB
-	ownerURL string
+	dbAvailable bool
+	srv         *httptest.Server
+	appDB       *db.DB
+	ownerURL    string
 )
 
 func TestMain(m *testing.M) {
 	appURL := os.Getenv("TEST_DATABASE_URL")
 	ownerURL = os.Getenv("TEST_MIGRATE_DATABASE_URL")
 	if appURL == "" || ownerURL == "" {
-		fmt.Println("skipping integration tests: TEST_DATABASE_URL / TEST_MIGRATE_DATABASE_URL not set")
-		os.Exit(0)
+		fmt.Println("integration tests will be skipped: TEST_DATABASE_URL / TEST_MIGRATE_DATABASE_URL not set")
+		os.Exit(m.Run())
 	}
+	dbAvailable = true
 	slog.SetDefault(slog.New(slog.NewTextHandler(io.Discard, nil)))
 	ctx := context.Background()
 	if err := resetSchema(ctx, ownerURL); err != nil {
@@ -72,6 +74,14 @@ func resetSchema(ctx context.Context, url string) error {
 	defer pool.Close()
 	_, err = pool.Exec(ctx, `DROP SCHEMA public CASCADE; CREATE SCHEMA public;`)
 	return err
+}
+
+// needDB skips tests that need Postgres when it is not configured.
+func needDB(t *testing.T) {
+	t.Helper()
+	if !dbAvailable {
+		t.Skip("TEST_DATABASE_URL not set")
+	}
 }
 
 type resp struct {
@@ -142,6 +152,7 @@ func createVenue(t *testing.T, a account, name string) string {
 }
 
 func TestAuthFlow(t *testing.T) {
+	needDB(t)
 	a := register(t, "Kafić Test")
 
 	// Duplicate email.
@@ -181,6 +192,7 @@ func TestAuthFlow(t *testing.T) {
 }
 
 func TestTenantIsolationOverHTTP(t *testing.T) {
+	needDB(t)
 	a, b := register(t, "Tenant A"), register(t, "Tenant B")
 	va := createVenue(t, a, "A venue")
 	createVenue(t, b, "B venue")
@@ -209,6 +221,7 @@ func TestTenantIsolationOverHTTP(t *testing.T) {
 // TestRLSWithoutAppFilters proves the database itself enforces isolation,
 // even for queries that forget the tenant_id filter.
 func TestRLSWithoutAppFilters(t *testing.T) {
+	needDB(t)
 	ctx := context.Background()
 	a, b := register(t, "RLS A"), register(t, "RLS B")
 	createVenue(t, a, "rls a")
@@ -254,6 +267,7 @@ func TestRLSWithoutAppFilters(t *testing.T) {
 }
 
 func TestRoles(t *testing.T) {
+	needDB(t)
 	ctx := context.Background()
 	owner := register(t, "Roles")
 	v := createVenue(t, owner, "Main")
@@ -303,6 +317,7 @@ func TestRoles(t *testing.T) {
 }
 
 func TestVenueValidationAndUpdate(t *testing.T) {
+	needDB(t)
 	a := register(t, "Validation")
 	expect(t, call(t, "POST", "/v1/venues", a.access, map[string]string{}), http.StatusUnprocessableEntity)
 	expect(t, call(t, "POST", "/v1/venues", a.access, map[string]string{"name": "x", "currency": "dinar"}), http.StatusUnprocessableEntity)
@@ -322,6 +337,7 @@ func TestVenueValidationAndUpdate(t *testing.T) {
 }
 
 func TestTenantAndVenueSlugs(t *testing.T) {
+	needDB(t)
 	// Auto slug from business name; the same name twice gets distinct slugs.
 	reg := func(body map[string]string) resp {
 		body["name"], body["password"] = "T", "secret123"
