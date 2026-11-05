@@ -25,7 +25,7 @@ src/
         ├── auth/           # login, registration
         ├── dashboard/
         ├── design/         # /design
-        ├── venues/         # /objekti, template for feature APIs
+        ├── venues/         # /objekti list, /objekti/novi, /objekti/:venueId
         └── public-menu/    # guest menu on the tenant subdomain
 ```
 
@@ -59,7 +59,7 @@ Every API call goes through `ApiClient` (`core/api/api-client.ts`); nothing else
 
 - **Base URL:** `environment.apiBaseUrl` (`src/environments/`), provided as `API_BASE_URL` in `app.config.ts`. It is `/api` in both builds: `/api/v1/x` reaches the API's `/v1/x` through `proxy.conf.json` in dev and nginx (`API_UPSTREAM`) in Docker. An absolute URL works too, but then the API's CORS must allow the web origin.
 - **Paths** are API paths (`/v1/venues`), never with the base URL.
-- **One API class per resource**, next to its feature (`features/venues/venues-api.ts`), or in `core/` when app-wide (`core/auth/auth-api.ts`). Response types next to it; shared ones in `core/api/api-types.ts`.
+- **One API class per resource**, next to its feature, or in `core/` once two features need it (`core/venues/venues-api.ts`, `core/auth/auth-api.ts`). Response types next to it; shared ones in `core/api/api-types.ts`.
 - **Reads** are signal resources: `xxxResource()` returns `api.resource<T>(() => path | { path, query } | undefined)` (an `httpResource`). Call it in a field initializer; it reloads when the signals it reads change and stays idle on `undefined`. Templates use `isLoading()`, `error()`, `value()`, `reload()`.
 - **Writes** return Observables (`api.post/patch/delete`) that fail with `ApiError` (`status`, `code`). In components: `await firstValueFrom(api.create(...))`, then `reload()` the affected resources.
 - **Errors:** `toApiError(error)` turns anything (also a resource's `error()`) into `ApiError`; map `code` to a Serbian message, never show the API's English `message`.

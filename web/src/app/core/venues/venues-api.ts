@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import type { Observable } from 'rxjs';
-import { ApiClient } from '../../core/api/api-client';
+import { ApiClient } from '../api/api-client';
 import type { Venue, VenueInput, VenueList } from './venue';
 
 /**

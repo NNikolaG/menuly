@@ -30,20 +30,12 @@
           <context context-type="linenumber">11</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="shell.nav" datatype="html">
-        <source>Glavna navigacija</source>
-        <target>Main navigation</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/core/layout/admin-shell.ts</context>
-          <context context-type="linenumber">24,25</context>
-        </context-group>
-      </trans-unit>
       <trans-unit id="shell.nav.overview" datatype="html">
         <source>Pregled</source>
         <target>Overview</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/core/layout/admin-shell.ts</context>
-          <context context-type="linenumber">25,26</context>
+          <context context-type="linenumber">30</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shell.nav.venues" datatype="html">
@@ -51,347 +43,15 @@
         <target>Venues</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/core/layout/admin-shell.ts</context>
-          <context context-type="linenumber">26,29</context>
+          <context context-type="linenumber">35</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="shell.switchTenant" datatype="html">
-        <source>Pređi na <x id="tenant" equiv-text="membership.tenant_name"/></source>
-        <target>Switch to <x id="tenant" equiv-text="membership.tenant_name"/></target>
+      <trans-unit id="shell.nav" datatype="html">
+        <source>Glavna navigacija</source>
+        <target>Main navigation</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/core/layout/admin-shell.ts</context>
-          <context context-type="linenumber">45</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="shell.logout" datatype="html">
-        <source>Odjava</source>
-        <target>Sign out</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/core/layout/admin-shell.ts</context>
-          <context context-type="linenumber">47</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="notFound.heading" datatype="html">
-        <source>Stranica nije pronađena</source>
-        <target>Page not found</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/core/layout/not-found-page.ts</context>
-          <context context-type="linenumber">6,7</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="notFound.body" datatype="html">
-        <source>Proverite adresu ili se vratite na početnu stranu.</source>
-        <target>Check the address or go back to the home page.</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/core/layout/not-found-page.ts</context>
-          <context context-type="linenumber">7,10</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="auth.login.heading" datatype="html">
-        <source>Prijava</source>
-        <target>Sign in</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/auth/login-page.ts</context>
-          <context context-type="linenumber">12,13</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="auth.email" datatype="html">
-        <source>Email</source>
-        <target>Email</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/auth/login-page.ts</context>
-          <context context-type="linenumber">17</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/auth/register-page.ts</context>
-          <context context-type="linenumber">33</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="auth.password" datatype="html">
-        <source>Lozinka</source>
-        <target>Password</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/auth/login-page.ts</context>
-          <context context-type="linenumber">31</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/auth/register-page.ts</context>
-          <context context-type="linenumber">47</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="auth.login.submit" datatype="html">
-        <source> Prijavi se </source>
-        <target>Sign in</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/auth/login-page.ts</context>
-          <context context-type="linenumber">46,48</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="auth.login.noAccount" datatype="html">
-        <source>Nemate nalog?</source>
-        <target>No account yet?</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/auth/login-page.ts</context>
-          <context context-type="linenumber">50,51</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="auth.login.toRegister" datatype="html">
-        <source>Registrujte se</source>
-        <target>Sign up</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/auth/login-page.ts</context>
-          <context context-type="linenumber">51,55</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="auth.login.invalidCredentials" datatype="html">
-        <source>Pogrešan email ili lozinka.</source>
-        <target>Wrong email or password.</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/auth/login-page.ts</context>
-          <context context-type="linenumber">86</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="auth.tenantSuspended" datatype="html">
-        <source>Nalog je suspendovan.</source>
-        <target>This account is suspended.</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/auth/login-page.ts</context>
-          <context context-type="linenumber">88</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="auth.unknownError" datatype="html">
-        <source>Nešto nije u redu. Pokušajte ponovo.</source>
-        <target>Something went wrong. Please try again.</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/auth/login-page.ts</context>
-          <context context-type="linenumber">90</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/auth/register-page.ts</context>
-          <context context-type="linenumber">144</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="auth.register.heading" datatype="html">
-        <source>Registracija</source>
-        <target>Sign up</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/auth/register-page.ts</context>
-          <context context-type="linenumber">20,21</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="auth.name" datatype="html">
-        <source>Ime i prezime</source>
-        <target>Full name</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/auth/register-page.ts</context>
-          <context context-type="linenumber">24,25</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="auth.register.businessName" datatype="html">
-        <source>Naziv biznisa</source>
-        <target>Business name</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/auth/register-page.ts</context>
-          <context context-type="linenumber">60,62</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="auth.register.tenantSlug" datatype="html">
-        <source>Poddomen (opciono)</source>
-        <target>Subdomain (optional)</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/auth/register-page.ts</context>
-          <context context-type="linenumber">73,75</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="auth.register.submit" datatype="html">
-        <source> Napravi nalog </source>
-        <target>Create account</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/auth/register-page.ts</context>
-          <context context-type="linenumber">88,90</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="auth.register.haveAccount" datatype="html">
-        <source>Već imate nalog?</source>
-        <target>Already have an account?</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/auth/register-page.ts</context>
-          <context context-type="linenumber">92,93</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="auth.register.toLogin" datatype="html">
-        <source>Prijavite se</source>
-        <target>Sign in</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/auth/register-page.ts</context>
-          <context context-type="linenumber">93,97</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="auth.register.tenantSlugPattern" datatype="html">
-        <source>Samo mala slova, brojevi i crtice.</source>
-        <target>Lowercase letters, numbers and hyphens only.</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/auth/register-page.ts</context>
-          <context context-type="linenumber">111</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="auth.register.emailTaken" datatype="html">
-        <source>Nalog sa ovim emailom već postoji.</source>
-        <target>An account with this email already exists.</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/auth/register-page.ts</context>
-          <context context-type="linenumber">140</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="auth.register.tenantSlugTaken" datatype="html">
-        <source>Ovaj poddomen je zauzet.</source>
-        <target>This subdomain is taken.</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/auth/register-page.ts</context>
-          <context context-type="linenumber">142</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="dashboard.heading" datatype="html">
-        <source>Pregled</source>
-        <target>Overview</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/dashboard/dashboard-page.ts</context>
-          <context context-type="linenumber">7,8</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="dashboard.welcome" datatype="html">
-        <source>Dobro došli, <x id="INTERPOLATION" equiv-text="{{ me.user.name }}"/>.</source>
-        <target>Welcome, <x id="INTERPOLATION" equiv-text="{{ me.user.name }}"/>.</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/dashboard/dashboard-page.ts</context>
-          <context context-type="linenumber">9,12</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="dashboard.pageTitle" datatype="html">
-        <source>Pregled</source>
-        <target>Overview</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/dashboard/dashboard.routes.ts</context>
-          <context context-type="linenumber">6</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="design.heading" datatype="html">
-        <source>Dizajn sistem</source>
-        <target>Design system</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/design/design-page.ts</context>
-          <context context-type="linenumber">10,13</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="design.pageTitle" datatype="html">
-        <source>Dizajn sistem</source>
-        <target>Design system</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/design/design.routes.ts</context>
-          <context context-type="linenumber">6</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="publicMenu.heading" datatype="html">
-        <source>Meni: <x id="INTERPOLATION" equiv-text="{{ venueSlug() }}"/></source>
-        <target>Menu: <x id="INTERPOLATION" equiv-text="{{ venueSlug() }}"/></target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/public-menu/public-menu-page.ts</context>
-          <context context-type="linenumber">6,8</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="publicMenu.pageTitle" datatype="html">
-        <source>Meni</source>
-        <target>Menu</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/public-menu/public-menu.routes.ts</context>
-          <context context-type="linenumber">6</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="venues.heading" datatype="html">
-        <source>Objekti</source>
-        <target>Venues</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
-          <context context-type="linenumber">9,10</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="common.loading" datatype="html">
-        <source>Učitavanje…</source>
-        <target>Loading…</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
-          <context context-type="linenumber">11,12</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="venues.loadError" datatype="html">
-        <source>Objekti nisu učitani.</source>
-        <target>Venues could not be loaded.</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
-          <context context-type="linenumber">13,14</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="common.retry" datatype="html">
-        <source>Pokušaj ponovo</source>
-        <target>Try again</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
-          <context context-type="linenumber">14,16</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="venues.createdAt" datatype="html">
-        <source>Dodat <x id="INTERPOLATION" equiv-text="{{ venue.created_at | date: &apos;mediumDate&apos; }}"/></source>
-        <target>Added <x id="INTERPOLATION" equiv-text="{{ venue.created_at | date: &apos;mediumDate&apos; }}"/></target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
-          <context context-type="linenumber">20,21</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="venues.empty" datatype="html">
-        <source>Još nema objekata.</source>
-        <target>No venues yet.</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
-          <context context-type="linenumber">23,28</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="venues.pageTitle" datatype="html">
-        <source>Objekti</source>
-        <target>Venues</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/venues/venues.routes.ts</context>
-          <context context-type="linenumber">6</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="ui.field.required" datatype="html">
-        <source>Obavezno polje.</source>
-        <target>This field is required.</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/shared/ui/field/field.ts</context>
-          <context context-type="linenumber">38</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="ui.field.email" datatype="html">
-        <source>Unesite ispravnu email adresu.</source>
-        <target>Enter a valid email address.</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/shared/ui/field/field.ts</context>
-          <context context-type="linenumber">40</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="ui.field.minLength" datatype="html">
-        <source>Unesite najmanje <x id="count" equiv-text="count"/> karaktera.</source>
-        <target>Enter at least <x id="count" equiv-text="count"/> characters.</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/shared/ui/field/field.ts</context>
-          <context context-type="linenumber">43</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="ui.field.invalid" datatype="html">
-        <source>Neispravna vrednost.</source>
-        <target>Invalid value.</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/shared/ui/field/field.ts</context>
-          <context context-type="linenumber">46</context>
+          <context context-type="linenumber">51,52</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shell.theme.light" datatype="html">
@@ -416,6 +76,38 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/core/layout/admin-shell.ts</context>
           <context context-type="linenumber">217</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shell.switchTenant" datatype="html">
+        <source>Pređi na <x id="tenant" equiv-text="membership.tenant_name"/></source>
+        <target>Switch to <x id="tenant" equiv-text="membership.tenant_name"/></target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/layout/admin-shell.ts</context>
+          <context context-type="linenumber">230</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shell.logout" datatype="html">
+        <source>Odjava</source>
+        <target>Sign out</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/layout/admin-shell.ts</context>
+          <context context-type="linenumber">233</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="notFound.heading" datatype="html">
+        <source>Stranica nije pronađena</source>
+        <target>Page not found</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/layout/not-found-page.ts</context>
+          <context context-type="linenumber">6,7</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="notFound.body" datatype="html">
+        <source>Proverite adresu ili se vratite na početnu stranu.</source>
+        <target>Check the address or go back to the home page.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/layout/not-found-page.ts</context>
+          <context context-type="linenumber">7,10</context>
         </context-group>
       </trans-unit>
       <trans-unit id="auth.brand.label" datatype="html">
@@ -480,6 +172,638 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/auth/auth-layout.ts</context>
           <context context-type="linenumber">42,43</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.login.heading" datatype="html">
+        <source>Prijava</source>
+        <target>Sign in</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/login-page.ts</context>
+          <context context-type="linenumber">13,14</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.email" datatype="html">
+        <source>Email</source>
+        <target>Email</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/login-page.ts</context>
+          <context context-type="linenumber">18</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/register-page.ts</context>
+          <context context-type="linenumber">34</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.password" datatype="html">
+        <source>Lozinka</source>
+        <target>Password</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/login-page.ts</context>
+          <context context-type="linenumber">32</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/register-page.ts</context>
+          <context context-type="linenumber">48</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.login.submit" datatype="html">
+        <source> Prijavi se </source>
+        <target>Sign in</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/login-page.ts</context>
+          <context context-type="linenumber">53,55</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.login.noAccount" datatype="html">
+        <source>Nemate nalog?</source>
+        <target>No account yet?</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/login-page.ts</context>
+          <context context-type="linenumber">57,58</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.login.toRegister" datatype="html">
+        <source>Registrujte se</source>
+        <target>Sign up</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/login-page.ts</context>
+          <context context-type="linenumber">58,60</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.login.invalidCredentials" datatype="html">
+        <source>Pogrešan email ili lozinka.</source>
+        <target>Wrong email or password.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/login-page.ts</context>
+          <context context-type="linenumber">110</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.tenantSuspended" datatype="html">
+        <source>Nalog je suspendovan.</source>
+        <target>This account is suspended.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/login-page.ts</context>
+          <context context-type="linenumber">112</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.unknownError" datatype="html">
+        <source>Nešto nije u redu. Pokušajte ponovo.</source>
+        <target>Something went wrong. Please try again.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/login-page.ts</context>
+          <context context-type="linenumber">114</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/register-page.ts</context>
+          <context context-type="linenumber">163</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">201</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.register.heading" datatype="html">
+        <source>Registracija</source>
+        <target>Sign up</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/register-page.ts</context>
+          <context context-type="linenumber">21,22</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.name" datatype="html">
+        <source>Ime i prezime</source>
+        <target>Full name</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/register-page.ts</context>
+          <context context-type="linenumber">25,26</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.register.businessName" datatype="html">
+        <source>Naziv biznisa</source>
+        <target>Business name</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/register-page.ts</context>
+          <context context-type="linenumber">61,62</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.register.tenantSlug" datatype="html">
+        <source>Poddomen (opciono)</source>
+        <target>Subdomain (optional)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/register-page.ts</context>
+          <context context-type="linenumber">74,76</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.register.submit" datatype="html">
+        <source> Napravi nalog </source>
+        <target>Create account</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/register-page.ts</context>
+          <context context-type="linenumber">90,92</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.register.haveAccount" datatype="html">
+        <source>Već imate nalog?</source>
+        <target>Already have an account?</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/register-page.ts</context>
+          <context context-type="linenumber">94,95</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.register.toLogin" datatype="html">
+        <source>Prijavite se</source>
+        <target>Sign in</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/register-page.ts</context>
+          <context context-type="linenumber">95,97</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.register.tenantSlugPattern" datatype="html">
+        <source>Samo mala slova, brojevi i crtice.</source>
+        <target>Lowercase letters, numbers and hyphens only.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/register-page.ts</context>
+          <context context-type="linenumber">130</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.register.emailTaken" datatype="html">
+        <source>Nalog sa ovim emailom već postoji.</source>
+        <target>An account with this email already exists.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/register-page.ts</context>
+          <context context-type="linenumber">159</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.register.tenantSlugTaken" datatype="html">
+        <source>Ovaj poddomen je zauzet.</source>
+        <target>This subdomain is taken.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/register-page.ts</context>
+          <context context-type="linenumber">161</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="dashboard.welcome" datatype="html">
+        <source>Dobro došli, <x id="INTERPOLATION" equiv-text="{{ me.user.name }}"/>.</source>
+        <target>Welcome, <x id="INTERPOLATION" equiv-text="{{ me.user.name }}"/>.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/dashboard/dashboard-page.ts</context>
+          <context context-type="linenumber">19,20</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="dashboard.heading" datatype="html">
+        <source>Pregled</source>
+        <target>Overview</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/dashboard/dashboard-page.ts</context>
+          <context context-type="linenumber">21,25</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="dashboard.venuesStat" datatype="html">
+        <source>Objekti</source>
+        <target>Venues</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/dashboard/dashboard-page.ts</context>
+          <context context-type="linenumber">28,29</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="dashboard.firstStep" datatype="html">
+        <source>Prvi korak</source>
+        <target>First step</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/dashboard/dashboard-page.ts</context>
+          <context context-type="linenumber">35,36</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="dashboard.addVenueTitle" datatype="html">
+        <source>Dodaj svoj prvi objekat</source>
+        <target>Add your first venue</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/dashboard/dashboard-page.ts</context>
+          <context context-type="linenumber">36,37</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="dashboard.addVenueBody" datatype="html">
+        <source> Objekat dobija svoj javni link i meni koji gosti otvaraju preko QR koda. </source>
+        <target>A venue gets its own public link and a menu guests open from a QR code.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/dashboard/dashboard-page.ts</context>
+          <context context-type="linenumber">38,40</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.add" datatype="html">
+        <source>Dodaj objekat</source>
+        <target>Add venue</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/dashboard/dashboard-page.ts</context>
+          <context context-type="linenumber">44,45</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
+          <context context-type="linenumber">24,25</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="dashboard.publicLink" datatype="html">
+        <source>Javni link</source>
+        <target>Public link</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/dashboard/dashboard-page.ts</context>
+          <context context-type="linenumber">51,52</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="dashboard.allVenues" datatype="html">
+        <source>Svi objekti</source>
+        <target>All venues</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/dashboard/dashboard-page.ts</context>
+          <context context-type="linenumber">56,57</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="dashboard.pageTitle" datatype="html">
+        <source>Pregled</source>
+        <target>Overview</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/dashboard/dashboard.routes.ts</context>
+          <context context-type="linenumber">6</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="design.heading" datatype="html">
+        <source>Dizajn sistem</source>
+        <target>Design system</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/design/design-page.ts</context>
+          <context context-type="linenumber">115,117</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="design.pageTitle" datatype="html">
+        <source>Dizajn sistem</source>
+        <target>Design system</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/design/design.routes.ts</context>
+          <context context-type="linenumber">6</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="publicMenu.heading" datatype="html">
+        <source>Meni: <x id="INTERPOLATION" equiv-text="{{ venueSlug() }}"/></source>
+        <target>Menu: <x id="INTERPOLATION" equiv-text="{{ venueSlug() }}"/></target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/public-menu/public-menu-page.ts</context>
+          <context context-type="linenumber">6,8</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="publicMenu.pageTitle" datatype="html">
+        <source>Meni</source>
+        <target>Menu</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/public-menu/public-menu.routes.ts</context>
+          <context context-type="linenumber">6</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.delete.title" datatype="html">
+        <source>Obriši objekat?</source>
+        <target>Delete venue?</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/delete-venue-dialog.ts</context>
+          <context context-type="linenumber">11,12</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.delete.body" datatype="html">
+        <source>Objekat „<x id="INTERPOLATION" equiv-text="{{ venue.name }}"/>“ i njegovi meniji se brišu. Gosti više neće moći da otvore njegov meni.</source>
+        <target>The venue “<x id="INTERPOLATION" equiv-text="{{ venue.name }}"/>” and its menus are deleted. Guests will no longer be able to open its menu.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/delete-venue-dialog.ts</context>
+          <context context-type="linenumber">13,14</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="common.cancel" datatype="html">
+        <source> Otkaži </source>
+        <target>Cancel</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/delete-venue-dialog.ts</context>
+          <context context-type="linenumber">24,26</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">114,116</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.delete.confirm" datatype="html">
+        <source> Obriši objekat </source>
+        <target>Delete venue</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/delete-venue-dialog.ts</context>
+          <context context-type="linenumber">34,36</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.backToList" datatype="html">
+        <source>Objekti</source>
+        <target>Venues</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">42,44</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.notFound" datatype="html">
+        <source>Objekat nije pronađen.</source>
+        <target>Venue not found.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">48,49</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="common.loading" datatype="html">
+        <source>Učitavanje…</source>
+        <target>Loading…</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">50,52</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
+          <context context-type="linenumber">34,35</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.field.name" datatype="html">
+        <source>Naziv</source>
+        <target>Name</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">56</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.field.slug" datatype="html">
+        <source>Slug</source>
+        <target>Slug</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">64</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.field.address" datatype="html">
+        <source>Adresa</source>
+        <target>Address</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">73</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.field.phone" datatype="html">
+        <source>Telefon</source>
+        <target>Phone</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">87</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.field.currency" datatype="html">
+        <source>Valuta</source>
+        <target>Currency</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">101</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.field.slugPattern" datatype="html">
+        <source>Samo mala slova, brojevi i crtice, npr. centar-1.</source>
+        <target>Lowercase letters, numbers and hyphens only, e.g. centar-1.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">146</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.field.currencyPattern" datatype="html">
+        <source>Unesi troslovnu oznaku, npr. RSD.</source>
+        <target>Enter a three-letter code, e.g. RSD.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">151</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.editHeading" datatype="html">
+        <source>Izmena objekta</source>
+        <target>Edit venue</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">158</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.newHeading" datatype="html">
+        <source>Novi objekat</source>
+        <target>New venue</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">159</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="common.save" datatype="html">
+        <source>Sačuvaj</source>
+        <target>Save</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">162</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.create" datatype="html">
+        <source>Dodaj objekat</source>
+        <target>Add venue</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">162</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.field.slugEmptyHint" datatype="html">
+        <source>Ostavi prazno i napravićemo ga od naziva.</source>
+        <target>Leave empty and we will make one from the name.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">167</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.field.slugHint" datatype="html">
+        <source>Javni link: <x id="url" equiv-text="url"/></source>
+        <target>Public link: <x id="url" equiv-text="url"/></target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">169</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.slugTaken" datatype="html">
+        <source>Ovaj slug već koristi drugi objekat.</source>
+        <target>Another venue already uses this slug.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">195</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="common.forbidden" datatype="html">
+        <source>Nemaš dozvolu za ovu radnju.</source>
+        <target>You are not allowed to do this.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">197</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
+          <context context-type="linenumber">179</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.validationFailed" datatype="html">
+        <source>Proveri unete podatke.</source>
+        <target>Check the details you entered.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">199</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.heading" datatype="html">
+        <source>Objekti</source>
+        <target>Venues</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
+          <context context-type="linenumber">20,21</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.loadError" datatype="html">
+        <source>Objekti nisu učitani.</source>
+        <target>Venues could not be loaded.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
+          <context context-type="linenumber">37,39</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="common.retry" datatype="html">
+        <source> Pokušaj ponovo </source>
+        <target>Try again</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
+          <context context-type="linenumber">46,47</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.col.name" datatype="html">
+        <source>Objekat</source>
+        <target>Venue</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
+          <context context-type="linenumber">55,56</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.col.link" datatype="html">
+        <source>Javni link</source>
+        <target>Public link</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
+          <context context-type="linenumber">56,57</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.col.currency" datatype="html">
+        <source>Valuta</source>
+        <target>Currency</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
+          <context context-type="linenumber">57,58</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="common.actions" datatype="html">
+        <source>Akcije</source>
+        <target>Actions</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
+          <context context-type="linenumber">58,59</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.empty" datatype="html">
+        <source>Još nema objekata.</source>
+        <target>No venues yet.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
+          <context context-type="linenumber">105,106</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.emptyBody" datatype="html">
+        <source> Dodaj prvi objekat, pa mu uvezi ili napravi meni. </source>
+        <target>Add your first venue, then import or build its menu.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
+          <context context-type="linenumber">107,109</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.editLabel" datatype="html">
+        <source>Izmeni <x id="name" equiv-text="venue.name"/></source>
+        <target>Edit <x id="name" equiv-text="venue.name"/></target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
+          <context context-type="linenumber">161</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.deleteLabel" datatype="html">
+        <source>Obriši <x id="name" equiv-text="venue.name"/></source>
+        <target>Delete <x id="name" equiv-text="venue.name"/></target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
+          <context context-type="linenumber">165</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.deleteError" datatype="html">
+        <source>Objekat nije obrisan. Pokušaj ponovo.</source>
+        <target>The venue was not deleted. Try again.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
+          <context context-type="linenumber">180</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.pageTitle" datatype="html">
+        <source>Objekti</source>
+        <target>Venues</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venues.routes.ts</context>
+          <context context-type="linenumber">7</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.newPageTitle" datatype="html">
+        <source>Novi objekat</source>
+        <target>New venue</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venues.routes.ts</context>
+          <context context-type="linenumber">12</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.editPageTitle" datatype="html">
+        <source>Izmena objekta</source>
+        <target>Edit venue</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venues.routes.ts</context>
+          <context context-type="linenumber">18</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ui.field.required" datatype="html">
+        <source>Obavezno polje.</source>
+        <target>This field is required.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/ui/field/field.ts</context>
+          <context context-type="linenumber">84</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ui.field.email" datatype="html">
+        <source>Unesite ispravnu email adresu.</source>
+        <target>Enter a valid email address.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/ui/field/field.ts</context>
+          <context context-type="linenumber">86</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ui.field.minLength" datatype="html">
+        <source>Unesite najmanje <x id="count" equiv-text="count"/> karaktera.</source>
+        <target>Enter at least <x id="count" equiv-text="count"/> characters.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/ui/field/field.ts</context>
+          <context context-type="linenumber">89</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ui.field.invalid" datatype="html">
+        <source>Neispravna vrednost.</source>
+        <target>Invalid value.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/ui/field/field.ts</context>
+          <context context-type="linenumber">92</context>
         </context-group>
       </trans-unit>
     </body>
