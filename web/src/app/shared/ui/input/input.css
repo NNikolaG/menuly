@@ -1,3 +1,39 @@
 [appInput] {
   inline-size: 100%;
+  block-size: var(--control-md);
+  padding-inline: var(--space-3) var(--suffix-space, var(--space-3));
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: var(--stroke-control) solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  font: var(--type-body);
+}
+
+[appInput]:focus-visible {
+  outline-offset: 0;
+}
+
+textarea[appInput] {
+  block-size: auto;
+  min-block-size: var(--textarea-min-height);
+  padding-block: var(--space-2);
+  resize: vertical;
+}
+
+[appInput][data-variant='price'] {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
+
+[appInput][aria-invalid='true'] {
+  border-color: var(--color-danger);
+  background: var(--color-danger-subtle);
+}
+
+[appInput]:disabled {
+  background: var(--color-surface-sunken);
+  color: var(--color-text-disabled);
+  border-color: var(--color-border);
+  cursor: not-allowed;
 }

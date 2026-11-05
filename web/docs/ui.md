@@ -56,9 +56,15 @@ Ramps (raw) → semantic tokens by role (`--color-surface`, not `--color-red`), 
 }
 ```
 
+Type styles are `font` shorthand tokens (`font: var(--type-h3)`) plus `--tracking-*` where the design sets letter spacing. Tenant accent presets: `data-tenant="<key>"` on the dashboard or public-menu wrapper changes only the five `--color-accent*` tokens. Brand surfaces (login, POS, ads) use `--color-brand-*` and `--color-paper-*`, the same in both themes.
+
 ## Theme
 
-`ThemeStore` in `core/` (`light | dark | system`, persisted) sets `data-theme` on `<html>`; an inline script in `index.html` applies it before first paint. No `prefers-color-scheme` outside tokens.
+`ThemeStore` in `core/theme/` (`light | dark | system`, persisted under `menuly.theme`) sets `data-theme` on `<html>`, or removes it for system; an inline script in `index.html` applies it before first paint. `:root` has `color-scheme: light dark`, so `light-dark()` follows the OS without any `prefers-color-scheme`. A `data-theme` on any element themes just that subtree (used on `/design`).
+
+## Icons
+
+Lucide (`@lucide/angular`), one component per icon: `<svg lucideLogOut></svg>`, stroke 1.5px, size 16/18/20 (default 18), color from the text next to it. Decorative by default (`aria-hidden`); an icon-only button needs an `aria-label`. No emoji in the UI.
 
 ## Global layers
 
@@ -66,6 +72,8 @@ Ramps (raw) → semantic tokens by role (`--color-surface`, not `--color-red`), 
 - `utilities`: `gap` layout helpers; no margin or color utilities.
 - `patterns`: one class per pattern, variants via `data-*`.
 - Layer order decides conflicts.
+- Pattern class names follow the design's `r-*` classes without the prefix; parts are `pattern__part`, variants are `data-*` (`data-tone`, `data-variant`, `data-color`, `data-size`, `data-span`).
+- Media queries can't read tokens: the one breakpoint is `720px` (compact), written literally.
 
 ## Primitives
 

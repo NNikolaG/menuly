@@ -1,5 +1,6 @@
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { provideLucideConfig } from '@lucide/angular';
 import {
   provideRouter,
   TitleStrategy,
@@ -20,5 +21,6 @@ export const appConfig: ApplicationConfig = {
     ),
     provideHttpClient(withInterceptors([authInterceptor])),
     { provide: TitleStrategy, useClass: AppTitleStrategy },
+    provideLucideConfig({ strokeWidth: 1.5, size: 18 }),
   ],
 };
