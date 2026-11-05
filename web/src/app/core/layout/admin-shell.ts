@@ -161,6 +161,7 @@ const NEXT_THEME: Record<ThemePreference, ThemePreference> = {
     @media (max-width: 720px) {
       :host {
         grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto 1fr;
       }
 
       .sidebar {
