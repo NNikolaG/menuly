@@ -182,6 +182,8 @@
   block-size: var(--size-ticket-punch-height);
   border-radius: var(--radius-pill);
   background: var(--color-brand-ink);
+  box-shadow: 0 0 0 var(--stroke-punch-ring) var(--color-brand-paper);
+  z-index: 1;
 }
 .ticket__body {
   display: flex;
@@ -324,6 +326,11 @@
   background: var(--color-surface-inverse);
   color: var(--color-text-inverse);
   font: var(--type-mark);
+}
+.sidebar__mark.pattern {
+  --cell: calc(var(--size-mark) / 2);
+  place-items: stretch;
+  overflow: hidden;
 }
 .sidebar__venue-name {
   font: var(--type-h4);
@@ -767,6 +774,18 @@
 }
 .receipt__total span {
   font: var(--type-pos-price);
+}
+/* Order stamp: pattern seeded by the order number, flush with the receipt's bottom edge. */
+.receipt__stamp {
+  overflow: hidden;
+  margin: var(--space-4) calc(var(--space-6) * -1) calc(var(--space-6) * -1);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+.receipt__stamp .pattern {
+  inline-size: 100%;
+  aspect-ratio: var(--cols) / var(--rows);
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--rows), minmax(0, 1fr));
 }
 .receipt__actions {
   display: flex;
