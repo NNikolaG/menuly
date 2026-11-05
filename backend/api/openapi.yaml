@@ -181,7 +181,7 @@ paths:
       summary: Create a venue (owner)
       description: |
         When `slug` is omitted it is generated from `name` (Serbian Latin/Cyrillic transliterated).
-        The slug is unique within the tenant; the public menu lives at {tenant_slug}.menuly.app/{venue_slug}.
+        The slug is unique within the tenant and may not be en, sr, api or assets (used by the web app); the public menu lives at {tenant_slug}.menuly.app/{venue_slug}.
       requestBody:
         required: true
         content:

@@ -355,6 +355,12 @@ func TestTenantAndVenueSlugs(t *testing.T) {
 	b := account{access: r2.body["access_token"].(string)}
 	expect(t, call(t, "POST", "/v1/venues", a.access, map[string]string{"name": "Centar"}), http.StatusCreated)
 	expect(t, call(t, "POST", "/v1/venues", b.access, map[string]string{"name": "Centar"}), http.StatusCreated)
+	expect(t, call(t, "POST", "/v1/venues", a.access, map[string]string{"name": "x", "slug": "en"}), http.StatusUnprocessableEntity)
+	r = call(t, "POST", "/v1/venues", a.access, map[string]string{"name": "EN"})
+	expect(t, r, http.StatusCreated)
+	if r.body["slug"] == "en" {
+		t.Fatal("auto slug took reserved path en")
+	}
 	r = call(t, "POST", "/v1/venues", a.access, map[string]string{"name": "Centar"})
 	expect(t, r, http.StatusConflict)
 	if errCode(r) != "slug_taken" {

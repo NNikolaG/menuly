@@ -71,7 +71,7 @@ Objekti (`/v1/venues`): čitanje svi članovi, kreiranje i brisanje `owner`, izm
 
 ## Javne adrese
 
-Javni meni je na `{tenant-slug}.menuly.app/{venue-slug}`. `tenants.slug` je globalno jedinstven i služi kao poddomen (bira se pri registraciji kao `tenant_slug` ili se pravi iz naziva biznisa; rezervisani su `www`, `api`, `app`, `admin` i još par tehničkih imena). `venues.slug` je jedinstven samo unutar tenanta. `venues.ocr_import_limit` (podrazumevano 3) ograničava broj OCR uvoza po objektu.
+Javni meni je na `{tenant-slug}.menuly.app/{venue-slug}`. `tenants.slug` je globalno jedinstven i služi kao poddomen (bira se pri registraciji kao `tenant_slug` ili se pravi iz naziva biznisa; rezervisani su `www`, `api`, `app`, `admin` i još par tehničkih imena). `venues.slug` je jedinstven samo unutar tenanta i ne sme biti `en`, `sr`, `api` ni `assets` (te putanje koristi web app). `venues.ocr_import_limit` (podrazumevano 3) ograničava broj OCR uvoza po objektu.
 
 ## Struktura
 

@@ -51,6 +51,10 @@ var reservedTenantSlugs = map[string]bool{
 	"help": true, "support": true, "status": true, "blog": true,
 }
 
+// Paths the web app uses on the tenant subdomain ({tenant}.menuly.app/en/...,
+// /api/...), so a venue cannot take them.
+var reservedVenueSlugs = map[string]bool{"en": true, "sr": true, "api": true, "assets": true}
+
 func validateTenantSlug(slug string) *APIError {
 	if !slugRe.MatchString(slug) || len(slug) > maxTenantSlugLen {
 		return errValidation("tenant_slug may contain only a-z, 0-9 and single dashes (max 40)")
@@ -93,6 +97,9 @@ func (in *venueInput) normalize() *APIError {
 		*in.Slug = strings.ToLower(*in.Slug)
 		if !slugRe.MatchString(*in.Slug) || len(*in.Slug) > 60 {
 			return errValidation("slug may contain only a-z, 0-9 and single dashes (max 60)")
+		}
+		if reservedVenueSlugs[*in.Slug] {
+			return errValidation("slug is reserved")
 		}
 	}
 	if in.Currency != nil {
@@ -151,6 +158,9 @@ func (s *Server) handleCreateVenue(w http.ResponseWriter, r *http.Request) {
 	}
 	if in.Slug == nil || trim(*in.Slug) == "" {
 		slug := slugify(*in.Name)
+		if slug == "" || reservedVenueSlugs[slug] {
+			slug = strings.Trim(slug+"-"+randomSuffix(), "-")
+		}
 		in.Slug = &slug
 	}
 	if apiErr := in.normalize(); apiErr != nil {
