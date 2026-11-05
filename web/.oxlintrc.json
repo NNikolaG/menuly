@@ -1,0 +1,56 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc", "import"],
+  "categories": { "correctness": "error" },
+  "ignorePatterns": ["dist/**", ".angular/**", "node_modules/**"],
+  "overrides": [
+    {
+      "files": ["src/app/shared/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "regex": "^\\.\\.?/(.*/)?(core|features)(/|$)",
+                "message": "shared/ may not import core/ or features/."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/app/core/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "regex": "^\\.\\.?/(.*/)?features(/|$)",
+                "message": "core/ may not import features/."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/app/features/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "regex": "^\\.\\./[^./][^/]*(/|$)|(^|/)features/",
+                "message": "A feature may not import another feature."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

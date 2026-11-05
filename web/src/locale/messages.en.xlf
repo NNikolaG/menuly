@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="sr-Latn" target-language="en" datatype="plaintext" original="ng2.template">
+    <body>
+      <trans-unit id="auth.login.pageTitle" datatype="html">
+        <source>Prijava</source>
+        <target>Sign in</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.routes.ts</context>
+          <context context-type="linenumber">15</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.register.pageTitle" datatype="html">
+        <source>Registracija</source>
+        <target>Sign up</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.routes.ts</context>
+          <context context-type="linenumber">21</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="notFound.pageTitle" datatype="html">
+        <source>Stranica nije pronađena</source>
+        <target>Page not found</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.routes.ts</context>
+          <context context-type="linenumber">38</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/public-menu/public-menu.routes.ts</context>
+          <context context-type="linenumber">11</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shell.brand" datatype="html">
+        <source>Menuly</source>
+        <target>Menuly</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/layout/admin-shell.ts</context>
+          <context context-type="linenumber">14,15</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shell.switchTenant" datatype="html">
+        <source>Pređi na <x id="tenant" equiv-text="membership.tenant_name"/></source>
+        <target>Switch to <x id="tenant" equiv-text="membership.tenant_name"/></target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/layout/admin-shell.ts</context>
+          <context context-type="linenumber">41</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shell.logout" datatype="html">
+        <source>Odjava</source>
+        <target>Sign out</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/layout/admin-shell.ts</context>
+          <context context-type="linenumber">43</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="notFound.heading" datatype="html">
+        <source>Stranica nije pronađena</source>
+        <target>Page not found</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/layout/not-found-page.ts</context>
+          <context context-type="linenumber">6,7</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="notFound.body" datatype="html">
+        <source>Proverite adresu ili se vratite na početnu stranu.</source>
+        <target>Check the address or go back to the home page.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/layout/not-found-page.ts</context>
+          <context context-type="linenumber">7,10</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.login.heading" datatype="html">
+        <source>Prijava</source>
+        <target>Sign in</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/login-page.ts</context>
+          <context context-type="linenumber">12,13</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.email" datatype="html">
+        <source>Email</source>
+        <target>Email</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/login-page.ts</context>
+          <context context-type="linenumber">17</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/register-page.ts</context>
+          <context context-type="linenumber">33</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.password" datatype="html">
+        <source>Lozinka</source>
+        <target>Password</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/login-page.ts</context>
+          <context context-type="linenumber">31</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/register-page.ts</context>
+          <context context-type="linenumber">47</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.login.submit" datatype="html">
+        <source> Prijavi se </source>
+        <target>Sign in</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/login-page.ts</context>
+          <context context-type="linenumber">46,48</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.login.noAccount" datatype="html">
+        <source>Nemate nalog?</source>
+        <target>No account yet?</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/login-page.ts</context>
+          <context context-type="linenumber">50,51</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.login.toRegister" datatype="html">
+        <source>Registrujte se</source>
+        <target>Sign up</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/login-page.ts</context>
+          <context context-type="linenumber">51,55</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.login.invalidCredentials" datatype="html">
+        <source>Pogrešan email ili lozinka.</source>
+        <target>Wrong email or password.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/login-page.ts</context>
+          <context context-type="linenumber">86</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.tenantSuspended" datatype="html">
+        <source>Nalog je suspendovan.</source>
+        <target>This account is suspended.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/login-page.ts</context>
+          <context context-type="linenumber">88</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.unknownError" datatype="html">
+        <source>Nešto nije u redu. Pokušajte ponovo.</source>
+        <target>Something went wrong. Please try again.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/login-page.ts</context>
+          <context context-type="linenumber">90</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/register-page.ts</context>
+          <context context-type="linenumber">144</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.register.heading" datatype="html">
+        <source>Registracija</source>
+        <target>Sign up</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/register-page.ts</context>
+          <context context-type="linenumber">20,21</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.name" datatype="html">
+        <source>Ime i prezime</source>
+        <target>Full name</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/register-page.ts</context>
+          <context context-type="linenumber">24,25</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.register.businessName" datatype="html">
+        <source>Naziv biznisa</source>
+        <target>Business name</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/register-page.ts</context>
+          <context context-type="linenumber">60,62</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.register.tenantSlug" datatype="html">
+        <source>Poddomen (opciono)</source>
+        <target>Subdomain (optional)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/register-page.ts</context>
+          <context context-type="linenumber">73,75</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.register.submit" datatype="html">
+        <source> Napravi nalog </source>
+        <target>Create account</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/register-page.ts</context>
+          <context context-type="linenumber">88,90</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.register.haveAccount" datatype="html">
+        <source>Već imate nalog?</source>
+        <target>Already have an account?</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/register-page.ts</context>
+          <context context-type="linenumber">92,93</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.register.toLogin" datatype="html">
+        <source>Prijavite se</source>
+        <target>Sign in</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/register-page.ts</context>
+          <context context-type="linenumber">93,97</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.register.tenantSlugPattern" datatype="html">
+        <source>Samo mala slova, brojevi i crtice.</source>
+        <target>Lowercase letters, numbers and hyphens only.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/register-page.ts</context>
+          <context context-type="linenumber">111</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.register.emailTaken" datatype="html">
+        <source>Nalog sa ovim emailom već postoji.</source>
+        <target>An account with this email already exists.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/register-page.ts</context>
+          <context context-type="linenumber">140</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.register.tenantSlugTaken" datatype="html">
+        <source>Ovaj poddomen je zauzet.</source>
+        <target>This subdomain is taken.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/register-page.ts</context>
+          <context context-type="linenumber">142</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="dashboard.heading" datatype="html">
+        <source>Pregled</source>
+        <target>Overview</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/dashboard/dashboard-page.ts</context>
+          <context context-type="linenumber">7,8</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="dashboard.welcome" datatype="html">
+        <source>Dobro došli, <x id="INTERPOLATION" equiv-text="{{ me.user.name }}"/>.</source>
+        <target>Welcome, <x id="INTERPOLATION" equiv-text="{{ me.user.name }}"/>.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/dashboard/dashboard-page.ts</context>
+          <context context-type="linenumber">9,12</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="dashboard.pageTitle" datatype="html">
+        <source>Pregled</source>
+        <target>Overview</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/dashboard/dashboard.routes.ts</context>
+          <context context-type="linenumber">6</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="design.heading" datatype="html">
+        <source>Dizajn sistem</source>
+        <target>Design system</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/design/design-page.ts</context>
+          <context context-type="linenumber">10,13</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="design.pageTitle" datatype="html">
+        <source>Dizajn sistem</source>
+        <target>Design system</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/design/design.routes.ts</context>
+          <context context-type="linenumber">6</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="publicMenu.heading" datatype="html">
+        <source>Meni: <x id="INTERPOLATION" equiv-text="{{ venueSlug() }}"/></source>
+        <target>Menu: <x id="INTERPOLATION" equiv-text="{{ venueSlug() }}"/></target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/public-menu/public-menu-page.ts</context>
+          <context context-type="linenumber">6,8</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="publicMenu.pageTitle" datatype="html">
+        <source>Meni</source>
+        <target>Menu</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/public-menu/public-menu.routes.ts</context>
+          <context context-type="linenumber">6</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ui.field.required" datatype="html">
+        <source>Obavezno polje.</source>
+        <target>This field is required.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/ui/field/field.ts</context>
+          <context context-type="linenumber">38</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ui.field.email" datatype="html">
+        <source>Unesite ispravnu email adresu.</source>
+        <target>Enter a valid email address.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/ui/field/field.ts</context>
+          <context context-type="linenumber">40</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ui.field.minLength" datatype="html">
+        <source>Unesite najmanje <x id="count" equiv-text="count"/> karaktera.</source>
+        <target>Enter at least <x id="count" equiv-text="count"/> characters.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/ui/field/field.ts</context>
+          <context context-type="linenumber">43</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ui.field.invalid" datatype="html">
+        <source>Neispravna vrednost.</source>
+        <target>Invalid value.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/ui/field/field.ts</context>
+          <context context-type="linenumber">46</context>
+        </context-group>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

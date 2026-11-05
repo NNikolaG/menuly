@@ -1,0 +1,46 @@
+# Local development stack: `docker compose up --build`
+# API: http://localhost:8080  (health: /healthz, /readyz)
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: menuly
+      POSTGRES_PASSWORD: menuly
+      POSTGRES_DB: menuly
+      APP_DB_PASSWORD: menuly_app
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./deploy/postgres/init.sh:/docker-entrypoint-initdb.d/10-init.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U menuly -d menuly"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  migrate:
+    build: ./backend
+    command: ["migrate", "up"]
+    environment: &api-env
+      APP_ENV: development
+      DATABASE_URL: postgres://menuly_app:menuly_app@postgres:5432/menuly?sslmode=disable
+      MIGRATE_DATABASE_URL: postgres://menuly:menuly@postgres:5432/menuly?sslmode=disable
+      JWT_SECRET: dev-only-secret-change-me-in-production-0123456789
+      CORS_ALLOWED_ORIGINS: http://localhost:4200
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    build: ./backend
+    command: ["serve"]
+    environment: *api-env
+    ports:
+      - "8080:8080"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+volumes:
+  pgdata:

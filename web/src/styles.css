@@ -1,0 +1,9 @@
+@layer reset, tokens, base, ui, patterns, utilities;
+
+@import './styles/reset.css' layer(reset);
+@import './styles/tokens.css' layer(tokens);
+@import './styles/base.css' layer(base);
+@import './app/shared/ui/button/button.css' layer(ui);
+@import './app/shared/ui/input/input.css' layer(ui);
+@import './styles/patterns.css' layer(patterns);
+@import './styles/utilities.css' layer(utilities);
