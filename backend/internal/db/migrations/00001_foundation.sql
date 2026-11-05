@@ -63,6 +63,8 @@ CREATE INDEX refresh_tokens_user_idx ON refresh_tokens (user_id);
 CREATE TABLE tenants (
     id          uuid PRIMARY KEY,
     name        text NOT NULL,
+    -- Public subdomain: {slug}.menuly.app. Globally unique, DNS-label safe.
+    slug        citext NOT NULL UNIQUE CHECK (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$' AND length(slug) <= 40),
     plan        text NOT NULL DEFAULT 'free',
     status      text NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'suspended')),
     created_at  timestamptz NOT NULL DEFAULT now(),
@@ -91,16 +93,19 @@ CREATE TABLE venues (
     id             uuid PRIMARY KEY,
     tenant_id      uuid NOT NULL REFERENCES tenants (id) ON DELETE CASCADE,
     name           text NOT NULL,
-    slug           citext NOT NULL UNIQUE CHECK (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$'),
+    -- Path inside the tenant subdomain: {tenant}.menuly.app/{slug}.
+    slug           citext NOT NULL CHECK (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$'),
     address        text NOT NULL DEFAULT '',
     phone          text NOT NULL DEFAULT '',
     currency       text NOT NULL DEFAULT 'RSD' CHECK (currency ~ '^[A-Z]{3}$'),
     timezone       text NOT NULL DEFAULT 'Europe/Belgrade',
     opening_hours  jsonb NOT NULL DEFAULT '{}',
+    -- MVP is free; OCR imports are capped per venue (set by the platform).
+    ocr_import_limit integer NOT NULL DEFAULT 3 CHECK (ocr_import_limit >= 0),
     created_at     timestamptz NOT NULL DEFAULT now(),
-    updated_at     timestamptz NOT NULL DEFAULT now()
+    updated_at     timestamptz NOT NULL DEFAULT now(),
+    CONSTRAINT venues_tenant_slug_key UNIQUE (tenant_id, slug)
 );
-CREATE INDEX venues_tenant_idx ON venues (tenant_id);
 CREATE TRIGGER venues_updated_at BEFORE UPDATE ON venues
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 

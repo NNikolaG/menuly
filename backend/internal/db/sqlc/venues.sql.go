@@ -16,7 +16,7 @@ const createVenue = `-- name: CreateVenue :one
 
 INSERT INTO venues (id, tenant_id, name, slug, address, phone, currency, timezone, opening_hours)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-RETURNING id, tenant_id, name, slug, address, phone, currency, timezone, opening_hours, created_at, updated_at
+RETURNING id, tenant_id, name, slug, address, phone, currency, timezone, opening_hours, ocr_import_limit, created_at, updated_at
 `
 
 type CreateVenueParams struct {
@@ -55,6 +55,7 @@ func (q *Queries) CreateVenue(ctx context.Context, arg CreateVenueParams) (Venue
 		&i.Currency,
 		&i.Timezone,
 		&i.OpeningHours,
+		&i.OcrImportLimit,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -79,7 +80,7 @@ func (q *Queries) DeleteVenue(ctx context.Context, arg DeleteVenueParams) (int64
 }
 
 const getVenue = `-- name: GetVenue :one
-SELECT id, tenant_id, name, slug, address, phone, currency, timezone, opening_hours, created_at, updated_at FROM venues WHERE tenant_id = $1 AND id = $2
+SELECT id, tenant_id, name, slug, address, phone, currency, timezone, opening_hours, ocr_import_limit, created_at, updated_at FROM venues WHERE tenant_id = $1 AND id = $2
 `
 
 type GetVenueParams struct {
@@ -100,6 +101,7 @@ func (q *Queries) GetVenue(ctx context.Context, arg GetVenueParams) (Venue, erro
 		&i.Currency,
 		&i.Timezone,
 		&i.OpeningHours,
+		&i.OcrImportLimit,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -107,7 +109,7 @@ func (q *Queries) GetVenue(ctx context.Context, arg GetVenueParams) (Venue, erro
 }
 
 const listVenues = `-- name: ListVenues :many
-SELECT id, tenant_id, name, slug, address, phone, currency, timezone, opening_hours, created_at, updated_at FROM venues WHERE tenant_id = $1 ORDER BY created_at, id
+SELECT id, tenant_id, name, slug, address, phone, currency, timezone, opening_hours, ocr_import_limit, created_at, updated_at FROM venues WHERE tenant_id = $1 ORDER BY created_at, id
 `
 
 func (q *Queries) ListVenues(ctx context.Context, tenantID uuid.UUID) ([]Venue, error) {
@@ -129,6 +131,7 @@ func (q *Queries) ListVenues(ctx context.Context, tenantID uuid.UUID) ([]Venue, 
 			&i.Currency,
 			&i.Timezone,
 			&i.OpeningHours,
+			&i.OcrImportLimit,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -152,7 +155,7 @@ UPDATE venues SET
     timezone      = COALESCE($6, timezone),
     opening_hours = COALESCE($7, opening_hours)
 WHERE tenant_id = $8 AND id = $9
-RETURNING id, tenant_id, name, slug, address, phone, currency, timezone, opening_hours, created_at, updated_at
+RETURNING id, tenant_id, name, slug, address, phone, currency, timezone, opening_hours, ocr_import_limit, created_at, updated_at
 `
 
 type UpdateVenueParams struct {
@@ -190,6 +193,7 @@ func (q *Queries) UpdateVenue(ctx context.Context, arg UpdateVenueParams) (Venue
 		&i.Currency,
 		&i.Timezone,
 		&i.OpeningHours,
+		&i.OcrImportLimit,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

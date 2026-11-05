@@ -320,3 +320,44 @@ func TestVenueValidationAndUpdate(t *testing.T) {
 	expect(t, call(t, "DELETE", "/v1/venues/"+id, a.access, nil), http.StatusNoContent)
 	expect(t, call(t, "GET", "/v1/venues/"+id, a.access, nil), http.StatusNotFound)
 }
+
+func TestTenantAndVenueSlugs(t *testing.T) {
+	// Auto slug from business name; the same name twice gets distinct slugs.
+	reg := func(body map[string]string) resp {
+		body["name"], body["password"] = "T", "secret123"
+		body["email"] = uuid.NewString()[:8] + "@example.com"
+		return call(t, "POST", "/v1/auth/register", "", body)
+	}
+	name := "Kafana Šumadija " + uuid.NewString()[:4]
+	r1 := reg(map[string]string{"business_name": name})
+	expect(t, r1, http.StatusCreated)
+	s1 := r1.body["tenant"].(map[string]any)["slug"].(string)
+	if s1 != "kafana-sumadija-"+name[len(name)-4:] {
+		t.Fatalf("auto slug = %q", s1)
+	}
+	r2 := reg(map[string]string{"business_name": name})
+	expect(t, r2, http.StatusCreated)
+	if s2 := r2.body["tenant"].(map[string]any)["slug"].(string); s2 == s1 {
+		t.Fatalf("duplicate business names got the same slug %q", s2)
+	}
+
+	// Explicit slug: taken -> 409, reserved/invalid -> 422.
+	r := reg(map[string]string{"business_name": "X", "tenant_slug": s1})
+	expect(t, r, http.StatusConflict)
+	if errCode(r) != "tenant_slug_taken" {
+		t.Fatalf("code = %q", errCode(r))
+	}
+	expect(t, reg(map[string]string{"business_name": "X", "tenant_slug": "admin"}), http.StatusUnprocessableEntity)
+	expect(t, reg(map[string]string{"business_name": "X", "tenant_slug": "Not Valid"}), http.StatusUnprocessableEntity)
+
+	// Venue slugs are unique per tenant only.
+	a := account{access: r1.body["access_token"].(string)}
+	b := account{access: r2.body["access_token"].(string)}
+	expect(t, call(t, "POST", "/v1/venues", a.access, map[string]string{"name": "Centar"}), http.StatusCreated)
+	expect(t, call(t, "POST", "/v1/venues", b.access, map[string]string{"name": "Centar"}), http.StatusCreated)
+	r = call(t, "POST", "/v1/venues", a.access, map[string]string{"name": "Centar"})
+	expect(t, r, http.StatusConflict)
+	if errCode(r) != "slug_taken" {
+		t.Fatalf("code = %q", errCode(r))
+	}
+}

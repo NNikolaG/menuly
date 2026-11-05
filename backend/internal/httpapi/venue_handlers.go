@@ -2,6 +2,8 @@ package httpapi
 
 import (
 	"bytes"
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"net/http"
 	"regexp"
@@ -29,16 +31,43 @@ var (
 	)
 )
 
-func slugify(s string) string {
+func slugify(s string) string { return slugifyMax(s, 60) }
+
+func slugifyMax(s string, max int) string {
 	s = slugReplacer.Replace(strings.ToLower(s))
 	s = strings.Trim(nonSlugRe.ReplaceAllString(s, "-"), "-")
-	if len(s) > 60 {
-		s = strings.TrimRight(s[:60], "-")
+	if len(s) > max {
+		s = strings.TrimRight(s[:max], "-")
 	}
 	return s
 }
 
-var errSlugTaken = &APIError{Status: http.StatusConflict, Code: "slug_taken", Message: "this venue address (slug) is already taken"}
+const maxTenantSlugLen = 40
+
+// Subdomains we keep for ourselves.
+var reservedTenantSlugs = map[string]bool{
+	"www": true, "api": true, "app": true, "admin": true,
+	"mail": true, "static": true, "cdn": true, "docs": true,
+	"help": true, "support": true, "status": true, "blog": true,
+}
+
+func validateTenantSlug(slug string) *APIError {
+	if !slugRe.MatchString(slug) || len(slug) > maxTenantSlugLen {
+		return errValidation("tenant_slug may contain only a-z, 0-9 and single dashes (max 40)")
+	}
+	if reservedTenantSlugs[slug] {
+		return errValidation("tenant_slug is reserved")
+	}
+	return nil
+}
+
+func randomSuffix() string {
+	b := make([]byte, 2)
+	_, _ = rand.Read(b)
+	return hex.EncodeToString(b)
+}
+
+var errSlugTaken = &APIError{Status: http.StatusConflict, Code: "slug_taken", Message: "another venue in this account already uses this slug"}
 
 type venueInput struct {
 	Name         *string          `json:"name"`
@@ -143,7 +172,7 @@ func (s *Server) handleCreateVenue(w http.ResponseWriter, r *http.Request) {
 		})
 		return err
 	})
-	if db.IsUniqueViolation(err, "venues_slug_key") {
+	if db.IsUniqueViolation(err, "venues_tenant_slug_key") {
 		writeError(w, r, errSlugTaken)
 		return
 	} else if err != nil {
@@ -217,7 +246,7 @@ func (s *Server) handleUpdateVenue(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case db.IsNotFound(err):
 		writeError(w, r, errNotFound)
-	case db.IsUniqueViolation(err, "venues_slug_key"):
+	case db.IsUniqueViolation(err, "venues_tenant_slug_key"):
 		writeError(w, r, errSlugTaken)
 	case err != nil:
 		writeError(w, r, err)

@@ -3,6 +3,7 @@ package httpapi
 import (
 	"net/http"
 	"net/mail"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -28,12 +29,13 @@ func toUserDTO(u sqlc.User) userDTO {
 type tenantDTO struct {
 	ID     uuid.UUID `json:"id"`
 	Name   string    `json:"name"`
+	Slug   string    `json:"slug"`
 	Plan   string    `json:"plan"`
 	Status string    `json:"status"`
 }
 
 func toTenantDTO(t sqlc.Tenant) tenantDTO {
-	return tenantDTO{ID: t.ID, Name: t.Name, Plan: t.Plan, Status: t.Status}
+	return tenantDTO{ID: t.ID, Name: t.Name, Slug: t.Slug, Plan: t.Plan, Status: t.Status}
 }
 
 type tokenPair struct {
@@ -77,6 +79,7 @@ func (s *Server) handleRegister(w http.ResponseWriter, r *http.Request) {
 		Email        string `json:"email"`
 		Password     string `json:"password"`
 		BusinessName string `json:"business_name"`
+		TenantSlug   string `json:"tenant_slug"`
 		Locale       string `json:"locale"`
 	}
 	if err := decodeJSON(w, r, &in); err != nil {
@@ -101,6 +104,20 @@ func (s *Server) handleRegister(w http.ResponseWriter, r *http.Request) {
 		writeError(w, r, errValidation("password must be at least 8 characters"))
 		return
 	}
+	// The tenant slug is the public subdomain. If the client does not choose
+	// one it is derived from the business name, with a random suffix on
+	// collision.
+	autoSlug := trim(in.TenantSlug) == ""
+	slug := strings.ToLower(trim(in.TenantSlug))
+	if autoSlug {
+		slug = slugifyMax(in.BusinessName, maxTenantSlugLen)
+		if slug == "" || reservedTenantSlugs[slug] {
+			slug = strings.Trim(slug+"-"+randomSuffix(), "-")
+		}
+	} else if apiErr := validateTenantSlug(slug); apiErr != nil {
+		writeError(w, r, apiErr)
+		return
+	}
 	hash, err := auth.HashPassword(in.Password)
 	if err != nil {
 		writeError(w, r, err)
@@ -115,34 +132,59 @@ func (s *Server) handleRegister(w http.ResponseWriter, r *http.Request) {
 			Tenant tenantDTO `json:"tenant"`
 		}
 	)
-	err = s.db.Tx(r.Context(), db.Scope{TenantID: tenantID, UserID: userID}, func(q *sqlc.Queries) error {
-		t, err := q.CreateTenant(r.Context(), sqlc.CreateTenantParams{ID: tenantID, Name: in.BusinessName})
-		if err != nil {
-			return err
-		}
-		u, err := q.CreateUser(r.Context(), sqlc.CreateUserParams{
-			ID: userID, Email: in.Email, PasswordHash: hash, Name: in.Name, Locale: in.Locale,
+	for attempt := 0; ; attempt++ {
+		err = s.db.Tx(r.Context(), db.Scope{TenantID: tenantID, UserID: userID}, func(q *sqlc.Queries) error {
+			return s.createAccount(r, q, &out.tokenPair, &out.User, &out.Tenant, createAccountInput{
+				tenantID: tenantID, userID: userID, slug: slug, business: in.BusinessName,
+				name: in.Name, email: in.Email, hash: hash, locale: in.Locale,
+			})
 		})
-		if err != nil {
-			if db.IsUniqueViolation(err, "users_email_key") {
-				return &APIError{Status: http.StatusConflict, Code: "email_taken", Message: "an account with this email already exists"}
-			}
-			return err
+		if !db.IsUniqueViolation(err, "tenants_slug_key") {
+			break
 		}
-		if _, err := q.CreateMembership(r.Context(), sqlc.CreateMembershipParams{
-			TenantID: tenantID, UserID: userID, Role: auth.RoleOwner,
-		}); err != nil {
-			return err
+		if !autoSlug || attempt >= 2 {
+			err = &APIError{Status: http.StatusConflict, Code: "tenant_slug_taken", Message: "this subdomain is already taken"}
+			break
 		}
-		out.tokenPair, err = s.issueTokens(r, q, userID, tenantID, auth.RoleOwner)
-		out.User, out.Tenant = toUserDTO(u), toTenantDTO(t)
-		return err
-	})
+		base := strings.TrimRight(slugifyMax(in.BusinessName, maxTenantSlugLen-5), "-")
+		slug = strings.Trim(base+"-"+randomSuffix(), "-")
+	}
 	if err != nil {
 		writeError(w, r, err)
 		return
 	}
 	writeJSON(w, http.StatusCreated, out)
+}
+
+type createAccountInput struct {
+	tenantID, userID                          uuid.UUID
+	slug, business, name, email, hash, locale string
+}
+
+// createAccount creates tenant, owner user, membership and tokens in one tx.
+func (s *Server) createAccount(r *http.Request, q *sqlc.Queries, tokens *tokenPair, user *userDTO, tenant *tenantDTO, in createAccountInput) error {
+	tenantID, userID := in.tenantID, in.userID
+	t, err := q.CreateTenant(r.Context(), sqlc.CreateTenantParams{ID: tenantID, Name: in.business, Slug: in.slug})
+	if err != nil {
+		return err
+	}
+	u, err := q.CreateUser(r.Context(), sqlc.CreateUserParams{
+		ID: userID, Email: in.email, PasswordHash: in.hash, Name: in.name, Locale: in.locale,
+	})
+	if err != nil {
+		if db.IsUniqueViolation(err, "users_email_key") {
+			return &APIError{Status: http.StatusConflict, Code: "email_taken", Message: "an account with this email already exists"}
+		}
+		return err
+	}
+	if _, err := q.CreateMembership(r.Context(), sqlc.CreateMembershipParams{
+		TenantID: tenantID, UserID: userID, Role: auth.RoleOwner,
+	}); err != nil {
+		return err
+	}
+	*tokens, err = s.issueTokens(r, q, userID, tenantID, auth.RoleOwner)
+	*user, *tenant = toUserDTO(u), toTenantDTO(t)
+	return err
 }
 
 var errBadCredentials = &APIError{Status: http.StatusUnauthorized, Code: "invalid_credentials", Message: "email or password is incorrect"}

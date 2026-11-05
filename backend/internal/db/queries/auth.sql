@@ -1,5 +1,5 @@
 -- name: CreateTenant :one
-INSERT INTO tenants (id, name) VALUES ($1, $2)
+INSERT INTO tenants (id, name, slug) VALUES ($1, $2, $3)
 RETURNING *;
 
 -- name: GetTenant :one

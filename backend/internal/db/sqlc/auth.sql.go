@@ -63,21 +63,23 @@ func (q *Queries) CreateRefreshToken(ctx context.Context, arg CreateRefreshToken
 }
 
 const createTenant = `-- name: CreateTenant :one
-INSERT INTO tenants (id, name) VALUES ($1, $2)
-RETURNING id, name, plan, status, created_at, updated_at
+INSERT INTO tenants (id, name, slug) VALUES ($1, $2, $3)
+RETURNING id, name, slug, plan, status, created_at, updated_at
 `
 
 type CreateTenantParams struct {
 	ID   uuid.UUID `json:"id"`
 	Name string    `json:"name"`
+	Slug string    `json:"slug"`
 }
 
 func (q *Queries) CreateTenant(ctx context.Context, arg CreateTenantParams) (Tenant, error) {
-	row := q.db.QueryRow(ctx, createTenant, arg.ID, arg.Name)
+	row := q.db.QueryRow(ctx, createTenant, arg.ID, arg.Name, arg.Slug)
 	var i Tenant
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
+		&i.Slug,
 		&i.Plan,
 		&i.Status,
 		&i.CreatedAt,
@@ -165,7 +167,7 @@ func (q *Queries) GetRefreshTokenForUpdate(ctx context.Context, tokenHash []byte
 }
 
 const getTenant = `-- name: GetTenant :one
-SELECT id, name, plan, status, created_at, updated_at FROM tenants WHERE id = $1
+SELECT id, name, slug, plan, status, created_at, updated_at FROM tenants WHERE id = $1
 `
 
 func (q *Queries) GetTenant(ctx context.Context, id uuid.UUID) (Tenant, error) {
@@ -174,6 +176,7 @@ func (q *Queries) GetTenant(ctx context.Context, id uuid.UUID) (Tenant, error) {
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
+		&i.Slug,
 		&i.Plan,
 		&i.Status,
 		&i.CreatedAt,

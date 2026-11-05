@@ -69,6 +69,10 @@ Globalne tabele (bez RLS): `users` (korisnik može biti član više tenanta) i `
 
 Objekti (`/v1/venues`): čitanje svi članovi, kreiranje i brisanje `owner`, izmena `owner` i `manager`. `slug` se pravi iz naziva ako nije zadat (ćirilica i latinica se transliteruju).
 
+## Javne adrese
+
+Javni meni je na `{tenant-slug}.menuly.app/{venue-slug}`. `tenants.slug` je globalno jedinstven i služi kao poddomen (bira se pri registraciji kao `tenant_slug` ili se pravi iz naziva biznisa; rezervisani su `www`, `api`, `app`, `admin` i još par tehničkih imena). `venues.slug` je jedinstven samo unutar tenanta. `venues.ocr_import_limit` (podrazumevano 3) ograničava broj OCR uvoza po objektu.
+
 ## Struktura
 
 ```

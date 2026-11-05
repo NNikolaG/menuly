@@ -33,6 +33,7 @@ type RefreshToken struct {
 type Tenant struct {
 	ID        uuid.UUID `json:"id"`
 	Name      string    `json:"name"`
+	Slug      string    `json:"slug"`
 	Plan      string    `json:"plan"`
 	Status    string    `json:"status"`
 	CreatedAt time.Time `json:"created_at"`
@@ -51,15 +52,16 @@ type User struct {
 }
 
 type Venue struct {
-	ID           uuid.UUID       `json:"id"`
-	TenantID     uuid.UUID       `json:"tenant_id"`
-	Name         string          `json:"name"`
-	Slug         string          `json:"slug"`
-	Address      string          `json:"address"`
-	Phone        string          `json:"phone"`
-	Currency     string          `json:"currency"`
-	Timezone     string          `json:"timezone"`
-	OpeningHours json.RawMessage `json:"opening_hours"`
-	CreatedAt    time.Time       `json:"created_at"`
-	UpdatedAt    time.Time       `json:"updated_at"`
+	ID             uuid.UUID       `json:"id"`
+	TenantID       uuid.UUID       `json:"tenant_id"`
+	Name           string          `json:"name"`
+	Slug           string          `json:"slug"`
+	Address        string          `json:"address"`
+	Phone          string          `json:"phone"`
+	Currency       string          `json:"currency"`
+	Timezone       string          `json:"timezone"`
+	OpeningHours   json.RawMessage `json:"opening_hours"`
+	OcrImportLimit int32           `json:"ocr_import_limit"`
+	CreatedAt      time.Time       `json:"created_at"`
+	UpdatedAt      time.Time       `json:"updated_at"`
 }

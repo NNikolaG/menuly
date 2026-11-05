@@ -43,6 +43,14 @@ paths:
                 email: { type: string, format: email }
                 password: { type: string, minLength: 8 }
                 business_name: { type: string }
+                tenant_slug:
+                  type: string
+                  pattern: "^[a-z0-9]+(-[a-z0-9]+)*$"
+                  maxLength: 40
+                  description: |
+                    Public subdomain ({tenant_slug}.menuly.app). Optional: derived from
+                    business_name when omitted (random suffix on collision). Reserved:
+                    www, api, app, admin, mail, static, cdn, docs, help, support, status, blog.
                 locale: { type: string, default: sr-Latn }
       responses:
         "201":
@@ -171,7 +179,9 @@ paths:
                     items: { $ref: "#/components/schemas/Venue" }
     post:
       summary: Create a venue (owner)
-      description: When `slug` is omitted it is generated from `name` (Serbian Latin/Cyrillic transliterated).
+      description: |
+        When `slug` is omitted it is generated from `name` (Serbian Latin/Cyrillic transliterated).
+        The slug is unique within the tenant; the public menu lives at {tenant_slug}.menuly.app/{venue_slug}.
       requestBody:
         required: true
         content:
@@ -275,6 +285,7 @@ components:
       properties:
         id: { type: string, format: uuid }
         name: { type: string }
+        slug: { type: string, description: "Public subdomain" }
         plan: { type: string }
         status: { type: string, enum: [active, suspended] }
     VenueInput:
@@ -299,5 +310,6 @@ components:
         currency: { type: string }
         timezone: { type: string }
         opening_hours: { type: object, additionalProperties: true }
+        ocr_import_limit: { type: integer, description: "OCR imports allowed for this venue (read-only, default 3)" }
         created_at: { type: string, format: date-time }
         updated_at: { type: string, format: date-time }
