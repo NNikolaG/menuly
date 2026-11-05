@@ -1,0 +1,27 @@
+<!-- @dsCard group="POS" height=360 subtitle="kategorije + pločice artikala" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>PosTile</title></head>
+<body>
+<div class="r-brand" style="padding:16px; display:flex; gap:16px">
+  <nav class="r-pos-nav">
+    <button type="button" class="r-pos-cat cat-amber" aria-current="true">Kafa</button>
+    <button type="button" class="r-pos-cat"><span class="r-pos-cat__swatch" data-pattern="Sokovi" data-cols="1" data-rows="1" data-cell="24" data-big="false"></span>Sokovi</button>
+    <button type="button" class="r-pos-cat"><span class="r-pos-cat__swatch" data-pattern="Doručak" data-cols="1" data-rows="1" data-cell="24" data-big="false"></span>Doručak</button>
+    <button type="button" class="r-pos-cat"><span class="r-pos-cat__swatch" data-pattern="Kokteli" data-cols="1" data-rows="1" data-cell="24" data-big="false"></span>Kokteli</button>
+  </nav>
+  <div class="r-pos-grid" style="flex-grow:1">
+    <button type="button" class="r-pos-tile cat-amber"><span class="r-pos-tile__name">Espresso</span><span class="r-pos-tile__price">200 RSD</span></button>
+    <button type="button" class="r-pos-tile cat-amber"><span class="r-pos-tile__name">Espresso macchiato</span><span class="r-pos-tile__price">220 RSD</span><span class="r-pos-tile__qty">1</span></button>
+    <button type="button" class="r-pos-tile cat-amber"><span class="r-pos-tile__name">Flat white</span><span class="r-pos-tile__price">290 RSD</span><span class="r-pos-tile__qty">2</span></button>
+    <button type="button" class="r-pos-tile cat-amber" disabled><span class="r-pos-tile__name">Ledena kafa</span><span class="r-pos-tile__price">320 RSD</span></button>
+    <button type="button" class="r-pos-tile cat-cobalt"><span class="r-pos-tile__name">Negroni</span><span class="r-pos-tile__price">690 RSD</span><span class="r-pos-tile__qty">1</span></button>
+    <button type="button" class="r-pos-tile cat-periwinkle"><span class="r-pos-tile__name">Cedevita limun</span><span class="r-pos-tile__price">250 RSD</span></button>
+    <button type="button" class="r-pos-tile cat-pink"><span class="r-pos-tile__name">Kroasan puter</span><span class="r-pos-tile__price">280 RSD</span></button>
+    <button type="button" class="r-pos-tile cat-amber"><span class="r-pos-tile__name">Turska kafa</span><span class="r-pos-tile__price">180 RSD</span></button>
+  </div>
+</div>
+<script src="../Pattern/bauhaus-pattern.js"></script>
+<script>ReceiptPattern.renderAll();</script>
+</body>
+</html>

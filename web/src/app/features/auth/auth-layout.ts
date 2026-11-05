@@ -1,10 +1,11 @@
 import { DecimalPipe } from '@angular/common';
 import { Component, input } from '@angular/core';
+import { AppPattern } from '../../shared/ui';
 
 /** Brand frame of the sign-in screens: bento of brand tiles on the left, the form on a paper card on the right. */
 @Component({
   selector: 'app-auth-layout',
-  imports: [DecimalPipe],
+  imports: [DecimalPipe, AppPattern],
   template: `
     <div class="brand screen">
       <div class="brand-grid showcase" aria-hidden="true">
@@ -15,12 +16,8 @@ import { Component, input } from '@angular/core';
           </p>
         </div>
         <div class="brand-tile art" data-rows="2">
-          <div class="blocks">
-            <span data-color="orange" data-weight="3"></span>
-            <span data-color="amber"></span>
-            <span data-color="periwinkle"></span>
-            <span data-color="cobalt"></span>
-            <span data-color="amber" data-weight="2"></span>
+          <div class="art-pattern">
+            <app-pattern seed="Menuly" [cols]="4" [rows]="2" [fluid]="true" />
           </div>
           <div class="art-caption">
             <p class="ticket__title" i18n="@@auth.brand.ticket">Sto 12</p>
@@ -65,9 +62,13 @@ import { Component, input } from '@angular/core';
       padding: 0;
     }
 
-    .art .blocks {
-      block-size: var(--size-ticket-art);
+    .art-pattern {
+      display: grid;
+      place-items: center;
       flex: none;
+      block-size: var(--size-ticket-art);
+      container-type: size;
+      background: var(--color-brand-ink);
     }
 
     .art-caption {

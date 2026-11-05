@@ -167,8 +167,11 @@
 }
 .ticket__art {
   position: relative;
+  display: grid;
+  place-items: center;
   block-size: var(--size-ticket-art);
-  background: var(--color-brand-periwinkle);
+  container-type: size;
+  background: var(--color-brand-ink);
 }
 .ticket__punch {
   position: absolute;
@@ -441,7 +444,7 @@
 /* ======================================================================
    Brand layer: login, POS, ads. Always on brand ink, in both themes.
    Tiles: amber / periwinkle / pink / paper with dark text, cobalt with white text.
-   Orange only inside .blocks, next to at least two other brand colors.
+   Orange only inside .pattern, next to the other brand colors.
    ====================================================================== */
 .brand {
   background: var(--color-brand-ink);
@@ -503,34 +506,68 @@
   font: var(--type-body);
 }
 
-/* Block strip: placeholder for generated venue graphics. Children: span[data-color][data-weight]. */
-.blocks {
-  display: flex;
-  block-size: 100%;
+/* Bauhaus pattern (AppPattern): cells from `generatePattern`, shape is ::after. Decoration only, never behind text.
+   Orange lives only here, next to the other brand colors. */
+.pattern {
+  display: grid;
+  overflow: hidden;
+  grid-template-columns: repeat(var(--cols), var(--cell, var(--size-pattern-cell)));
+  grid-template-rows: repeat(var(--rows), var(--cell, var(--size-pattern-cell)));
+  background: var(--color-brand-ink);
 }
-.blocks > * {
-  flex: 1 1 0;
+/* Largest whole pattern with square cells; the parent must be a size container. */
+.pattern[data-fluid] {
+  inline-size: min(100cqi, 100cqb * var(--cols) / var(--rows));
+  aspect-ratio: var(--cols) / var(--rows);
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--rows), minmax(0, 1fr));
 }
-.blocks > [data-color='orange'] {
-  background: var(--color-brand-orange);
+.pattern__cell {
+  position: relative;
+  overflow: hidden;
+  background: var(--bg);
 }
-.blocks > [data-color='amber'] {
-  background: var(--color-brand-amber);
+.pattern__cell::after {
+  content: '';
+  position: absolute;
+  background: var(--fg);
 }
-.blocks > [data-color='periwinkle'] {
-  background: var(--color-brand-periwinkle);
+.pattern__cell[data-kind='solid']::after {
+  display: none;
 }
-.blocks > [data-color='cobalt'] {
-  background: var(--color-brand-cobalt);
+.pattern__cell[data-kind='qtr']::after {
+  inset: 0;
+  border-radius: 100% 0 0 0;
 }
-.blocks > [data-color='pink'] {
-  background: var(--color-brand-pink);
+.pattern__cell[data-kind='half']::after {
+  inset: 50% 0 0;
+  border-radius: var(--radius-pill) var(--radius-pill) 0 0;
+  transform-origin: 50% 0;
 }
-.blocks > [data-weight='2'] {
-  flex-grow: 2;
+.pattern__cell[data-kind='circle']::after {
+  inset: 16%;
+  border-radius: 50%;
 }
-.blocks > [data-weight='3'] {
-  flex-grow: 3;
+.pattern__cell[data-kind='tri']::after {
+  inset: 0;
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+.pattern__cell[data-kind='dots']::after {
+  inset: 8%;
+  background: radial-gradient(var(--fg) 22%, transparent 26%) 0 0 / 20% 20%;
+}
+.pattern__cell[data-kind='bars']::after {
+  inset: 0;
+  background: repeating-linear-gradient(90deg, var(--fg) 0 6.25%, transparent 6.25% 12.5%);
+}
+.pattern__cell[data-rot='1']::after {
+  rotate: 90deg;
+}
+.pattern__cell[data-rot='2']::after {
+  rotate: 180deg;
+}
+.pattern__cell[data-rot='3']::after {
+  rotate: 270deg;
 }
 
 /* ---------- POS: categories and item tiles (buttons; data-color is the category color) ---------- */
@@ -558,8 +595,8 @@
   flex: none;
   inline-size: var(--size-swatch);
   block-size: var(--size-swatch);
+  --cell: var(--size-swatch);
   border-radius: var(--radius-xs);
-  background: var(--cat-color);
 }
 .pos-cat[aria-current='true'] {
   background: var(--cat-color);
