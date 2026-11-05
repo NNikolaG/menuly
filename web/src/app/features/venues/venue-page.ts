@@ -17,12 +17,14 @@ import {
   AppInput,
   ConfirmDialog,
   type ConfirmDialogData,
+  AppPattern,
 } from '../../shared/ui';
 
 /** `/objekti/:venueId`: the venue's public link and its menus. */
 @Component({
   selector: 'app-venue-page',
   imports: [
+    AppPattern,
     DatePipe,
     FormField,
     RouterLink,
@@ -43,10 +45,7 @@ import {
         </a>
         @if (venue.value(); as v) {
           <div class="row" data-justify="between">
-            <div class="stack" data-gap="1">
-              <h1>{{ v.name }}</h1>
-              <p class="meta">{{ publicUrl() }}</p>
-            </div>
+            <h1>{{ v.name }}</h1>
             @if (canEdit()) {
               <a appButton variant="secondary" routerLink="izmena">
                 <svg lucidePencil aria-hidden="true"></svg>
@@ -59,124 +58,156 @@ import {
         }
       </div>
 
-      @if (venue.hasValue()) {
-        <section class="stack" data-gap="4" aria-labelledby="menus-heading">
-          <h2 id="menus-heading" i18n="@@venue.menus">Meniji</h2>
+      @if (venue.value(); as v) {
+        <div class="layout">
+          <!-- Venue profile: the brand Ticket card, art seeded by the venue name (decision #24). -->
+          <aside class="brand profile">
+            <div class="ticket">
+              <div class="ticket__art">
+                <app-pattern [seed]="v.name" [cols]="4" [rows]="2" [fluid]="true" />
+                <span class="ticket__punch"></span>
+              </div>
+              <div class="ticket__body">
+                <div class="ticket__top">
+                  <p class="ticket__title">{{ v.name }}</p>
+                  <span class="ticket__id">/{{ v.slug }}</span>
+                </div>
+                <hr class="ticket__rule" />
+                @if (v.address) {
+                  <div class="ticket__meta">
+                    <span i18n="@@venues.field.address">Adresa</span
+                    ><span class="value">{{ v.address }}</span>
+                  </div>
+                }
+                <div class="ticket__meta">
+                  <span i18n="@@venues.field.currency">Valuta</span><span>{{ v.currency }}</span>
+                </div>
+                <div class="ticket__meta">
+                  <span i18n="@@venues.col.link">Javni link</span>
+                </div>
+                <p class="link">{{ publicUrl() }}</p>
+              </div>
+            </div>
+          </aside>
 
-          @if (error()) {
-            <p role="alert" class="error">{{ error() }}</p>
-          }
+          <section class="stack" data-gap="4" aria-labelledby="menus-heading">
+            <h2 id="menus-heading" i18n="@@venue.menus">Meniji</h2>
 
-          @if (menus.value()?.items; as items) {
-            @if (items.length) {
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th i18n="@@venue.col.menu">Meni</th>
-                    <th i18n="@@venue.col.status">Status</th>
-                    <th><span class="visually-hidden" i18n="@@common.actions">Akcije</span></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (menu of items; track menu.id) {
+            @if (error()) {
+              <p role="alert" class="error">{{ error() }}</p>
+            }
+
+            @if (menus.value()?.items; as items) {
+              @if (items.length) {
+                <table class="table">
+                  <thead>
                     <tr>
-                      <td>
-                        <a class="menu-link" [routerLink]="['/meniji', menu.id]">
-                          <strong>{{ menu.name }}</strong>
-                        </a>
-                        @if (menu.published_at && menu.status === 'published') {
-                          <span class="table__sub" i18n="@@venue.publishedAt"
-                            >Objavljen {{ menu.published_at | date: 'dd.MM.y. HH:mm' }}</span
-                          >
-                        }
-                      </td>
-                      <td>
-                        @if (menu.status === 'published') {
-                          <span class="badge" data-tone="success" i18n="@@menu.status.published"
-                            >Objavljen</span
-                          >
-                        } @else {
-                          <span class="badge" data-tone="info" i18n="@@menu.status.draft"
-                            >Nacrt</span
-                          >
-                        }
-                      </td>
-                      <td data-num>
-                        @if (canEdit()) {
-                          <div class="row actions" data-gap="1">
-                            @if (menu.status === 'published') {
+                      <th i18n="@@venue.col.menu">Meni</th>
+                      <th i18n="@@venue.col.status">Status</th>
+                      <th><span class="visually-hidden" i18n="@@common.actions">Akcije</span></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (menu of items; track menu.id) {
+                      <tr>
+                        <td>
+                          <a class="menu-link" [routerLink]="['/meniji', menu.id]">
+                            <strong>{{ menu.name }}</strong>
+                          </a>
+                          @if (menu.published_at && menu.status === 'published') {
+                            <span class="table__sub" i18n="@@venue.publishedAt"
+                              >Objavljen {{ menu.published_at | date: 'dd.MM.y. HH:mm' }}</span
+                            >
+                          }
+                        </td>
+                        <td>
+                          @if (menu.status === 'published') {
+                            <span class="badge" data-tone="success" i18n="@@menu.status.published"
+                              >Objavljen</span
+                            >
+                          } @else {
+                            <span class="badge" data-tone="info" i18n="@@menu.status.draft"
+                              >Nacrt</span
+                            >
+                          }
+                        </td>
+                        <td data-num>
+                          @if (canEdit()) {
+                            <div class="row actions" data-gap="1">
+                              @if (menu.status === 'published') {
+                                <button
+                                  appButton
+                                  variant="ghost"
+                                  size="sm"
+                                  type="button"
+                                  [disabled]="busy() === menu.id"
+                                  (click)="unpublish(menu)"
+                                  i18n="@@menu.unpublish"
+                                >
+                                  Vrati u nacrt
+                                </button>
+                              } @else {
+                                <button
+                                  appButton
+                                  variant="secondary"
+                                  size="sm"
+                                  type="button"
+                                  [disabled]="busy() === menu.id"
+                                  (click)="publish(menu)"
+                                  i18n="@@menu.publish"
+                                >
+                                  Objavi
+                                </button>
+                              }
                               <button
                                 appButton
                                 variant="ghost"
                                 size="sm"
                                 type="button"
+                                [attr.aria-label]="deleteLabel(menu)"
                                 [disabled]="busy() === menu.id"
-                                (click)="unpublish(menu)"
-                                i18n="@@menu.unpublish"
+                                (click)="confirmDelete(menu)"
                               >
-                                Vrati u nacrt
+                                <svg lucideTrash2 aria-hidden="true"></svg>
                               </button>
-                            } @else {
-                              <button
-                                appButton
-                                variant="secondary"
-                                size="sm"
-                                type="button"
-                                [disabled]="busy() === menu.id"
-                                (click)="publish(menu)"
-                                i18n="@@menu.publish"
-                              >
-                                Objavi
-                              </button>
-                            }
-                            <button
-                              appButton
-                              variant="ghost"
-                              size="sm"
-                              type="button"
-                              [attr.aria-label]="deleteLabel(menu)"
-                              [disabled]="busy() === menu.id"
-                              (click)="confirmDelete(menu)"
-                            >
-                              <svg lucideTrash2 aria-hidden="true"></svg>
-                            </button>
-                          </div>
-                        }
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            } @else {
-              <p class="meta" i18n="@@venue.noMenus">Ovaj objekat još nema meni.</p>
+                            </div>
+                          }
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              } @else {
+                <p class="meta" i18n="@@venue.noMenus">Ovaj objekat još nema meni.</p>
+              }
+            } @else if (menus.error()) {
+              <p role="alert" i18n="@@venue.menusLoadError">Meniji nisu učitani.</p>
             }
-          } @else if (menus.error()) {
-            <p role="alert" i18n="@@venue.menusLoadError">Meniji nisu učitani.</p>
-          }
 
-          @if (canEdit()) {
-            <form class="row new-menu" data-gap="3" novalidate (submit)="createMenu($event)">
-              <app-field
-                i18n-label="@@venue.newMenuName"
-                label="Novi meni"
-                controlId="new-menu-name"
-                [field]="newMenu.name"
-              >
-                <input
-                  appInput
-                  id="new-menu-name"
-                  i18n-placeholder="@@venue.newMenuPlaceholder"
-                  placeholder="npr. Glavni meni"
-                  [formField]="newMenu.name"
-                />
-              </app-field>
-              <button appButton type="submit" [disabled]="newMenu().submitting()">
-                <svg lucidePlus aria-hidden="true"></svg>
-                <ng-container i18n="@@venue.addMenu">Dodaj meni</ng-container>
-              </button>
-            </form>
-          }
-        </section>
+            @if (canEdit()) {
+              <form class="row new-menu" data-gap="3" novalidate (submit)="createMenu($event)">
+                <app-field
+                  i18n-label="@@venue.newMenuName"
+                  label="Novi meni"
+                  controlId="new-menu-name"
+                  [field]="newMenu.name"
+                >
+                  <input
+                    appInput
+                    id="new-menu-name"
+                    i18n-placeholder="@@venue.newMenuPlaceholder"
+                    placeholder="npr. Glavni meni"
+                    [formField]="newMenu.name"
+                  />
+                </app-field>
+                <button appButton type="submit" [disabled]="newMenu().submitting()">
+                  <svg lucidePlus aria-hidden="true"></svg>
+                  <ng-container i18n="@@venue.addMenu">Dodaj meni</ng-container>
+                </button>
+              </form>
+            }
+          </section>
+        </div>
       }
     </div>
   `,
@@ -200,6 +231,47 @@ import {
 
     .actions {
       justify-content: flex-end;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: start;
+      gap: var(--space-8);
+    }
+
+    .layout > section {
+      grid-row: 1;
+    }
+
+    .profile {
+      display: grid;
+      padding: var(--space-5);
+      border-radius: var(--radius-lg);
+    }
+
+    .ticket .value {
+      text-align: end;
+      text-transform: none;
+    }
+
+    .link {
+      font: var(--type-meta);
+      overflow-wrap: anywhere;
+    }
+
+    @media (max-width: 960px) {
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .layout > section {
+        grid-row: auto;
+      }
+
+      .profile {
+        justify-items: center;
+      }
     }
 
     .new-menu {
