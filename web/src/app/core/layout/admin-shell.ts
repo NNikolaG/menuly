@@ -153,11 +153,14 @@ const NEXT_THEME: Record<ThemePreference, ThemePreference> = {
       grid-template-columns: var(--sidebar-collapsed-width) minmax(0, 1fr);
     }
 
+    /* Pinned at viewport height while the page scrolls; the pattern's min-block-size: 100% would stretch it to the page. */
     .sidebar {
       position: sticky;
       inset-block-start: 0;
+      align-self: start;
       inline-size: auto;
       block-size: 100dvh;
+      min-block-size: 0;
       padding-block-start: 0;
       overflow-y: auto;
     }
