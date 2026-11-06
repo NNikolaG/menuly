@@ -92,11 +92,24 @@ describe('ImportReviewPage', () => {
     const fixture = await render(
       importFixture({ status: 'processing', draft: null, pages: [page({ status: 'processing' })] }),
     );
-    expect(fixture.nativeElement.textContent).toContain('Čitamo meni');
+    expect(fixture.nativeElement.textContent).toContain('Prepoznajem stavke i cene');
+    // The scanner shows the page being read.
+    http
+      .expectOne('/api/v1/imports/im1/pages/pg0/file')
+      .flush(new Blob(['x'], { type: 'image/jpeg' }));
 
     // The poll waits 2 s between requests.
     await new Promise((resolve) => setTimeout(resolve, 2100));
     http.expectOne('/api/v1/imports/im1').flush(importFixture());
+    await tick();
+    fixture.detectChanges();
+
+    // Watched it being read: the receipt stays up, stamped, until the user moves on.
+    const go = [...fixture.nativeElement.querySelectorAll('button')].find((button: HTMLElement) =>
+      button.textContent?.includes('Pregledaj i ispravi'),
+    ) as HTMLButtonElement;
+    expect(go).toBeTruthy();
+    go.click();
     await tick();
     fixture.detectChanges();
     await tick();

@@ -49,6 +49,7 @@ import {
   QUALITY,
   UNCERTAIN,
 } from './import-labels';
+import { ImportReading } from './import-reading';
 import { PageOriginal } from './page-original';
 
 /** Poll interval while pages are being read. */
@@ -76,6 +77,7 @@ const POLL_MS = 2000;
     AppInput,
     AppSelect,
     PageOriginal,
+    ImportReading,
     LucideArrowLeft,
     LucideCamera,
     LucideCheck,
@@ -131,16 +133,16 @@ const POLL_MS = 2000;
           <p class="alert" role="alert">{{ problem() }}</p>
         }
 
-        @if (reading()) {
-          <section class="card stack" data-gap="3" aria-labelledby="progress-heading">
-            <h2 id="progress-heading" class="card__title" i18n="@@import.reading">Čitamo meni…</h2>
-            <!-- No value until the first page is done: an indeterminate bar shows it is working. -->
-            <progress [attr.value]="progress().done || null" [max]="progress().total"></progress>
-            <p class="meta" aria-live="polite" i18n="@@import.progress">
-              Pročitano {{ progress().done }} od {{ progress().total }}. Možeš da napustiš stranicu,
-              nastavljamo u pozadini.
-            </p>
-          </section>
+        @if (theater()) {
+          <app-import-reading
+            [importId]="imp.id"
+            [pages]="pages()"
+            [draft]="model()"
+            [venueName]="venue.value()?.name ?? ''"
+            [createdAt]="imp.created_at"
+            [done]="!reading()"
+            (review)="dismissed.set(true)"
+          />
         }
 
         @if (imp.status === 'committed') {
@@ -157,7 +159,7 @@ const POLL_MS = 2000;
               </div>
             }
           </div>
-        } @else if (reviewable()) {
+        } @else if (reviewable() && !theater()) {
           <div class="layout">
             <div ngTabs class="stack" data-gap="4">
               <div ngTabList class="tabs" [(selectedTab)]="tab" [attr.aria-label]="pagesLabel">
@@ -274,17 +276,19 @@ const POLL_MS = 2000;
             </aside>
           </div>
         } @else {
-          <!-- Still reading, or failed: the pages with their state and fixes. -->
-          <ul class="pages">
-            @for (page of pages(); track page.id) {
-              <li class="card">
-                <ng-container
-                  [ngTemplateOutlet]="pageHead"
-                  [ngTemplateOutletContext]="{ $implicit: page, imp }"
-                />
-              </li>
-            }
-          </ul>
+          <!-- Still reading, or failed: the pages with their state and fixes (while reading, only the troubled ones). -->
+          @if (listedPages().length) {
+            <ul class="pages">
+              @for (page of listedPages(); track page.id) {
+                <li class="card">
+                  <ng-container
+                    [ngTemplateOutlet]="pageHead"
+                    [ngTemplateOutletContext]="{ $implicit: page, imp }"
+                  />
+                </li>
+              }
+            </ul>
+          }
         }
 
         <ng-template #pagePanel let-page let-imp="imp">
@@ -558,12 +562,6 @@ const POLL_MS = 2000;
       color: var(--color-danger);
     }
 
-    progress {
-      inline-size: 100%;
-      block-size: var(--space-2);
-      accent-color: var(--color-accent);
-    }
-
     label[appButton] {
       cursor: pointer;
     }
@@ -774,16 +772,28 @@ export default class ImportReviewPage {
   protected readonly reviewable = computed(
     () => this.data()?.status === 'ready_for_review' && !this.reading(),
   );
-  protected readonly progress = computed(() => {
-    const pages = this.pages();
-    return {
-      done: pages.filter((page) => page.status === 'done' || page.status === 'failed').length,
-      total: pages.length || 1,
-    };
-  });
+  /** Saw pages being read on this visit: the receipt then stays up, stamped, until the user moves on. */
+  private readonly watched = signal(false);
+  protected readonly dismissed = signal(false);
+  protected readonly theater = computed(
+    () =>
+      this.reading() ||
+      (this.watched() && !this.dismissed() && this.data()?.status === 'ready_for_review'),
+  );
+  /** Pages listed under the receipt while reading: only those that need a retake or retry. */
+  protected readonly listedPages = computed(() =>
+    this.theater()
+      ? this.pages().filter(
+          (page) =>
+            page.status === 'failed' ||
+            page.photo_quality === 'partial' ||
+            page.photo_quality === 'poor',
+        )
+      : this.pages(),
+  );
 
   private readonly venueId = computed(() => this.data()?.venue_id);
-  private readonly venue = inject(VenuesApi).venueResource(this.venueId);
+  protected readonly venue = inject(VenuesApi).venueResource(this.venueId);
   private readonly menus = inject(MenusApi).venueMenusResource(this.venueId);
   protected readonly currency = computed(
     () => this.data()?.draft?.currency || this.venue.value()?.currency || 'RSD',
@@ -839,6 +849,9 @@ export default class ImportReviewPage {
   protected readonly commitProblem = signal('');
 
   constructor() {
+    effect(() => {
+      if (this.reading()) this.watched.set(true);
+    });
     // Poll while anything is being read; stops by itself once every page is done or failed.
     effect((onCleanup) => {
       if (!this.reading()) return;

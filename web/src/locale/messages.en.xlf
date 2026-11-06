@@ -2258,22 +2258,6 @@
           <context context-type="linenumber">113,114</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="import.reading" datatype="html">
-        <source>Čitamo meni…</source>
-        <target>Reading the menu…</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
-          <context context-type="linenumber">136,137</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="import.progress" datatype="html">
-        <source> Pročitano <x id="INTERPOLATION" equiv-text="{{ progress().done }}"/> od <x id="INTERPOLATION_1" equiv-text="{{ progress().total }}"/>. Možeš da napustiš stranicu, nastavljamo u pozadini. </source>
-        <target> Read <x id="INTERPOLATION" equiv-text="{{ progress().done }}"/> of <x id="INTERPOLATION_1" equiv-text="{{ progress().total }}"/>. You can leave this page, we keep going in the background. </target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
-          <context context-type="linenumber">140,142</context>
-        </context-group>
-      </trans-unit>
       <trans-unit id="import.committed" datatype="html">
         <source>Meni je uvezen.</source>
         <target>The menu has been imported.</target>
@@ -4841,6 +4825,86 @@
       <trans-unit id="promo.toast.saved" datatype="html">
         <source>Kombo je sačuvan.</source>
         <target>Combo saved.</target>
+      </trans-unit>
+      <trans-unit id="import.scan.page" datatype="html">
+        <source>Skener · stranica <x id="INTERPOLATION" equiv-text="{{ page.page_index + 1 }}"/> od <x id="INTERPOLATION_1" equiv-text="{{ pages().length }}"/></source>
+        <target>Scanner · page <x id="INTERPOLATION" equiv-text="{{ page.page_index + 1 }}"/> of <x id="INTERPOLATION_1" equiv-text="{{ pages().length }}"/></target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-reading.ts</context>
+          <context context-type="linenumber">48,49</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.scan.title" datatype="html">
+        <source>Skener</source>
+        <target>Scanner</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-reading.ts</context>
+          <context context-type="linenumber">51,53</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.scan.found" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ found() }}"/> pronađeno</source>
+        <target><x id="INTERPOLATION" equiv-text="{{ found() }}"/> found</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-reading.ts</context>
+          <context context-type="linenumber">54,55</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.scan.allDone" datatype="html">
+        <source>Sve stranice pročitane</source>
+        <target>All pages read</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-reading.ts</context>
+          <context context-type="linenumber">72,73</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.scan.working" datatype="html">
+        <source>Prepoznajem stavke i cene…</source>
+        <target>Finding items and prices…</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-reading.ts</context>
+          <context context-type="linenumber">74,76</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.receipt.title" datatype="html">
+        <source>Meni</source>
+        <target>Menu</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-reading.ts</context>
+          <context context-type="linenumber">96,97</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.receipt.reading" datatype="html">
+        <source>čitam stranicu <x id="INTERPOLATION" equiv-text="{{ page.page_index + 1 }}"/></source>
+        <target>reading page <x id="INTERPOLATION" equiv-text="{{ page.page_index + 1 }}"/></target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-reading.ts</context>
+          <context context-type="linenumber">130,131</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.stamp" datatype="html">
+        <source>Pročitano</source>
+        <target>Read</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-reading.ts</context>
+          <context context-type="linenumber">156,158</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.toReview" datatype="html">
+        <source>Pregledaj i ispravi</source>
+        <target>Review and fix</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-reading.ts</context>
+          <context context-type="linenumber">163,164</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.leaveHint" datatype="html">
+        <source> Možeš da napustiš stranicu, nastavljamo u pozadini. </source>
+        <target> You can leave this page, we keep going in the background. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-reading.ts</context>
+          <context context-type="linenumber">168,170</context>
+        </context-group>
       </trans-unit>
     </body>
   </file>
