@@ -30,20 +30,6 @@ func NewClaude(cfg ClaudeConfig) *Claude {
 	return &Claude{client: anthropic.NewClient(option.WithAPIKey(cfg.APIKey)), cfg: cfg}
 }
 
-// pricePerMTok is USD per million tokens (input, output). Check current
-// prices when changing models; unknown models are recorded with cost 0.
-var pricePerMTok = map[string][2]float64{
-	"claude-haiku-5-5":  {0.10, 0.50},
-	"claude-sonnet-5-5": {2.00, 10.00},
-	"claude-opus-5-5":   {4.00, 20.00},
-}
-
-func costMicros(model string, in, out int64) int64 {
-	p := pricePerMTok[model]
-	// tokens * USD/MTok = millionths of a USD
-	return int64(float64(in)*p[0] + float64(out)*p[1])
-}
-
 const systemPrompt = `You read photos and PDFs of restaurant, café and bar menus, mostly from Serbia and the region, and transcribe them into structured data.
 
 Rules:
@@ -85,37 +71,8 @@ func extractionSchema() map[string]any {
 // Extract reads a page with the primary model and, if the result fails
 // validation, once more with the fallback model.
 func (c *Claude) Extract(ctx context.Context, page Page) (Extracted, Usage, error) {
-	var total Usage
-	res, u, err := c.extractWith(ctx, c.cfg.Model, page)
-	total.Add(u)
-	if err != nil && !errors.Is(err, errBadResult) {
-		return Extracted{}, total, err
-	}
-	if err == nil {
-		if ok, _ := Quality(res); ok || c.cfg.FallbackModel == "" {
-			return res, total, nil
-		}
-	}
-	if c.cfg.FallbackModel == "" {
-		return Extracted{}, total, fmt.Errorf("%w: %v", ErrPermanent, err)
-	}
-	res2, u2, err2 := c.extractWith(ctx, c.cfg.FallbackModel, page)
-	total.Add(u2)
-	if err2 != nil {
-		if err == nil { // keep the weaker first result rather than nothing
-			return res, total, nil
-		}
-		if errors.Is(err2, errBadResult) {
-			return Extracted{}, total, fmt.Errorf("%w: %v", ErrPermanent, err2)
-		}
-		return Extracted{}, total, err2
-	}
-	return res2, total, nil
+	return escalate(ctx, c.extractWith, c.cfg.Model, c.cfg.FallbackModel, page)
 }
-
-// errBadResult means the model answered but the answer is unusable
-// (truncated or not valid JSON); a stronger model may do better.
-var errBadResult = errors.New("unusable model output")
 
 func (c *Claude) extractWith(ctx context.Context, model string, page Page) (Extracted, Usage, error) {
 	usage := Usage{Provider: "anthropic", Model: model}
