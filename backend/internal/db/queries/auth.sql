@@ -45,3 +45,10 @@ UPDATE refresh_tokens SET revoked_at = now() WHERE id = $1 AND revoked_at IS NUL
 
 -- name: RevokeAllUserRefreshTokens :exec
 UPDATE refresh_tokens SET revoked_at = now() WHERE user_id = $1 AND revoked_at IS NULL;
+
+-- name: DeleteTenant :exec
+-- Used by the dev seed to reset the demo account; cascades to all tenant data.
+DELETE FROM tenants WHERE id = $1;
+
+-- name: DeleteUser :exec
+DELETE FROM users WHERE id = $1;
