@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import type { Observable } from 'rxjs';
+import { forkJoin, map, of, switchMap, type Observable } from 'rxjs';
 import { ApiClient } from '../api/api-client';
 import type {
   Category,
@@ -45,6 +45,18 @@ export class MenusApi {
       const menu = menuId();
       return menu ? `/v1/menus/${id(menu)}/theme` : undefined;
     });
+  }
+
+  /** Every menu of a venue with its content, e.g. to pick items for a combo. */
+  venueTrees(venueId: string): Observable<MenuTree[]> {
+    return this.api.get<{ items: Menu[] }>(`/v1/venues/${id(venueId)}/menus`).pipe(
+      map((list) => list.items),
+      switchMap((menus) =>
+        menus.length
+          ? forkJoin(menus.map((menu) => this.api.get<MenuTree>(`/v1/menus/${id(menu.id)}`)))
+          : of([]),
+      ),
+    );
   }
 
   /** Owner, manager. Fields left out keep their value. */

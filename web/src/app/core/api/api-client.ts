@@ -76,6 +76,11 @@ export class ApiClient {
   delete(path: string): Observable<void> {
     return this.http.delete<void>(this.url(path)).pipe(catchError(rethrow));
   }
+
+  /** A delete that answers with a body (e.g. the parent without the removed part). */
+  deleteWith<T>(path: string): Observable<T> {
+    return this.http.delete<T>(this.url(path)).pipe(catchError(rethrow));
+  }
 }
 
 function rethrow(error: unknown): Observable<never> {

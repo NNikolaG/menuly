@@ -16,11 +16,74 @@
           <context context-type="linenumber">21</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="promo.pageTitle" datatype="html">
+        <source>Kombo ponude</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.routes.ts</context>
+          <context context-type="linenumber">39</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">89,91</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotions-page.ts</context>
+          <context context-type="linenumber">58,59</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.newTitle" datatype="html">
+        <source>Nova kombo ponuda</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.routes.ts</context>
+          <context context-type="linenumber">44</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">458</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.editTitle" datatype="html">
+        <source>Izmena kombo ponude</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.routes.ts</context>
+          <context context-type="linenumber">50</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">459</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.pageTitle" datatype="html">
+        <source>Uvoz menija sa slike</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.routes.ts</context>
+          <context context-type="linenumber">56</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">101,103</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-upload-page.ts</context>
+          <context context-type="linenumber">65,66</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.reviewTitle" datatype="html">
+        <source>Pregled uvoza</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.routes.ts</context>
+          <context context-type="linenumber">62</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">105,106</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="notFound.pageTitle" datatype="html">
         <source>Stranica nije pronađena</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.routes.ts</context>
-          <context context-type="linenumber">40</context>
+          <context context-type="linenumber">70</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/public-menu/public-menu.routes.ts</context>
@@ -719,12 +782,16 @@
           <context context-type="linenumber">163</context>
         </context-group>
         <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-labels.ts</context>
+          <context context-type="linenumber">78</context>
+        </context-group>
+        <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
           <context context-type="linenumber">215</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">392</context>
+          <context context-type="linenumber">413</context>
         </context-group>
       </trans-unit>
       <trans-unit id="auth.register.heading" datatype="html">
@@ -885,11 +952,878 @@
           <context context-type="linenumber">6</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="import.status.processing" datatype="html">
+        <source>Čita se</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-labels.ts</context>
+          <context context-type="linenumber">17</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.status.ready" datatype="html">
+        <source>Čeka pregled</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-labels.ts</context>
+          <context context-type="linenumber">18</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.status.failed" datatype="html">
+        <source>Nije uspelo</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-labels.ts</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.status.committed" datatype="html">
+        <source>Uvezeno</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-labels.ts</context>
+          <context context-type="linenumber">20</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.page.queued" datatype="html">
+        <source>Na redu</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-labels.ts</context>
+          <context context-type="linenumber">24</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.page.processing" datatype="html">
+        <source>Čita se</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-labels.ts</context>
+          <context context-type="linenumber">25</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.page.done" datatype="html">
+        <source>Pročitano</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-labels.ts</context>
+          <context context-type="linenumber">26</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.page.failed" datatype="html">
+        <source>Nije pročitano</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-labels.ts</context>
+          <context context-type="linenumber">27</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.error.notConfigured" datatype="html">
+        <source>Čitanje menija trenutno nije dostupno. Pokušaj kasnije.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-labels.ts</context>
+          <context context-type="linenumber">32</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.error.notAMenu" datatype="html">
+        <source>Na slici nije prepoznat meni. Slikaj ponovo.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-labels.ts</context>
+          <context context-type="linenumber">33</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.error.noItems" datatype="html">
+        <source>Nije pročitana nijedna stavka. Slikaj ponovo, bliže i oštrije.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-labels.ts</context>
+          <context context-type="linenumber">34</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.error.unreadable" datatype="html">
+        <source>Fajl ne može da se otvori. Slikaj ponovo ili pošalji drugi fajl.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-labels.ts</context>
+          <context context-type="linenumber">35</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.error.temporary" datatype="html">
+        <source>Privremena greška, pokušavamo ponovo…</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-labels.ts</context>
+          <context context-type="linenumber">36</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.error.gaveUp" datatype="html">
+        <source>Čitanje nije uspelo ni posle više pokušaja. Pokušaj ponovo.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-labels.ts</context>
+          <context context-type="linenumber">37</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.quality.good" datatype="html">
+        <source>Dobra slika</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-labels.ts</context>
+          <context context-type="linenumber">41</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.quality.partial" datatype="html">
+        <source>Delimično čitljivo</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-labels.ts</context>
+          <context context-type="linenumber">42</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.quality.poor" datatype="html">
+        <source>Loša slika</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-labels.ts</context>
+          <context context-type="linenumber">43</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.issue.blurry" datatype="html">
+        <source>mutno</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-labels.ts</context>
+          <context context-type="linenumber">47</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.issue.cutOff" datatype="html">
+        <source>odsečeno</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-labels.ts</context>
+          <context context-type="linenumber">48</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.issue.glare" datatype="html">
+        <source>odsjaj</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-labels.ts</context>
+          <context context-type="linenumber">49</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.issue.tooDark" datatype="html">
+        <source>pretamno</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-labels.ts</context>
+          <context context-type="linenumber">50</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.issue.tooFar" datatype="html">
+        <source>predaleko</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-labels.ts</context>
+          <context context-type="linenumber">51</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.issue.skewed" datatype="html">
+        <source>iskrivljeno</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-labels.ts</context>
+          <context context-type="linenumber">52</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.issue.notAMenu" datatype="html">
+        <source>nije meni</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-labels.ts</context>
+          <context context-type="linenumber">53</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.uncertain.name" datatype="html">
+        <source>Proveri naziv</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-labels.ts</context>
+          <context context-type="linenumber">57</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.uncertain.price" datatype="html">
+        <source>Proveri cenu</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-labels.ts</context>
+          <context context-type="linenumber">58</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.uncertain.duplicate" datatype="html">
+        <source>Moguć duplikat</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-labels.ts</context>
+          <context context-type="linenumber">59</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.error.limit" datatype="html">
+        <source>Iskorišćeni su svi uvozi za ovaj objekat. Neuspeli uvozi se ne računaju.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-labels.ts</context>
+          <context context-type="linenumber">66</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.error.unsupported" datatype="html">
+        <source>Taj format nije podržan. Pošalji JPEG, PNG, WebP ili PDF.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-labels.ts</context>
+          <context context-type="linenumber">68</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.error.validation" datatype="html">
+        <source>Fajl je prevelik ili ima previše stranica (najviše 20, do 15 MB po fajlu).</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-labels.ts</context>
+          <context context-type="linenumber">70</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.error.unavailable" datatype="html">
+        <source>Uvoz trenutno nije dostupan na serveru.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-labels.ts</context>
+          <context context-type="linenumber">72</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.error.state" datatype="html">
+        <source>Sačekaj da se stranica pročita, pa pokušaj ponovo.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-labels.ts</context>
+          <context context-type="linenumber">74</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="common.forbidden" datatype="html">
+        <source>Nemaš dozvolu za ovu radnju.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-labels.ts</context>
+          <context context-type="linenumber">76</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-design-page.ts</context>
+          <context context-type="linenumber">431</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
+          <context context-type="linenumber">764</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">625</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotions-page.ts</context>
+          <context context-type="linenumber">420</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">211</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
+          <context context-type="linenumber">412</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
+          <context context-type="linenumber">209</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.addPages" datatype="html">
+        <source>Dodaj stranice</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">113,114</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.reading" datatype="html">
+        <source>Čitamo meni…</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">136,137</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.progress" datatype="html">
+        <source> Pročitano <x id="INTERPOLATION" equiv-text="{{ progress().done }}"/> od <x id="INTERPOLATION_1" equiv-text="{{ progress().total }}"/>. Možeš da napustiš stranicu, nastavljamo u pozadini. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">140,142</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.committed" datatype="html">
+        <source>Meni je uvezen.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">148,149</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.openMenu" datatype="html">
+        <source>Otvori meni</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">155,157</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.summary" datatype="html">
+        <source>Pročitano</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">190,191</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.sum.categories" datatype="html">
+        <source>Kategorije</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">193,194</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.sum.items" datatype="html">
+        <source>Stavke</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">197,198</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.sum.toCheck" datatype="html">
+        <source>Za proveru</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">201,202</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.sum.missingPrices" datatype="html">
+        <source>Bez cene</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">205,206</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.saveDraft" datatype="html">
+        <source> Sačuvaj izmene </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">219,220</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.unsaved" datatype="html">
+        <source>Nesačuvano</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">223,224</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.saved" datatype="html">
+        <source>Sačuvano</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">225,226</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.commitTitle" datatype="html">
+        <source> Uvezi u meni </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">239,240</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.target" datatype="html">
+        <source>Gde</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">244</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.menuName" datatype="html">
+        <source>Naziv novog menija</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">256,257</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.mergeHint" datatype="html">
+        <source> Kategorije istog naziva dobijaju nove stavke na kraju; ostale se dodaju. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">264,265</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.commit" datatype="html">
+        <source> Uvezi </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">271,272</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.checked" datatype="html">
+        <source>U redu</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">332,333</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.printed" datatype="html">
+        <source>Na slici: <x id="INTERPOLATION" equiv-text="{{ variant.price_text }}"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">396,397</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="item.addVariant" datatype="html">
+        <source>Dodaj veličinu</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">410,411</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/item-dialog.ts</context>
+          <context context-type="linenumber">134,135</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="menu.addItem" datatype="html">
+        <source>Dodaj stavku</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">425,426</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
+          <context context-type="linenumber">201,202</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.pageEmpty" datatype="html">
+        <source> Sa ove stranice nije pročitana nijedna stavka. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">433,434</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="menu.addCategory" datatype="html">
+        <source>Dodaj kategoriju</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">445,446</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
+          <context context-type="linenumber">368,369</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.retakeHint" datatype="html">
+        <source> Slikaj ponovo: bliže, oštrije, bez odsjaja. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">479,480</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.retake" datatype="html">
+        <source>Slikaj ponovo</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">510,511</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.retry" datatype="html">
+        <source>Pokušaj ponovo</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">523,524</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.notFound" datatype="html">
+        <source>Uvoz nije pronađen.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">545,547</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="common.loading" datatype="html">
+        <source>Učitavanje…</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">547,551</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-design-page.ts</context>
+          <context context-type="linenumber">218,222</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
+          <context context-type="linenumber">385,389</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">104,106</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotions-page.ts</context>
+          <context context-type="linenumber">213,217</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/public-menu/public-menu-page.ts</context>
+          <context context-type="linenumber">32,35</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">53,55</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
+          <context context-type="linenumber">34,35</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.pages" datatype="html">
+        <source>Stranice</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">775</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="category.field.name" datatype="html">
         <source>Naziv kategorije</source>
         <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">776</context>
+        </context-group>
+        <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/category-dialog.ts</context>
           <context context-type="linenumber">22,23</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="item.field.name" datatype="html">
+        <source>Naziv</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">777</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/item-dialog.ts</context>
+          <context context-type="linenumber">51</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="item.field.description" datatype="html">
+        <source>Opis (opciono)</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">778</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/item-dialog.ts</context>
+          <context context-type="linenumber">58,59</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">126,127</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="item.field.variantLabel" datatype="html">
+        <source>Veličina</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">779</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/item-dialog.ts</context>
+          <context context-type="linenumber">86,87</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="item.field.price" datatype="html">
+        <source>Cena</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">780</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/item-dialog.ts</context>
+          <context context-type="linenumber">102</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="item.removeVariant" datatype="html">
+        <source>Ukloni veličinu</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">781</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/item-dialog.ts</context>
+          <context context-type="linenumber">123,124</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.target.new" datatype="html">
+        <source>Novi meni (nacrt)</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">849</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.defaultMenuName" datatype="html">
+        <source>Uvezeni meni</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">854</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.pageN" datatype="html">
+        <source>Stranica <x id="number" equiv-text="n"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">881</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-upload-page.ts</context>
+          <context context-type="linenumber">443</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="common.actionsFor" datatype="html">
+        <source>Akcije: <x id="name" equiv-text="name"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">886</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
+          <context context-type="linenumber">485</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotions-page.ts</context>
+          <context context-type="linenumber">323</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
+          <context context-type="linenumber">322</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
+          <context context-type="linenumber">165</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.deletePage" datatype="html">
+        <source>Obriši <x id="name" equiv-text="name"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">891</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="menu.deleteItemLabel" datatype="html">
+        <source>Obriši <x id="name" equiv-text="name"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">895</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
+          <context context-type="linenumber">519</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotions-page.ts</context>
+          <context context-type="linenumber">335</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.deletePage.title" datatype="html">
+        <source>Obriši stranicu?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">1007</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.deletePage.body" datatype="html">
+        <source><x id="name" equiv-text="name"/> se uklanja iz uvoza zajedno sa stavkama pročitanim sa nje.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">1008</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.deletePage.confirm" datatype="html">
+        <source>Obriši stranicu</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">1009</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.commitBlocked" datatype="html">
+        <source>Pre uvoza popuni sve nazive i cene (označene crveno, na stranicama sa tačkom).</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">1035</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.draftInvalid" datatype="html">
+        <source>Nacrt još nije spreman:</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
+          <context context-type="linenumber">1058</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.quota" datatype="html">
+        <source>Iskorišćeno <x id="INTERPOLATION" equiv-text="{{ q.used }}"/> od <x id="INTERPOLATION_1" equiv-text="{{ q.limit }}"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-upload-page.ts</context>
+          <context context-type="linenumber">68,69</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.intro" datatype="html">
+        <source> Slikaj postojeći meni, a mi pročitamo kategorije, stavke i cene. Pre uvoza sve proveriš i ispraviš. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-upload-page.ts</context>
+          <context context-type="linenumber">73,75</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.upload" datatype="html">
+        <source>Fajlovi</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-upload-page.ts</context>
+          <context context-type="linenumber">80,83</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.takePhoto" datatype="html">
+        <source>Slikaj stranicu</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-upload-page.ts</context>
+          <context context-type="linenumber">93,94</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.pickFiles" datatype="html">
+        <source>Izaberi fajlove</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-upload-page.ts</context>
+          <context context-type="linenumber">105,106</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.dropHint" datatype="html">
+        <source> ili prevuci slike ili PDF ovde · JPEG, PNG, WebP, PDF · do 15 MB · najviše 20 stranica </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-upload-page.ts</context>
+          <context context-type="linenumber">117,118</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.orderHint" datatype="html">
+        <source> Redosled je redosled čitanja: prevuci ili koristi strelice. Preklapanje između slika je u redu. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-upload-page.ts</context>
+          <context context-type="linenumber">127,129</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.sending" datatype="html">
+        <source>Šaljem…</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-upload-page.ts</context>
+          <context context-type="linenumber">204,205</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.send" datatype="html">
+        <source>Pročitaj meni</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-upload-page.ts</context>
+          <context context-type="linenumber">206,207</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.fileCount" datatype="html">
+        <source>{VAR_PLURAL, plural, one {<x id="INTERPOLATION"/> fajl} few {<x id="INTERPOLATION"/> fajla} other {<x id="INTERPOLATION"/> fajlova}}</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-upload-page.ts</context>
+          <context context-type="linenumber">209,212</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.tipsTitle" datatype="html">
+        <source>Za najbolje čitanje</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-upload-page.ts</context>
+          <context context-type="linenumber">219,220</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.tip1" datatype="html">
+        <source>Jedna stranica po slici, cela u kadru.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-upload-page.ts</context>
+          <context context-type="linenumber">221,222</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.tip2" datatype="html">
+        <source>Dobro svetlo, bez odsjaja i blica.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-upload-page.ts</context>
+          <context context-type="linenumber">222,223</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.tip3" datatype="html">
+        <source>Slikaj odozgo, da tekst ne bude iskrivljen.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-upload-page.ts</context>
+          <context context-type="linenumber">223,224</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.tip4" datatype="html">
+        <source>Dugačak meni slikaj iz više delova, redom odozgo nadole.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-upload-page.ts</context>
+          <context context-type="linenumber">224,226</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.history" datatype="html">
+        <source>Ranije</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-upload-page.ts</context>
+          <context context-type="linenumber">232,233</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.col.date" datatype="html">
+        <source>Datum</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-upload-page.ts</context>
+          <context context-type="linenumber">236,237</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venue.col.status" datatype="html">
+        <source>Status</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-upload-page.ts</context>
+          <context context-type="linenumber">237,238</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotions-page.ts</context>
+          <context context-type="linenumber">88,89</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
+          <context context-type="linenumber">130,131</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.col.found" datatype="html">
+        <source>Pročitano</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-upload-page.ts</context>
+          <context context-type="linenumber">238,240</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.found" datatype="html">
+        <source>{VAR_PLURAL, plural, one {<x id="INTERPOLATION"/> stavka} few {<x id="INTERPOLATION"/> stavke} other {<x id="INTERPOLATION"/> stavki}}</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-upload-page.ts</context>
+          <context context-type="linenumber">256,259</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.earlier" datatype="html">
+        <source>Pomeri ranije</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-upload-page.ts</context>
+          <context context-type="linenumber">412</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.later" datatype="html">
+        <source>Pomeri kasnije</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-upload-page.ts</context>
+          <context context-type="linenumber">413</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.removeFile" datatype="html">
+        <source>Ukloni <x id="name" equiv-text="name"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/import-upload-page.ts</context>
+          <context context-type="linenumber">447</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.originalError" datatype="html">
+        <source>Original nije učitan.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/page-original.ts</context>
+          <context context-type="linenumber">26,28</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.openOriginal" datatype="html">
+        <source>Otvori original u punoj veličini</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/page-original.ts</context>
+          <context context-type="linenumber">76</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="import.originalAlt" datatype="html">
+        <source>Original, stranica <x id="number" equiv-text="n"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/imports/page-original.ts</context>
+          <context context-type="linenumber">100</context>
         </context-group>
       </trans-unit>
       <trans-unit id="category.field.namePlaceholder" datatype="html">
@@ -917,6 +1851,14 @@
           <context context-type="linenumber">167,169</context>
         </context-group>
         <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/price-adjust-dialog.ts</context>
+          <context context-type="linenumber">127,129</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">346,348</context>
+        </context-group>
+        <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
           <context context-type="linenumber">121,123</context>
         </context-group>
@@ -940,6 +1882,10 @@
           <context context-type="linenumber">77,78</context>
         </context-group>
         <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">344,345</context>
+        </context-group>
+        <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
           <context context-type="linenumber">176</context>
         </context-group>
@@ -958,25 +1904,15 @@
           <context context-type="linenumber">70</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="item.field.name" datatype="html">
-        <source>Naziv</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/menus/item-dialog.ts</context>
-          <context context-type="linenumber">51</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="item.field.description" datatype="html">
-        <source>Opis (opciono)</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/menus/item-dialog.ts</context>
-          <context context-type="linenumber">58,59</context>
-        </context-group>
-      </trans-unit>
       <trans-unit id="item.field.image" datatype="html">
         <source>Slika (URL, opciono)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/item-dialog.ts</context>
           <context context-type="linenumber">72,73</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">139,140</context>
         </context-group>
       </trans-unit>
       <trans-unit id="item.field.imageHint" datatype="html">
@@ -986,39 +1922,11 @@
           <context context-type="linenumber">75,76</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="item.field.variantLabel" datatype="html">
-        <source>Veličina</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/menus/item-dialog.ts</context>
-          <context context-type="linenumber">86,87</context>
-        </context-group>
-      </trans-unit>
       <trans-unit id="item.field.variantLabelPlaceholder" datatype="html">
         <source>npr. 0,5 l</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/item-dialog.ts</context>
           <context context-type="linenumber">94,95</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="item.field.price" datatype="html">
-        <source>Cena</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/menus/item-dialog.ts</context>
-          <context context-type="linenumber">102</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="item.removeVariant" datatype="html">
-        <source>Ukloni veličinu</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/menus/item-dialog.ts</context>
-          <context context-type="linenumber">123,124</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="item.addVariant" datatype="html">
-        <source>Dodaj veličinu</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/menus/item-dialog.ts</context>
-          <context context-type="linenumber">134,135</context>
         </context-group>
       </trans-unit>
       <trans-unit id="item.field.tags" datatype="html">
@@ -1067,12 +1975,20 @@
           <context context-type="sourcefile">src/app/features/menus/menu-design-page.ts</context>
           <context context-type="linenumber">381</context>
         </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">511</context>
+        </context-group>
       </trans-unit>
       <trans-unit id="item.field.priceRequired" datatype="html">
         <source>Unesi cenu, npr. 250.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/item-dialog.ts</context>
           <context context-type="linenumber">240</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">513</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menuDesign.heading" datatype="html">
@@ -1224,53 +2140,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">360,362</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="common.loading" datatype="html">
-        <source>Učitavanje…</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/menus/menu-design-page.ts</context>
-          <context context-type="linenumber">218,222</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">362,366</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/public-menu/public-menu-page.ts</context>
-          <context context-type="linenumber">32,35</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
-          <context context-type="linenumber">53,55</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
-          <context context-type="linenumber">34,35</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="common.forbidden" datatype="html">
-        <source>Nemaš dozvolu za ovu radnju.</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/menus/menu-design-page.ts</context>
-          <context context-type="linenumber">431</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">714</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
-          <context context-type="linenumber">211</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">391</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
-          <context context-type="linenumber">209</context>
+          <context context-type="linenumber">383,385</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menuDesign.saveError" datatype="html">
@@ -1284,100 +2154,127 @@
         <source>Objavljen</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">80,82</context>
+          <context context-type="linenumber">88,90</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">129,130</context>
+          <context context-type="linenumber">150,151</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.status.draft" datatype="html">
         <source>Nacrt</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">83,85</context>
+          <context context-type="linenumber">91,93</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">133,134</context>
+          <context context-type="linenumber">154,155</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.design" datatype="html">
         <source>Dizajn</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">89,90</context>
+          <context context-type="linenumber">97,98</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="prices.open" datatype="html">
+        <source>Promeni cene</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
+          <context context-type="linenumber">103,104</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.unpublish" datatype="html">
         <source> Vrati u nacrt </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">101,102</context>
+          <context context-type="linenumber">115,116</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">157</context>
+          <context context-type="linenumber">178</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.publishMenu" datatype="html">
         <source> Objavi meni </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">111,112</context>
+          <context context-type="linenumber">125,126</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="prices.done" datatype="html">
+        <source>{VAR_PLURAL, plural, one {Promenjena je <x id="INTERPOLATION"/> cena.} few {Promenjene su <x id="INTERPOLATION"/> cene.} other {Promenjeno je <x id="INTERPOLATION"/> cena.}}</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
+          <context context-type="linenumber">138,141</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.moveHint" datatype="html">
         <source> Alt + strelica gore ili dole pomera stavku. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">124,127</context>
+          <context context-type="linenumber">147,150</context>
         </context-group>
-      </trans-unit>
-      <trans-unit id="menu.addItem" datatype="html">
-        <source>Dodaj stavku</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">178,179</context>
+          <context context-type="sourcefile">src/app/features/promotions/promotions-page.ts</context>
+          <context context-type="linenumber">76,79</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.col.order" datatype="html">
         <source>Redosled</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">215,216</context>
+          <context context-type="linenumber">238,239</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotions-page.ts</context>
+          <context context-type="linenumber">85,86</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.col.item" datatype="html">
         <source>Stavka</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">218,219</context>
+          <context context-type="linenumber">241,242</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.col.available" datatype="html">
         <source>Dostupno</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">219,220</context>
+          <context context-type="linenumber">242,243</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.col.price" datatype="html">
         <source>Cena</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">220,221</context>
+          <context context-type="linenumber">243,244</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">270,271</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotions-page.ts</context>
+          <context context-type="linenumber">89,90</context>
         </context-group>
       </trans-unit>
       <trans-unit id="common.actions" datatype="html">
         <source>Akcije</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">222,223</context>
+          <context context-type="linenumber">245,246</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotions-page.ts</context>
+          <context context-type="linenumber">92,93</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">110,111</context>
+          <context context-type="linenumber">131,132</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
@@ -1388,127 +2285,114 @@
         <source>Dostupno</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">274,275</context>
+          <context context-type="linenumber">297,298</context>
         </context-group>
       </trans-unit>
       <trans-unit id="item.unavailable" datatype="html">
         <source>Nema</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">281,282</context>
+          <context context-type="linenumber">304,305</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.emptyCategory" datatype="html">
         <source>Kategorija je prazna.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">328,330</context>
+          <context context-type="linenumber">351,353</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.empty" datatype="html">
         <source>Meni još nema kategorija.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">333,334</context>
+          <context context-type="linenumber">356,357</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.emptyBody" datatype="html">
         <source> Dodaj prvu kategoriju, npr. „Topli napici“, pa u nju stavke sa cenama. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">335,336</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="menu.addCategory" datatype="html">
-        <source>Dodaj kategoriju</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">345,346</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="common.actionsFor" datatype="html">
-        <source>Akcije: <x id="name" equiv-text="name"/></source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">458</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">306</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
-          <context context-type="linenumber">165</context>
+          <context context-type="linenumber">358,359</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.moveLabel" datatype="html">
         <source>Premesti <x id="name" equiv-text="name"/></source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">482</context>
+          <context context-type="linenumber">511</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotions-page.ts</context>
+          <context context-type="linenumber">327</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.editLabel" datatype="html">
         <source>Izmeni <x id="name" equiv-text="name"/></source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">486</context>
+          <context context-type="linenumber">515</context>
         </context-group>
-      </trans-unit>
-      <trans-unit id="menu.deleteItemLabel" datatype="html">
-        <source>Obriši <x id="name" equiv-text="name"/></source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">490</context>
+          <context context-type="sourcefile">src/app/features/promotions/promotions-page.ts</context>
+          <context context-type="linenumber">331</context>
         </context-group>
       </trans-unit>
       <trans-unit id="category.delete.title" datatype="html">
         <source>Obriši kategoriju?</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">519</context>
+          <context context-type="linenumber">569</context>
         </context-group>
       </trans-unit>
       <trans-unit id="category.delete.body" datatype="html">
         <source>Kategorija „<x id="name" equiv-text="category.name"/>“ se briše sa svim stavkama.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">520</context>
+          <context context-type="linenumber">570</context>
         </context-group>
       </trans-unit>
       <trans-unit id="category.delete.confirm" datatype="html">
         <source>Obriši kategoriju</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">521</context>
+          <context context-type="linenumber">571</context>
         </context-group>
       </trans-unit>
       <trans-unit id="item.delete.title" datatype="html">
         <source>Obriši stavku?</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">585</context>
+          <context context-type="linenumber">635</context>
         </context-group>
       </trans-unit>
       <trans-unit id="item.delete.body" datatype="html">
         <source>Stavka „<x id="name" equiv-text="item.name"/>“ se briše iz menija.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">586</context>
+          <context context-type="linenumber">636</context>
         </context-group>
       </trans-unit>
       <trans-unit id="item.delete.confirm" datatype="html">
         <source>Obriši stavku</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">587</context>
+          <context context-type="linenumber">637</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.saveError" datatype="html">
         <source>Izmena nije sačuvana. Pokušaj ponovo.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">715</context>
+          <context context-type="linenumber">765</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">628</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotions-page.ts</context>
+          <context context-type="linenumber">421</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.pageTitle" datatype="html">
@@ -1523,6 +2407,474 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menus.routes.ts</context>
           <context context-type="linenumber">11</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="prices.field.scope" datatype="html">
+        <source>Šta menjaš</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/price-adjust-dialog.ts</context>
+          <context context-type="linenumber">45,46</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="prices.field.mode" datatype="html">
+        <source>Kako</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/price-adjust-dialog.ts</context>
+          <context context-type="linenumber">53,54</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/price-adjust-dialog.ts</context>
+          <context context-type="linenumber">190</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="prices.field.valueHint" datatype="html">
+        <source>Negativan broj snižava cene.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/price-adjust-dialog.ts</context>
+          <context context-type="linenumber">63,65</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="prices.field.round" datatype="html">
+        <source>Zaokruži na</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/price-adjust-dialog.ts</context>
+          <context context-type="linenumber">78,79</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="prices.preview" datatype="html">
+        <source>{VAR_PLURAL, plural, one {Menja se <x id="INTERPOLATION"/> cena} few {Menja se <x id="INTERPOLATION"/> cene} other {Menja se <x id="INTERPOLATION"/> cena}}</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/price-adjust-dialog.ts</context>
+          <context context-type="linenumber">89,92</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="prices.previewNote" datatype="html">
+        <source> Pregled je približan; tačne cene računa server. Svaka promena ide u istoriju cena. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/price-adjust-dialog.ts</context>
+          <context context-type="linenumber">110,111</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="prices.previewEmpty" datatype="html">
+        <source> Unesi iznos da vidiš kako se cene menjaju. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/price-adjust-dialog.ts</context>
+          <context context-type="linenumber">114,115</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="prices.apply" datatype="html">
+        <source> Promeni cene </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/price-adjust-dialog.ts</context>
+          <context context-type="linenumber">136,137</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="prices.title" datatype="html">
+        <source>Promena cena</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/price-adjust-dialog.ts</context>
+          <context context-type="linenumber">189</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="prices.field.percent" datatype="html">
+        <source>Za procenat</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/price-adjust-dialog.ts</context>
+          <context context-type="linenumber">191</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="prices.field.amount" datatype="html">
+        <source>Za iznos</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/price-adjust-dialog.ts</context>
+          <context context-type="linenumber">192</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="prices.mode.percent" datatype="html">
+        <source>Procenat</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/price-adjust-dialog.ts</context>
+          <context context-type="linenumber">194</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="prices.mode.amount" datatype="html">
+        <source>Iznos</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/price-adjust-dialog.ts</context>
+          <context context-type="linenumber">195</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="prices.scope.all" datatype="html">
+        <source>Ceo meni</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/price-adjust-dialog.ts</context>
+          <context context-type="linenumber">199</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="prices.round.none" datatype="html">
+        <source>Bez zaokruživanja</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/price-adjust-dialog.ts</context>
+          <context context-type="linenumber">203</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="prices.field.valueRequired" datatype="html">
+        <source>Unesi procenat ili iznos.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/price-adjust-dialog.ts</context>
+          <context context-type="linenumber">218</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="prices.field.valueZero" datatype="html">
+        <source>Unesi broj različit od nule.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/price-adjust-dialog.ts</context>
+          <context context-type="linenumber">224</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.notFound" datatype="html">
+        <source>Ponuda nije pronađena.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">102,103</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.basics" datatype="html">
+        <source>Osnovno</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">109,110</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.field.name" datatype="html">
+        <source>Naziv</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">113</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.field.namePlaceholder" datatype="html">
+        <source>npr. Burger meni</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">120,121</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.slots" datatype="html">
+        <source>Šta ulazi u ponudu</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">149,150</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.slotsHint" datatype="html">
+        <source> Svaki deo je jedna stavka ili izbor između više njih (npr. „Piće po izboru“). </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">151,152</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.catalogError" datatype="html">
+        <source> Stavke menija nisu učitane. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">157,158</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.field.slotLabel" datatype="html">
+        <source>Naziv dela (opciono)</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">167,168</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.field.slotLabelPlaceholder" datatype="html">
+        <source>npr. Piće po izboru</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">175,176</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.field.quantity" datatype="html">
+        <source>Komada</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">182</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.orPrefix" datatype="html">
+        <source>ili</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">213,214</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.slotEmpty" datatype="html">
+        <source> Dodaj bar jednu stavku. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">239,240</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.addSlot" datatype="html">
+        <source>Dodaj deo</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">261,262</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.field.price" datatype="html">
+        <source>Cena ponude</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">273,274</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.regular" datatype="html">
+        <source>Pojedinačno</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">290,291</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.savingsLabel" datatype="html">
+        <source>Ušteda za gosta</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">294,295</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.pricier" datatype="html">
+        <source> Ponuda je skuplja nego kad se stavke kupe pojedinačno. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">300,301</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.regularHint" datatype="html">
+        <source>Za izbor se računa najjeftinija stavka.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">303,306</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.when" datatype="html">
+        <source>Kada važi</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">307,308</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.field.startsAt" datatype="html">
+        <source>Od (opciono)</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">310,311</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.field.endsAt" datatype="html">
+        <source>Do (opciono)</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">323,324</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.field.active" datatype="html">
+        <source>Uključena</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">331,333</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.field.featured" datatype="html">
+        <source>Istakni kao baner na meniju</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">335,337</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.addItemPlaceholder" datatype="html">
+        <source>Potraži stavku iz menija…</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">460</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.addChoicePlaceholder" datatype="html">
+        <source>Dodaj još jednu za izbor…</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">461</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.field.endsAfter" datatype="html">
+        <source>Kraj mora biti posle početka.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">520</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.slotTitle" datatype="html">
+        <source>Deo <x id="number" equiv-text="index + 1"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">572</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.addOptionLabel" datatype="html">
+        <source>Dodaj stavku u deo <x id="number" equiv-text="index + 1"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">576</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.removeSlot" datatype="html">
+        <source>Ukloni deo <x id="number" equiv-text="index + 1"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">580</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.removeOption" datatype="html">
+        <source>Ukloni <x id="name" equiv-text="name"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">585</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.invalid" datatype="html">
+        <source>Proveri stavke: neka više nije u meniju.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
+          <context context-type="linenumber">627</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.status.live" datatype="html">
+        <source>Aktivna</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-labels.ts</context>
+          <context context-type="linenumber">5</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.status.scheduled" datatype="html">
+        <source>Zakazana</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-labels.ts</context>
+          <context context-type="linenumber">6</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.status.expired" datatype="html">
+        <source>Istekla</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-labels.ts</context>
+          <context context-type="linenumber">7</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.status.inactive" datatype="html">
+        <source>Isključena</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotion-labels.ts</context>
+          <context context-type="linenumber">8</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.new" datatype="html">
+        <source>Nova kombo ponuda</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotions-page.ts</context>
+          <context context-type="linenumber">62,63</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.intro" datatype="html">
+        <source> Npr. „Burger + pomfrit + piće po izboru“ po povoljnijoj ceni. Gost vidi samo aktivne ponude, istaknute kao baner. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotions-page.ts</context>
+          <context context-type="linenumber">67,69</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.col.name" datatype="html">
+        <source>Ponuda</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotions-page.ts</context>
+          <context context-type="linenumber">87,88</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.col.active" datatype="html">
+        <source>Uključena</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotions-page.ts</context>
+          <context context-type="linenumber">91,92</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.featured" datatype="html">
+        <source>Istaknuta</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotions-page.ts</context>
+          <context context-type="linenumber">126,127</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.savings" datatype="html">
+        <source>ušteda <x id="INTERPOLATION" equiv-text="{{
+                            promo.savings_minor / 100 | currency: currency() : &apos;code&apos; : &apos;1.0-2&apos;
+                          }}"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotions-page.ts</context>
+          <context context-type="linenumber">148,151</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.empty" datatype="html">
+        <source>Još nema kombo ponuda.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotions-page.ts</context>
+          <context context-type="linenumber">203,204</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.emptyBody" datatype="html">
+        <source> Napravi ponudu od stavki iz menija: fiksne stavke ili izbor (npr. bilo koje piće), uz jednu cenu. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotions-page.ts</context>
+          <context context-type="linenumber">205,207</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.loadError" datatype="html">
+        <source>Ponude nisu učitane.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotions-page.ts</context>
+          <context context-type="linenumber">211,213</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.or" datatype="html">
+        <source> ili </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotions-page.ts</context>
+          <context context-type="linenumber">310</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.activeLabel" datatype="html">
+        <source>Uključena: <x id="name" equiv-text="name"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotions-page.ts</context>
+          <context context-type="linenumber">339</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.delete.title" datatype="html">
+        <source>Obriši kombo ponudu?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotions-page.ts</context>
+          <context context-type="linenumber">359</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.delete.body" datatype="html">
+        <source>Ponuda „<x id="name" equiv-text="promo.name"/>“ se briše. Stavke u meniju ostaju.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotions-page.ts</context>
+          <context context-type="linenumber">360</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="promo.delete.confirm" datatype="html">
+        <source>Obriši ponudu</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/promotions/promotions-page.ts</context>
+          <context context-type="linenumber">361</context>
         </context-group>
       </trans-unit>
       <trans-unit id="publicMenu.notFound" datatype="html">
@@ -1572,7 +2924,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">47,49</context>
+          <context context-type="linenumber">58,60</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venues.notFound" datatype="html">
@@ -1583,7 +2935,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">60,64</context>
+          <context context-type="linenumber">81,85</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venues.field.name" datatype="html">
@@ -1608,7 +2960,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">81,82</context>
+          <context context-type="linenumber">102,103</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venues.field.phone" datatype="html">
@@ -1626,7 +2978,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">86</context>
+          <context context-type="linenumber">107</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venues.field.slugPattern" datatype="html">
@@ -1692,18 +3044,32 @@
           <context context-type="linenumber">213</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="venue.promotions" datatype="html">
+        <source>Kombo ponude</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
+          <context context-type="linenumber">66,67</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venue.import" datatype="html">
+        <source>Uvezi sa slike</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
+          <context context-type="linenumber">71,72</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="venue.edit" datatype="html">
         <source>Izmeni objekat</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">55,56</context>
+          <context context-type="linenumber">75,76</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venues.col.link" datatype="html">
         <source>Javni link</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">89,90</context>
+          <context context-type="linenumber">110,111</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
@@ -1714,98 +3080,126 @@
         <source>Meniji</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">97,99</context>
+          <context context-type="linenumber">118,120</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venue.col.menu" datatype="html">
         <source>Meni</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">108,109</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="venue.col.status" datatype="html">
-        <source>Status</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">109,110</context>
+          <context context-type="linenumber">129,130</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venue.publishedAt" datatype="html">
         <source>Objavljen <x id="INTERPOLATION" equiv-text="{{ menu.published_at | date: &apos;dd.MM.y. HH:mm&apos; }}"/></source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">122,123</context>
+          <context context-type="linenumber">143,144</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.publish" datatype="html">
         <source> Objavi </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">170</context>
+          <context context-type="linenumber">191</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venue.noMenus" datatype="html">
         <source>Ovaj objekat još nema meni.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">193,195</context>
+          <context context-type="linenumber">214,216</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venue.menusLoadError" datatype="html">
         <source>Meniji nisu učitani.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">196,199</context>
+          <context context-type="linenumber">217,220</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venue.newMenuName" datatype="html">
         <source>Novi meni</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">203,204</context>
+          <context context-type="linenumber">224,225</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venue.newMenuPlaceholder" datatype="html">
         <source>npr. Glavni meni</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">211,212</context>
+          <context context-type="linenumber">232,233</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venue.addMenu" datatype="html">
         <source>Dodaj meni</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">217,218</context>
+          <context context-type="linenumber">238,239</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.deleteLabel" datatype="html">
         <source>Obriši meni <x id="name" equiv-text="menu.name"/></source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">337</context>
+          <context context-type="linenumber">358</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.delete.title" datatype="html">
         <source>Obriši meni?</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">366</context>
+          <context context-type="linenumber">387</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.delete.body" datatype="html">
         <source>Meni „<x id="name" equiv-text="menu.name"/>“ se briše sa svim kategorijama i stavkama.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">367</context>
+          <context context-type="linenumber">388</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.delete.confirm" datatype="html">
         <source>Obriši meni</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">368</context>
+          <context context-type="linenumber">389</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venue.qr.loadError" datatype="html">
+        <source>QR kod nije učitan.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-qr.ts</context>
+          <context context-type="linenumber">18,20</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venue.qr.hint" datatype="html">
+        <source>SVG je oštar u svakoj veličini, za štampu na stolu.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-qr.ts</context>
+          <context context-type="linenumber">66,68</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venue.qr.downloadError" datatype="html">
+        <source>Preuzimanje nije uspelo.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-qr.ts</context>
+          <context context-type="linenumber">68,72</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venue.qr.copy" datatype="html">
+        <source>Kopiraj link</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-qr.ts</context>
+          <context context-type="linenumber">117</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venue.qr.copied" datatype="html">
+        <source>Link je kopiran</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-qr.ts</context>
+          <context context-type="linenumber">118</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venues.heading" datatype="html">
@@ -1946,6 +3340,13 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/ui/field/field.ts</context>
           <context context-type="linenumber">92</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="common.noMatches" datatype="html">
+        <source>Nema rezultata.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/ui/search-picker/search-picker.ts</context>
+          <context context-type="linenumber">166</context>
         </context-group>
       </trans-unit>
     </body>

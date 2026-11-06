@@ -85,8 +85,12 @@ const PREVIEW = 5;
 
           <section class="preview stack" data-gap="2" aria-live="polite">
             @if (preview().changed) {
-              <p class="label" i18n="@@prices.preview">
-                {preview().changed, plural, one {Menja se {{ preview().changed }} cena} few {Menja se {{ preview().changed }} cene} other {Menja se {{ preview().changed }} cena}}
+              <p class="label">
+                <span i18n="@@prices.preview">{preview().changed, plural,
+                  one {Menja se {{ preview().changed }} cena}
+                  few {Menja se {{ preview().changed }} cene}
+                  other {Menja se {{ preview().changed }} cena}
+                }</span>
               </p>
               <ul class="stack" data-gap="1">
                 @for (row of preview().rows; track $index) {
@@ -94,7 +98,10 @@ const PREVIEW = 5;
                     <span>{{ row.name }}</span>
                     <span class="nums">
                       <s>{{ toMajor(row.before) | currency: data.currency : 'code' : '1.0-2' }}</s>
-                      → <strong>{{ toMajor(row.after) | currency: data.currency : 'code' : '1.0-2' }}</strong>
+                      →
+                      <strong>{{
+                        toMajor(row.after) | currency: data.currency : 'code' : '1.0-2'
+                      }}</strong>
                     </span>
                   </li>
                 }
@@ -103,7 +110,9 @@ const PREVIEW = 5;
                 Pregled je približan; tačne cene računa server. Svaka promena ide u istoriju cena.
               </p>
             } @else {
-              <p class="meta" i18n="@@prices.previewEmpty">Unesi iznos da vidiš kako se cene menjaju.</p>
+              <p class="meta" i18n="@@prices.previewEmpty">
+                Unesi iznos da vidiš kako se cene menjaju.
+              </p>
             }
           </section>
         </div>
@@ -141,7 +150,12 @@ const PREVIEW = 5;
       gap: var(--space-3);
     }
 
-    .pair app-field {
+    .pair {
+      align-items: start;
+    }
+
+    .pair app-field,
+    .pair app-select {
       min-inline-size: 0;
     }
 
@@ -205,7 +219,10 @@ export class PriceAdjustDialog {
     });
     validate(path.value, ({ value }) =>
       value() === 0
-        ? { kind: 'zero', message: $localize`:@@prices.field.valueZero:Unesi broj različit od nule.` }
+        ? {
+            kind: 'zero',
+            message: $localize`:@@prices.field.valueZero:Unesi broj različit od nule.`,
+          }
         : undefined,
     );
     min(path.value, () => (this.model().mode === 'percent' ? -90 : -Infinity));
@@ -257,7 +274,9 @@ export function adjust(
   value: number,
   step: number,
 ): number {
-  let next = Math.round(mode === 'percent' ? (price * (100 + value)) / 100 : price + toMinor(value));
+  let next = Math.round(
+    mode === 'percent' ? (price * (100 + value)) / 100 : price + toMinor(value),
+  );
   if (step > 1) next = Math.round(next / step) * step;
   return Math.max(0, next);
 }

@@ -134,8 +134,12 @@ import { toMajor, toMinor } from './price';
           <p role="alert" class="error">{{ error() }}</p>
         }
         @if (updated() !== null) {
-          <p role="status" class="notice" i18n="@@prices.done">
-            {updated(), plural, one {Promenjena je {{ updated() }} cena.} few {Promenjene su {{ updated() }} cene.} other {Promenjeno je {{ updated() }} cena.}}
+          <p role="status" class="notice">
+            <span i18n="@@prices.done">{updated(), plural,
+              one {Promenjena je {{ updated() }} cena.}
+              few {Promenjene su {{ updated() }} cene.}
+              other {Promenjeno je {{ updated() }} cena.}
+            }</span>
           </p>
         }
 
