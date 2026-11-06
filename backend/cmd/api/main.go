@@ -23,7 +23,10 @@ import (
 	"github.com/nnikolag/menuly/backend/internal/config"
 	"github.com/nnikolag/menuly/backend/internal/db"
 	"github.com/nnikolag/menuly/backend/internal/httpapi"
+	"github.com/nnikolag/menuly/backend/internal/jobs"
+	"github.com/nnikolag/menuly/backend/internal/ocr"
 	"github.com/nnikolag/menuly/backend/internal/seed"
+	"github.com/nnikolag/menuly/backend/internal/storage"
 )
 
 func main() {
@@ -55,7 +58,13 @@ func run(args []string) error {
 		if len(args) > 1 {
 			sub = args[1]
 		}
-		return db.Migrate(ctx, cfg.MigrateDatabaseURL, sub)
+		if err := db.Migrate(ctx, cfg.MigrateDatabaseURL, sub); err != nil {
+			return err
+		}
+		if sub == "up" {
+			return jobs.Migrate(ctx, cfg.MigrateDatabaseURL)
+		}
+		return nil
 	case "seed":
 		return runSeed(ctx, cfg, slices.Contains(args[1:], "--reset"))
 	default:
@@ -68,6 +77,9 @@ func serve(ctx context.Context, cfg config.Config) error {
 		if err := db.Migrate(ctx, cfg.MigrateDatabaseURL, "up"); err != nil {
 			return fmt.Errorf("migrate: %w", err)
 		}
+		if err := jobs.Migrate(ctx, cfg.MigrateDatabaseURL); err != nil {
+			return fmt.Errorf("migrate jobs: %w", err)
+		}
 	}
 	database, err := db.Open(ctx, cfg.DatabaseURL)
 	if err != nil {
@@ -75,10 +87,41 @@ func serve(ctx context.Context, cfg config.Config) error {
 	}
 	defer database.Close()
 
+	store, err := openStore(ctx, cfg)
+	if err != nil {
+		return err
+	}
+	var extractor ocr.MenuExtractor
+	if cfg.AnthropicAPIKey != "" {
+		extractor = ocr.NewClaude(ocr.ClaudeConfig{
+			APIKey: cfg.AnthropicAPIKey, Model: cfg.OCRModel, FallbackModel: cfg.OCRFallbackModel, Effort: cfg.OCREffort,
+		})
+		slog.Info("ocr enabled", "model", cfg.OCRModel, "fallback", cfg.OCRFallbackModel, "workers", cfg.OCRWorkers)
+	} else {
+		slog.Warn("ANTHROPIC_API_KEY is not set: menu imports will fail with \"OCR is not configured\"")
+	}
+	queue, err := jobs.New(jobs.Config{DB: database, Store: store, Extractor: extractor, Workers: cfg.OCRWorkers})
+	if err != nil {
+		return fmt.Errorf("jobs: %w", err)
+	}
+	if cfg.OCRWorkers > 0 {
+		if err := queue.Start(ctx); err != nil {
+			return fmt.Errorf("jobs: %w", err)
+		}
+		defer func() {
+			stopCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+			defer cancel()
+			_ = queue.Stop(stopCtx)
+		}()
+	}
+
 	issuer := auth.NewIssuer(cfg.JWTSecret, cfg.JWTIssuer, cfg.AccessTokenTTL, cfg.RefreshTokenTTL)
 	srv := &http.Server{
-		Addr:              cfg.HTTPAddr,
-		Handler:           httpapi.New(database, issuer).Handler(httpapi.Options{CORSAllowedOrigins: cfg.CORSAllowedOrigins, DocsEnabled: cfg.DocsEnabled}),
+		Addr: cfg.HTTPAddr,
+		Handler: httpapi.New(database, issuer).Handler(httpapi.Options{
+			CORSAllowedOrigins: cfg.CORSAllowedOrigins, DocsEnabled: cfg.DocsEnabled, PublicMenuURL: cfg.PublicMenuURL,
+			Store: store, Jobs: queue,
+		}),
 		ReadHeaderTimeout: 10 * time.Second,
 	}
 
@@ -100,6 +143,21 @@ func serve(ctx context.Context, cfg config.Config) error {
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 	return srv.Shutdown(shutdownCtx)
+}
+
+func openStore(ctx context.Context, cfg config.Config) (storage.Store, error) {
+	if cfg.S3Endpoint == "" {
+		slog.Info("storing uploads on disk", "dir", cfg.StorageDir)
+		return storage.Dir{Root: cfg.StorageDir}, nil
+	}
+	s, err := storage.NewS3(ctx, storage.S3Config{
+		Endpoint: cfg.S3Endpoint, AccessKey: cfg.S3AccessKey, SecretKey: cfg.S3SecretKey,
+		Bucket: cfg.S3Bucket, UseSSL: cfg.S3UseSSL, Region: cfg.S3Region,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("storage: %w", err)
+	}
+	return s, nil
 }
 
 func runSeed(ctx context.Context, cfg config.Config, reset bool) error {

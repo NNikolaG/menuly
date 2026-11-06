@@ -28,6 +28,28 @@ type Config struct {
 
 	DocsEnabled bool `env:"DOCS_ENABLED" envDefault:"true"`
 
+	// PublicMenuURL is the guest URL of a venue, used for QR codes.
+	PublicMenuURL string `env:"PUBLIC_MENU_URL" envDefault:"https://{tenant}.menuly.app/{venue}"`
+
+	// OCR import. Without ANTHROPIC_API_KEY uploads are accepted but every
+	// page fails with "OCR is not configured".
+	AnthropicAPIKey  string `env:"ANTHROPIC_API_KEY"`
+	OCRModel         string `env:"OCR_MODEL" envDefault:"claude-haiku-5-5"`
+	OCRFallbackModel string `env:"OCR_FALLBACK_MODEL" envDefault:"claude-opus-5-5"`
+	OCREffort        string `env:"OCR_EFFORT" envDefault:"medium"`
+	// OCRWorkers is how many pages this process reads in parallel; 0 makes
+	// it an API-only process that just enqueues.
+	OCRWorkers int `env:"OCR_WORKERS" envDefault:"2"`
+
+	// File storage: S3-compatible when S3_ENDPOINT is set, else STORAGE_DIR.
+	S3Endpoint  string `env:"S3_ENDPOINT"`
+	S3AccessKey string `env:"S3_ACCESS_KEY"`
+	S3SecretKey string `env:"S3_SECRET_KEY"`
+	S3Bucket    string `env:"S3_BUCKET" envDefault:"menuly"`
+	S3Region    string `env:"S3_REGION"`
+	S3UseSSL    bool   `env:"S3_USE_SSL" envDefault:"false"`
+	StorageDir  string `env:"STORAGE_DIR" envDefault:"./data/uploads"`
+
 	CORSAllowedOrigins []string `env:"CORS_ALLOWED_ORIGINS" envSeparator:"," envDefault:"http://localhost:4200"`
 }
 

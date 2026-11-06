@@ -22,6 +22,9 @@ tags:
   - { name: Categories }
   - { name: Items }
   - { name: Prices }
+  - { name: Public }
+  - { name: Promotions, description: "Combo offers: a fixed price for a set of slots, each a fixed item or a choice" }
+  - { name: Imports, description: "OCR import of an existing (paper/PDF) menu: upload, review the draft, commit into a menu" }
 servers:
   - url: http://localhost:8080
 security:
@@ -61,6 +64,40 @@ paths:
       security: []
       responses:
         "200": { description: HTML page }
+
+  /v1/public/menus/{tenantSlug}/{venueSlug}:
+    get:
+      tags: [Public]
+      operationId: getPublicMenu
+      summary: Published menu for guests (no auth)
+      description: |
+        The venue's active published menu as one JSON document, for `{tenantSlug}.menuly.app/{venueSlug}`.
+        Only visible categories and items are included. Unavailable items are included with
+        `is_available: false`, after the available items of their category; otherwise `position` order.
+
+        With `lang` (e.g. `en`), `name`, `description` and `label` are translated where a translation
+        exists and fall back to Serbian; `translations` is included as well.
+
+        Cached: `Cache-Control: public, max-age=30, stale-while-revalidate=60` and an `ETag`;
+        send `If-None-Match` to get `304`. CORS allows any origin.
+      security: []
+      parameters:
+        - { name: tenantSlug, in: path, required: true, schema: { type: string } }
+        - { name: venueSlug, in: path, required: true, schema: { type: string } }
+        - { name: lang, in: query, required: false, schema: { type: string, pattern: "^[a-z]{2}$", default: sr } }
+        - { name: If-None-Match, in: header, required: false, schema: { type: string } }
+      responses:
+        "200":
+          description: OK
+          headers:
+            ETag: { schema: { type: string } }
+            Cache-Control: { schema: { type: string } }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PublicMenu" }
+        "304": { description: Not modified (ETag matched) }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
 
   /v1/auth/register:
     post:
@@ -330,6 +367,339 @@ paths:
               schema: { $ref: "#/components/schemas/Menu" }
         "403": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+
+  /v1/venues/{venueID}/public-link:
+    parameters:
+      - $ref: "#/components/parameters/VenueID"
+    get:
+      tags: [Venues]
+      operationId: getVenuePublicLink
+      summary: The guest URL of the venue's menu ({tenant}.menuly.app/{venue})
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url: { type: string, format: uri, example: "https://kafana-djordje.menuly.app/centar" }
+        "404": { $ref: "#/components/responses/Error" }
+  /v1/venues/{venueID}/qr:
+    parameters:
+      - $ref: "#/components/parameters/VenueID"
+    get:
+      tags: [Venues]
+      operationId: getVenueQr
+      summary: QR code for the venue's public menu URL (PNG or SVG)
+      description: |
+        Encodes the URL from `/public-link`. SVG prints sharp at any size; PNG is `size`×`size` pixels.
+        `download=1` adds `Content-Disposition: attachment; filename="menuly-{venue}.png"`.
+        Use it in an `<img>` via a blob URL, since the request needs the `Authorization` header.
+      parameters:
+        - { name: format, in: query, schema: { type: string, enum: [png, svg], default: png } }
+        - { name: size, in: query, schema: { type: integer, minimum: 128, maximum: 2048, default: 512 } }
+        - { name: download, in: query, schema: { type: string, enum: ["1"] } }
+      responses:
+        "200":
+          description: The image
+          content:
+            image/png:
+              schema: { type: string, format: binary }
+            image/svg+xml:
+              schema: { type: string }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+
+  /v1/venues/{venueID}/promotions:
+    parameters:
+      - $ref: "#/components/parameters/VenueID"
+    get:
+      tags: [Promotions]
+      operationId: listVenuePromotions
+      summary: Promotions of a venue in display order
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/Promotion" } }
+        "404": { $ref: "#/components/responses/Error" }
+    post:
+      tags: [Promotions]
+      operationId: createPromotion
+      summary: Create a combo (owner, manager)
+      description: |
+        `name`, `price_minor` and `slots` are required. Each slot is one fixed item (one option) or a choice
+        (several options); `quantity` defaults to 1. Options reference items of this venue's menus; `variant_id`
+        pins a size, otherwise the item's cheapest variant counts. `is_active` defaults to true.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PromotionInput" }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Promotion" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+
+  /v1/venues/{venueID}/promotions/order:
+    parameters:
+      - $ref: "#/components/parameters/VenueID"
+    put:
+      tags: [Promotions]
+      operationId: reorderPromotions
+      summary: Reorder the venue's promotions (owner, manager)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/OrderInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/Promotion" } }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+
+  /v1/promotions/{promotionID}:
+    parameters:
+      - $ref: "#/components/parameters/PromotionID"
+    get:
+      tags: [Promotions]
+      operationId: getPromotion
+      summary: One promotion
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Promotion" }
+        "404": { $ref: "#/components/responses/Error" }
+    patch:
+      tags: [Promotions]
+      operationId: updatePromotion
+      summary: Change a promotion (owner, manager)
+      description: |
+        Any subset of fields. `starts_at` / `ends_at` set to `null` remove that limit.
+        `slots`, when given, replaces all slots.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PromotionInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Promotion" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+    delete:
+      tags: [Promotions]
+      operationId: deletePromotion
+      summary: Delete a promotion (owner, manager)
+      responses:
+        "204": { description: Deleted }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /v1/venues/{venueID}/imports:
+    parameters:
+      - $ref: "#/components/parameters/VenueID"
+    get:
+      tags: [Imports]
+      operationId: listVenueImports
+      summary: Imports of a venue, newest first, with the venue's import quota
+      description: Items have no `draft` and `pages`; fetch one import for those.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/Import" } }
+                  import_limit: { type: integer, description: "Imports this venue may run (default 3)" }
+                  imports_used: { type: integer, description: "Imports that count against the limit (all except failed)" }
+        "404": { $ref: "#/components/responses/Error" }
+    post:
+      tags: [Imports]
+      operationId: createImport
+      summary: Upload photos/PDFs of an existing menu (owner, manager)
+      description: |
+        `multipart/form-data` with one or more `files` parts: JPEG, PNG, WebP or PDF, at most 15 MB each,
+        at most 20 pages in total (a PDF counts its pages). Photos are auto-rotated and scaled down.
+
+        Answers `202` right away with status `processing`; every file is read in the background.
+        Poll `GET /v1/imports/{importID}` (e.g. every 2 s) until the status changes:
+        `ready_for_review` (at least one file was read; `error` says how many failed) or `failed`.
+
+        Errors: `409 import_limit_reached` when the venue used its imports (failed imports do not count),
+        `415 unsupported_file`, `422 validation_failed` (no files, too many pages, file too big or unreadable),
+        `503 imports_unavailable` when storage is not configured on the server.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [files]
+              properties:
+                files:
+                  type: array
+                  items: { type: string, format: binary }
+      responses:
+        "202":
+          description: Accepted, processing
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Import" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+        "415": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
+
+  /v1/imports/{importID}:
+    parameters:
+      - $ref: "#/components/parameters/ImportID"
+    get:
+      tags: [Imports]
+      operationId: getImport
+      summary: One import with its pages and draft
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Import" }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /v1/imports/{importID}/pages/{pageID}/file:
+    parameters:
+      - $ref: "#/components/parameters/ImportID"
+      - $ref: "#/components/parameters/PageID"
+    get:
+      tags: [Imports]
+      operationId: getImportPageFile
+      summary: The uploaded file of a page, for the review screen
+      description: |
+        The stored copy: photos as JPEG (already rotated and scaled), PDFs as uploaded.
+        Load it through a blob URL, since the request needs the `Authorization` header.
+        Each draft item's `page_index` points at the page it came from.
+      responses:
+        "200":
+          description: The file
+          content:
+            image/jpeg:
+              schema: { type: string, format: binary }
+            application/pdf:
+              schema: { type: string, format: binary }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /v1/imports/{importID}/pages/{pageID}/retry:
+    parameters:
+      - $ref: "#/components/parameters/ImportID"
+      - $ref: "#/components/parameters/PageID"
+    post:
+      tags: [Imports]
+      operationId: retryImportPage
+      summary: Read a failed page again (owner, manager)
+      description: |
+        Only pages with status `failed`. The import goes back to `processing`; poll as after upload.
+        If the draft was already edited, the edits are kept and the page's result is appended.
+        Retrying a `failed` import counts against the limit again (`409 import_limit_reached`).
+      responses:
+        "202":
+          description: Accepted, processing
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Import" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+
+  /v1/imports/{importID}/draft:
+    parameters:
+      - $ref: "#/components/parameters/ImportID"
+    put:
+      tags: [Imports]
+      operationId: updateImportDraft
+      summary: Save the reviewer's corrections (owner, manager)
+      description: |
+        Replaces the whole draft. Only while the import is `ready_for_review` (else `409 invalid_import_state`).
+        Nothing is checked here, so half-done edits can be saved; the checks run on commit.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ImportDraft" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Import" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+
+  /v1/imports/{importID}/commit:
+    parameters:
+      - $ref: "#/components/parameters/ImportID"
+    post:
+      tags: [Imports]
+      operationId: commitImport
+      summary: Turn the draft into menu content (owner, manager)
+      description: |
+        Give exactly one of `menu_id` (an existing menu of the same venue: categories with the same name,
+        case-insensitive, get the new items appended; others are added) or `menu_name` (creates a new draft menu).
+        Every category and item needs a name and every variant a `price_minor`, else `422 draft_invalid`
+        with the list of problems in `message`. Only once, from `ready_for_review`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                menu_id: { type: string, format: uuid }
+                menu_name: { type: string, maxLength: 200 }
+      responses:
+        "200":
+          description: Committed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  import: { $ref: "#/components/schemas/Import" }
+                  menu_id: { type: string, format: uuid }
+                  items_created: { type: integer }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
         "422": { $ref: "#/components/responses/Error" }
 
   /v1/menus/{menuID}:
@@ -737,6 +1107,21 @@ components:
       in: path
       required: true
       schema: { type: string, format: uuid }
+    PromotionID:
+      name: promotionID
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    ImportID:
+      name: importID
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    PageID:
+      name: pageID
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
   securitySchemes:
     bearer:
       type: http
@@ -957,3 +1342,245 @@ components:
         new_price_minor: { type: integer, format: int64 }
         changed_by: { type: [string, "null"], format: uuid }
         changed_at: { type: string, format: date-time }
+    PromotionInput:
+      type: object
+      properties:
+        name: { type: string, maxLength: 200 }
+        description: { type: string, maxLength: 2000 }
+        translations: { $ref: "#/components/schemas/Translations" }
+        image_url: { type: string, description: "Empty or an http(s) URL" }
+        price_minor: { type: integer, format: int64, minimum: 0 }
+        starts_at: { type: [string, "null"], format: date-time }
+        ends_at: { type: [string, "null"], format: date-time, description: "Must be after starts_at" }
+        is_active: { type: boolean }
+        is_featured: { type: boolean }
+        slots:
+          type: array
+          minItems: 1
+          maxItems: 10
+          items:
+            type: object
+            required: [options]
+            properties:
+              label: { type: string, maxLength: 100, examples: ["Piće po izboru"] }
+              translations: { $ref: "#/components/schemas/Translations" }
+              quantity: { type: integer, minimum: 1, maximum: 20, default: 1 }
+              options:
+                type: array
+                minItems: 1
+                maxItems: 20
+                items:
+                  type: object
+                  required: [item_id]
+                  properties:
+                    item_id: { type: string, format: uuid }
+                    variant_id: { type: [string, "null"], format: uuid }
+    Promotion:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        tenant_id: { type: string, format: uuid }
+        venue_id: { type: string, format: uuid }
+        type: { type: string, enum: [combo] }
+        name: { type: string }
+        description: { type: string }
+        translations: { $ref: "#/components/schemas/Translations" }
+        image_url: { type: string }
+        price_minor: { type: integer, format: int64 }
+        starts_at: { type: [string, "null"], format: date-time }
+        ends_at: { type: [string, "null"], format: date-time }
+        is_active: { type: boolean }
+        is_featured: { type: boolean }
+        position: { type: integer }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+        status:
+          type: string
+          enum: [live, scheduled, expired, inactive]
+          description: "inactive = switched off; otherwise from the validity window and the current time"
+        regular_price_minor: { type: integer, format: int64, description: "Slots bought one by one (cheapest option of a choice), at current prices" }
+        savings_minor: { type: integer, format: int64, description: "regular_price_minor - price_minor, never negative" }
+        slots:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string, format: uuid }
+              label: { type: string }
+              translations: { $ref: "#/components/schemas/Translations" }
+              quantity: { type: integer }
+              options:
+                type: array
+                description: An option disappears when its item is deleted; a slot can then be empty (guests do not see the combo).
+                items:
+                  type: object
+                  properties:
+                    id: { type: string, format: uuid }
+                    item_id: { type: string, format: uuid }
+                    variant_id: { type: [string, "null"], format: uuid }
+                    item_name: { type: string }
+                    variant_label: { type: [string, "null"] }
+                    price_minor: { type: integer, format: int64 }
+                    is_available: { type: boolean }
+                    in_active_menu: { type: boolean, description: "False when the item is hidden or not in the venue's active menu" }
+    Import:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        venue_id: { type: string, format: uuid }
+        status:
+          type: string
+          enum: [processing, ready_for_review, failed, committed]
+        error: { type: string, description: "Empty, or e.g. \"1 of 3 files could not be read\"" }
+        draft_edited: { type: boolean }
+        committed_menu_id: { type: [string, "null"], format: uuid }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+        committed_at: { type: [string, "null"], format: date-time }
+        draft:
+          description: Null until a page has been read. Not included in lists.
+          oneOf:
+            - { $ref: "#/components/schemas/ImportDraft" }
+            - { type: "null" }
+        pages:
+          description: Not included in lists.
+          type: array
+          items: { $ref: "#/components/schemas/ImportPage" }
+    ImportPage:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        page_index: { type: integer, description: "0-based upload order" }
+        page_count: { type: integer, description: "Pages in the file (PDF), else 1" }
+        status: { type: string, enum: [queued, processing, done, failed] }
+        attempts: { type: integer }
+        error: { type: string }
+        filename: { type: string }
+        mime: { type: string, examples: [image/jpeg, application/pdf] }
+    ImportDraft:
+      type: object
+      description: |
+        What was read, as printed (no translation). Items whose name or price the model was unsure of list
+        them in `uncertain`; highlight those for the reviewer. `price_minor` is null when the printed
+        price could not be parsed; `price_text` is the price as printed.
+      properties:
+        currency: { type: string, examples: [RSD, EUR] }
+        categories:
+          type: array
+          items:
+            type: object
+            properties:
+              name: { type: string }
+              description: { type: string }
+              items:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name: { type: string }
+                    description: { type: string }
+                    page_index: { type: integer }
+                    uncertain:
+                      type: array
+                      items: { type: string, enum: [name, price] }
+                    variants:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          label: { type: string, description: "Size/portion, empty for a single price" }
+                          price_minor: { type: [integer, "null"], format: int64 }
+                          price_text: { type: string }
+    PublicMenu:
+      type: object
+      properties:
+        lang: { type: string, description: "Language actually requested (sr when omitted)" }
+        tenant:
+          type: object
+          properties:
+            name: { type: string }
+            slug: { type: string }
+        venue:
+          type: object
+          properties:
+            name: { type: string }
+            slug: { type: string }
+            address: { type: string }
+            phone: { type: string }
+            currency: { type: string }
+            timezone: { type: string }
+        menu:
+          type: object
+          properties:
+            id: { type: string, format: uuid }
+            name: { type: string }
+            published_at: { type: [string, "null"], format: date-time }
+            categories:
+              type: array
+              items:
+                type: object
+                properties:
+                  id: { type: string, format: uuid }
+                  name: { type: string }
+                  description: { type: string }
+                  translations: { $ref: "#/components/schemas/Translations" }
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string, format: uuid }
+                        name: { type: string }
+                        description: { type: string }
+                        translations: { $ref: "#/components/schemas/Translations" }
+                        tags: { type: array, items: { type: string } }
+                        allergens: { type: array, items: { type: string } }
+                        image_url: { type: string }
+                        is_available: { type: boolean }
+                        variants:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id: { type: string, format: uuid }
+                              label: { type: string }
+                              translations: { $ref: "#/components/schemas/Translations" }
+                              price_minor: { type: integer, format: int64 }
+        promotions:
+          description: |
+            Combos live right now (active and inside their validity window). Options whose item is hidden or
+            not in this menu are left out, and a combo with an empty slot is left out entirely. A combo with a slot
+            where no option is available has `is_available: false` and comes last. Show `is_featured` ones as a banner.
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string, format: uuid }
+              name: { type: string }
+              description: { type: string }
+              translations: { $ref: "#/components/schemas/Translations" }
+              image_url: { type: string }
+              price_minor: { type: integer, format: int64 }
+              regular_price_minor: { type: integer, format: int64, description: "Sum of the slots bought one by one (cheapest option of a choice)" }
+              savings_minor: { type: integer, format: int64, description: "regular_price_minor - price_minor, never negative" }
+              ends_at: { type: [string, "null"], format: date-time }
+              is_featured: { type: boolean }
+              is_available: { type: boolean }
+              slots:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    label: { type: string }
+                    quantity: { type: integer }
+                    options:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          item_id: { type: string, format: uuid }
+                          variant_id: { type: [string, "null"], format: uuid }
+                          name: { type: string }
+                          variant_label: { type: string }
+                          price_minor: { type: integer, format: int64 }
+                          is_available: { type: boolean }

@@ -4,6 +4,8 @@ package httpapi
 import (
 	"context"
 	"net/http"
+	"slices"
+	"strings"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -12,17 +14,30 @@ import (
 
 	"github.com/nnikolag/menuly/backend/internal/auth"
 	"github.com/nnikolag/menuly/backend/internal/db"
+	"github.com/nnikolag/menuly/backend/internal/storage"
 )
 
 type Server struct {
 	db     *db.DB
 	issuer *auth.Issuer
+	// publicURLTemplate builds a venue's public menu URL, e.g.
+	// "https://{tenant}.menuly.app/{venue}".
+	publicURLTemplate string
+	// store and jobs back menu imports; nil disables the upload endpoints.
+	store storage.Store
+	jobs  JobQueue
 }
 
 type Options struct {
 	CORSAllowedOrigins []string
 	// DocsEnabled serves Swagger UI at /docs and the spec at /openapi.yaml.
 	DocsEnabled bool
+	// PublicMenuURL is the template for QR codes and public links.
+	PublicMenuURL string
+	// Store keeps uploaded files; Jobs enqueues OCR work. Both are needed
+	// for imports, which answer 503 without them.
+	Store storage.Store
+	Jobs  JobQueue
 }
 
 func New(database *db.DB, issuer *auth.Issuer) *Server {
@@ -30,6 +45,8 @@ func New(database *db.DB, issuer *auth.Issuer) *Server {
 }
 
 func (s *Server) Handler(opts Options) http.Handler {
+	s.publicURLTemplate = opts.PublicMenuURL
+	s.store, s.jobs = opts.Store, opts.Jobs
 	r := chi.NewRouter()
 	editors := requireRole(auth.RoleOwner, auth.RoleManager)
 	r.Use(middleware.RequestID)
@@ -38,10 +55,14 @@ func (s *Server) Handler(opts Options) http.Handler {
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(30 * time.Second))
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   opts.CORSAllowedOrigins,
+		// Admin routes accept the configured origins; the public menu is
+		// read from every tenant subdomain, so it accepts any origin.
+		AllowOriginFunc: func(r *http.Request, origin string) bool {
+			return strings.HasPrefix(r.URL.Path, "/v1/public/") || slices.Contains(opts.CORSAllowedOrigins, origin)
+		},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Authorization", "Content-Type"},
-		ExposedHeaders:   []string{"X-Request-Id"},
+		AllowedHeaders:   []string{"Authorization", "Content-Type", "If-None-Match"},
+		ExposedHeaders:   []string{"X-Request-Id", "ETag"},
 		AllowCredentials: false,
 		MaxAge:           300,
 	}))
@@ -56,6 +77,8 @@ func (s *Server) Handler(opts Options) http.Handler {
 	}
 
 	r.Route("/v1", func(r chi.Router) {
+		r.Get("/public/menus/{tenantSlug}/{venueSlug}", s.handlePublicMenu)
+
 		r.Route("/auth", func(r chi.Router) {
 			r.Post("/register", s.handleRegister)
 			r.Post("/login", s.handleLogin)
@@ -76,8 +99,30 @@ func (s *Server) Handler(opts Options) http.Handler {
 					r.With(editors).Patch("/", s.handleUpdateVenue)
 					r.With(requireRole(auth.RoleOwner)).Delete("/", s.handleDeleteVenue)
 					r.Get("/menus", s.handleListMenus)
+					r.Get("/public-link", s.handleVenuePublicLink)
+					r.Get("/qr", s.handleVenueQR)
 					r.With(editors).Post("/menus", s.handleCreateMenu)
+					r.Get("/promotions", s.handleListPromotions)
+					r.With(editors).Post("/promotions", s.handleCreatePromotion)
+					r.With(editors).Put("/promotions/order", s.handleReorderPromotions)
+					r.Get("/imports", s.handleListImports)
+					r.With(editors).Post("/imports", s.handleCreateImport)
 				})
+			})
+
+			r.Route("/promotions/{promotionID}", func(r chi.Router) {
+				r.Get("/", s.handleGetPromotion)
+				r.With(editors).Patch("/", s.handleUpdatePromotion)
+				r.With(editors).Delete("/", s.handleDeletePromotion)
+			})
+
+			// OCR import review: reads for every member, changes for owner/manager.
+			r.Route("/imports/{importID}", func(r chi.Router) {
+				r.Get("/", s.handleGetImport)
+				r.Get("/pages/{pageID}/file", s.handleGetImportFile)
+				r.With(editors).Post("/pages/{pageID}/retry", s.handleRetryImportPage)
+				r.With(editors).Put("/draft", s.handleUpdateImportDraft)
+				r.With(editors).Post("/commit", s.handleCommitImport)
 			})
 
 			// Menu editing: reads for every member, writes for owner/manager.

@@ -52,6 +52,12 @@ type Scope struct {
 // Tx runs fn inside a transaction whose RLS context is set to scope.
 // Every query touching tenant tables must go through Tx.
 func (d *DB) Tx(ctx context.Context, scope Scope, fn func(q *sqlc.Queries) error) error {
+	return d.TxRaw(ctx, scope, func(_ pgx.Tx, q *sqlc.Queries) error { return fn(q) })
+}
+
+// TxRaw is Tx that also hands fn the raw transaction, for work that must
+// commit atomically with the queries (e.g. enqueueing a background job).
+func (d *DB) TxRaw(ctx context.Context, scope Scope, fn func(tx pgx.Tx, q *sqlc.Queries) error) error {
 	tx, err := d.Pool.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
 		return err
@@ -64,7 +70,7 @@ func (d *DB) Tx(ctx context.Context, scope Scope, fn func(q *sqlc.Queries) error
 	); err != nil {
 		return fmt.Errorf("set tenant context: %w", err)
 	}
-	if err := fn(sqlc.New(tx)); err != nil {
+	if err := fn(tx, sqlc.New(tx)); err != nil {
 		return err
 	}
 	return tx.Commit(ctx)
@@ -120,4 +126,34 @@ func IsUniqueViolation(err error, constraint string) bool {
 func IsCheckViolation(err error) bool {
 	var pgErr *pgconn.PgError
 	return errors.As(err, &pgErr) && pgErr.Code == "23514"
+}
+
+// PublicTx serves anonymous (guest) reads. It resolves the active tenant with
+// the given slug through the narrow public_lookup policy, then scopes the
+// rest of the transaction to that tenant. fn gets the tenant row.
+// It returns pgx.ErrNoRows when no active tenant has that slug.
+func (d *DB) PublicTx(ctx context.Context, tenantSlug string, fn func(q *sqlc.Queries, t sqlc.GetPublicTenantBySlugRow) error) error {
+	tx, err := d.Pool.BeginTx(ctx, pgx.TxOptions{AccessMode: pgx.ReadOnly})
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx) //nolint:errcheck // no-op after commit
+
+	if _, err := tx.Exec(ctx, `SELECT set_config('app.public_tenant_slug', $1, true)`, tenantSlug); err != nil {
+		return fmt.Errorf("set public context: %w", err)
+	}
+	q := sqlc.New(tx)
+	t, err := q.GetPublicTenantBySlug(ctx, tenantSlug)
+	if err != nil {
+		return err
+	}
+	if _, err := tx.Exec(ctx,
+		`SELECT set_config('app.public_tenant_slug', '', true), set_config('app.tenant_id', $1, true)`, t.ID.String(),
+	); err != nil {
+		return fmt.Errorf("set tenant context: %w", err)
+	}
+	if err := fn(q, t); err != nil {
+		return err
+	}
+	return tx.Commit(ctx)
 }

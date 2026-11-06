@@ -56,7 +56,9 @@ curl -s -XPOST localhost:8080/v1/auth/register \
 | Auth | JWT (HS256, `golang-jwt/v5`) + bcrypt | Kratak access token (15 min) i refresh token u bazi koji se rotira i može da se opozove. |
 | ID-jevi | UUID v7 | Sortirani po vremenu, dobri za indekse, generišu se u Go-u. |
 
-Za kasnije faze (već predviđeno u spec-u): River (red poslova u Postgresu) za OCR, MinIO/S3 za fajlove.
+| Red poslova | [River](https://riverqueue.com) | Poslovi u istom Postgresu; posao se upisuje u istoj transakciji kao uvoz, pa nema izgubljenih ni duplih poslova. |
+| Fajlovi | S3 / [MinIO](https://min.io) (`minio-go`) | Lokalno MinIO u compose-u, u produkciji bilo koji S3. Bez `S3_ENDPOINT` fajlovi idu u folder. |
+| OCR | Claude (`anthropic-sdk-go`) | Čita fotografiju ili PDF i vraća strukturu menija (JSON šema), ne samo tekst. |
 
 ## Multi-tenancy
 
@@ -102,6 +104,37 @@ Hijerarhija: objekat → meni → kategorija → stavka → varijanta (cena). St
 - Uloge: svi čitaju; `owner` i `manager` uređuju; `staff` sme samo `PATCH /v1/items/{id}/status` (nema na stanju / sakrij).
 - Deca referenciraju roditelja preko `(id, tenant_id)`, pa ni direktan SQL ne može da veže stavku za kategoriju drugog tenanta.
 
+## Javni meni (gosti)
+
+`GET /v1/public/menus/{tenant-slug}/{venue-slug}?lang=en`, bez prijave. Vraća objavljeni meni objekta kao jedan JSON: samo vidljive kategorije i stavke, a nedostupne stavke na kraju svoje kategorije sa `is_available: false`. Uz `lang` se nazivi i opisi prevode gde prevod postoji, inače ostaje srpski. Odgovor ima `ETag` i `Cache-Control: public, max-age=30`, pa gost vidi promenu cene najkasnije za 30 sekundi, a `If-None-Match` vraća `304`.
+
+Gost nema tenant kontekst. Zato se tenant prvo nađe po slugu kroz usku RLS politiku `public_lookup` (samo red tog tenanta), a ostatak transakcije ide kroz obične tenant politike, samo za čitanje.
+
+## QR kod
+
+`GET /v1/venues/{id}/qr?format=png|svg&size=512&download=1` pravi QR za javni link objekta (`GET /v1/venues/{id}/public-link`). Šablon linka je `PUBLIC_MENU_URL` (podrazumevano `https://{tenant}.menuly.app/{venue}`), pa lokalno može npr. `http://localhost:4200/m/{tenant}/{venue}`.
+
+## Promocije (kombo)
+
+`POST /v1/venues/{id}/promotions`: naziv, fiksna cena (`price_minor`), period važenja (`starts_at` / `ends_at`, oba opciona), `is_active`, `is_featured` i slotovi. Slot je jedna fiksna stavka ("1x Burger") ili izbor ("1 od: Coca-Cola, Fanta"), uz `quantity`. Opcija može da fiksira varijantu (`variant_id`), inače se računa najjeftinija varijanta stavke.
+
+API računa `regular_price_minor` (zbir slotova kupljenih pojedinačno, kod izbora najjeftinija opcija, da ušteda nikad ne bude prenaduvana) i `savings_minor`, po trenutnim cenama. `status` je `live`, `scheduled`, `expired` ili `inactive`.
+
+Javni meni vraća `promotions` samo za kombo ponude koje su `live`. Opcije sa skrivenim stavkama ili stavkama van aktivnog menija se izostavljaju, a kombo sa praznim slotom se ne prikazuje. Ako u nekom slotu nijedna opcija nije dostupna, kombo ima `is_available: false` i ide na kraj, kao i stavke.
+
+## OCR uvoz menija
+
+1. `POST /v1/venues/{id}/imports` (multipart, polje `files`): slike (JPEG/PNG/WebP) ili PDF, najviše 20 stranica. Slike se rotiraju po EXIF-u i smanjuju na 2000 px. Odgovor je odmah `202` sa statusom `processing`.
+2. Svaki fajl je poseban posao u redu (River, red `ocr`). Model prepisuje meni kako je odštampan (bez prevođenja): kategorije, stavke, opis, varijante i cene, uz procenu sigurnosti.
+3. FE prati `GET /v1/imports/{id}` dok status ne postane `ready_for_review` (ili `failed`). Nacrt (`draft`) ima stavke sa `uncertain: ["name"|"price"]` i `price_text` kako piše na papiru; `GET .../pages/{pageID}/file` daje original za ekran pregleda.
+4. Korisnik ispravlja nacrt (`PUT /v1/imports/{id}/draft`), po potrebi ponovi neuspelu stranicu (`POST .../pages/{pageID}/retry`), pa `POST /v1/imports/{id}/commit` sa `menu_id` (dopuna postojećeg menija, iste kategorije se spajaju po imenu) ili `menu_name` (novi meni).
+
+Limit: `venues.ocr_import_limit` (podrazumevano 3); neuspeli uvozi se ne računaju. Preko limita API vraća `409 import_limit_reached`.
+
+Modeli: `OCR_MODEL=claude-haiku-5-5` čita svaku stranicu, a ako rezultat izgleda loše (nema stavki, previše nečitljivih cena ili nesigurnih stavki) stranica se čita ponovo sa `OCR_FALLBACK_MODEL=claude-opus-5-5`. Tokeni i procenjen trošak se čuvaju po stranici (`import_pages.cost_micros`) za praćenje troška po tenantu. Bez `ANTHROPIC_API_KEY` upload radi, ali stranice padaju sa "OCR is not configured".
+
+Docker compose podiže MinIO (konzola http://localhost:9001, `menuly` / `menuly-minio-secret`); ključ se prosleđuje iz shell-a: `ANTHROPIC_API_KEY=... docker compose up --build`.
+
 ## Struktura
 
 ```
@@ -115,6 +148,9 @@ backend/
   internal/auth/           lozinke, JWT, refresh tokeni
   internal/seed/           demo podaci za lokalni razvoj
   internal/httpapi/        router, middleware, handleri, integracioni testovi
+  internal/ocr/            priprema fajlova, Claude ekstrakcija, nacrt, parsiranje cena
+  internal/jobs/           River red poslova (OCR stranice)
+  internal/storage/        S3/MinIO ili folder
   api/openapi.yaml         API ugovor za web i iOS
 ```
 
@@ -123,6 +159,7 @@ backend/
 - Pozivnice za članove tima i reset lozinke (treba slanje emaila).
 - Ograničenje `manager`/`staff` na određene objekte (`memberships.venue_ids` postoji u šemi, provera još ne).
 - `platform_admin` rute (kolona `users.is_platform_admin` postoji).
-- Javni meni (keširan JSON po `{tenant}.menuly.app/{venue}`, `?lang=en`, nedostupne stavke na dnu kategorije).
-- Promocije / kombo, tema menija, upload slika (MinIO), OCR uvoz.
+- Brojač otvaranja menija (`menu_view_daily`).
+- Tema menija, upload slika stavki i promocija (sada samo `image_url`).
+- Popusti na stavku/kategoriju i ponavljajući termini promocija (V2).
 - Rate limiting za login/register.

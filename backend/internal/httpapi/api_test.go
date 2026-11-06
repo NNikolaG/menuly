@@ -28,6 +28,8 @@ import (
 	"github.com/nnikolag/menuly/backend/internal/db"
 	"github.com/nnikolag/menuly/backend/internal/db/sqlc"
 	"github.com/nnikolag/menuly/backend/internal/httpapi"
+	"github.com/nnikolag/menuly/backend/internal/jobs"
+	"github.com/nnikolag/menuly/backend/internal/storage"
 )
 
 var (
@@ -53,16 +55,33 @@ func TestMain(m *testing.M) {
 	if err := db.Migrate(ctx, ownerURL, "up"); err != nil {
 		panic(err)
 	}
+	if err := jobs.Migrate(ctx, ownerURL); err != nil {
+		panic(err)
+	}
 	var err error
 	appDB, err = db.Open(ctx, appURL)
 	if err != nil {
 		panic(err)
 	}
 	issuer := auth.NewIssuer("test-secret-test-secret-test-secret!!", "menuly", time.Minute, time.Hour)
-	srv = httptest.NewServer(httpapi.New(appDB, issuer).Handler(httpapi.Options{}))
+	uploads, err := os.MkdirTemp("", "menuly-uploads-")
+	if err != nil {
+		panic(err)
+	}
+	store := storage.Dir{Root: uploads}
+	queue, err := jobs.New(jobs.Config{DB: appDB, Store: store, Extractor: stubExtractor, Workers: 2})
+	if err != nil {
+		panic(err)
+	}
+	if err := queue.Start(ctx); err != nil {
+		panic(err)
+	}
+	srv = httptest.NewServer(httpapi.New(appDB, issuer).Handler(httpapi.Options{Store: store, Jobs: queue}))
 	code := m.Run()
+	_ = queue.Stop(ctx)
 	srv.Close()
 	appDB.Close()
+	_ = os.RemoveAll(uploads)
 	os.Exit(code)
 }
 
