@@ -52,9 +52,17 @@ services:
       S3_BUCKET: menuly
       PUBLIC_API_URL: http://localhost:8080
       APP_URL: http://localhost:4200
-      # OCR import: export ANTHROPIC_API_KEY in your shell (or .env next to
-      # this file). Without it uploads work but pages fail as "not configured".
+      # OCR import: put the key and options in .env next to this file (see
+      # backend/.env.example). Without a key uploads work but pages fail as
+      # "not configured".
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      MISTRAL_API_KEY: ${MISTRAL_API_KEY:-}
+      OCR_PROVIDER: ${OCR_PROVIDER:-}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-}
+      OCR_MODEL: ${OCR_MODEL:-}
+      OCR_FALLBACK_MODEL: ${OCR_FALLBACK_MODEL:-}
+      OCR_EFFORT: ${OCR_EFFORT:-medium}
     depends_on:
       postgres:
         condition: service_healthy

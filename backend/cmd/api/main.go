@@ -92,14 +92,23 @@ func serve(ctx context.Context, cfg config.Config) error {
 	if err != nil {
 		return err
 	}
-	var extractor ocr.MenuExtractor
-	if cfg.AnthropicAPIKey != "" {
-		extractor = ocr.NewClaude(ocr.ClaudeConfig{
-			APIKey: cfg.AnthropicAPIKey, Model: cfg.OCRModel, FallbackModel: cfg.OCRFallbackModel, Effort: cfg.OCREffort,
-		})
-		slog.Info("ocr enabled", "model", cfg.OCRModel, "fallback", cfg.OCRFallbackModel, "workers", cfg.OCRWorkers)
-	} else {
-		slog.Warn("ANTHROPIC_API_KEY is not set: menu imports will fail with \"OCR is not configured\"")
+	extractor, picked, err := ocr.New(ocr.ProviderConfig{
+		Provider: cfg.OCRProvider, Model: cfg.OCRModel, FallbackModel: cfg.OCRFallbackModel, Effort: cfg.OCREffort,
+		AnthropicAPIKey: cfg.AnthropicAPIKey, OpenAIAPIKey: cfg.OpenAIAPIKey, OpenAIBaseURL: cfg.OpenAIBaseURL,
+		MistralAPIKey: cfg.MistralAPIKey,
+	})
+	switch {
+	case err != nil:
+		return fmt.Errorf("ocr: %w", err)
+	case extractor == nil:
+		slog.Warn("no OCR API key is set (ANTHROPIC_API_KEY, OPENAI_API_KEY or MISTRAL_API_KEY): menu imports will fail with \"OCR is not configured\"")
+	default:
+		slog.Info("ocr enabled", "provider", picked.Provider, "model", picked.Model, "fallback", picked.FallbackModel, "workers", cfg.OCRWorkers)
+		for _, m := range []string{picked.Model, picked.FallbackModel} {
+			if m != "" && !ocr.KnownPrice(m) {
+				slog.Warn("no price for OCR model: its cost is recorded as 0", "model", m)
+			}
+		}
 	}
 	queue, err := jobs.New(jobs.Config{DB: database, Store: store, Extractor: extractor, Workers: cfg.OCRWorkers})
 	if err != nil {

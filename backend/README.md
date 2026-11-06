@@ -134,9 +134,19 @@ Slikanje telefonom: može više fotografija jednog menija u jednom uvozu (redom 
 
 Limit: `venues.ocr_import_limit` (podrazumevano 3); neuspeli uvozi se ne računaju. Preko limita API vraća `409 import_limit_reached`.
 
-Modeli: `OCR_MODEL=claude-haiku-5-5` čita svaku stranicu, a ako rezultat izgleda loše (nema stavki, previše nečitljivih cena ili nesigurnih stavki) stranica se čita ponovo sa `OCR_FALLBACK_MODEL=claude-opus-5-5`. Tokeni i procenjen trošak se čuvaju po stranici (`import_pages.cost_micros`) za praćenje troška po tenantu. Bez `ANTHROPIC_API_KEY` upload radi, ali stranice padaju sa "OCR is not configured".
+Provajder i modeli: `OCR_PROVIDER` bira ko čita menije, a svaki ima svoj ključ. Ako `OCR_PROVIDER` nije zadat, uzima se prvi sa ključem (anthropic, openai, mistral). Jeftiniji model čita svaku stranicu, a ako rezultat izgleda loše (loša slika, nema stavki, previše nečitljivih cena ili nesigurnih stavki) stranica se čita još jednom jačim modelom:
 
-Docker compose podiže MinIO (konzola http://localhost:9001, `menuly` / `menuly-minio-secret`); ključ se prosleđuje iz shell-a: `ANTHROPIC_API_KEY=... docker compose up --build`.
+| `OCR_PROVIDER` | Ključ | `OCR_MODEL` (podrazumevano) | `OCR_FALLBACK_MODEL` (podrazumevano) |
+|---|---|---|---|
+| `anthropic` | `ANTHROPIC_API_KEY` | `claude-haiku-5-5` ($0.10 / $0.50 po 1M tokena) | `claude-opus-5-5` |
+| `openai` | `OPENAI_API_KEY` | `gpt-6-luna` ($0.10 / $0.50) | `gpt-6.1-terra` ($1 / $5) |
+| `mistral` | `MISTRAL_API_KEY` | `mistral-small-2603` ($0.15 / $0.60) | `mistral-large-2512` ($0.50 / $1.50) |
+
+`OCR_FALLBACK_MODEL=none` isključuje drugo čitanje. `OCR_EFFORT` (low/medium/high) važi za Claude i OpenAI. Svi provajderi koriste isti prompt i istu JSON šemu, pa nacrt, `photo_quality` i `error_code` rade isto. Kod Mistrala se PDF prvo pretvori u tekst sa Mistral OCR (`mistral-ocr-latest`, $4 na 1000 strana), a onda ga model struktuira; slike čita direktno vision model. `OPENAI_BASE_URL` omogućava bilo koji OpenAI-kompatibilan API (npr. kineske modele) ako podržava slike i `json_schema` odgovor; za modele koji nisu u tabeli cena (`internal/ocr/prices.go`) trošak se upisuje kao 0, uz upozorenje u logu pri pokretanju.
+
+Tokeni i procenjen trošak (provajder, model, `cost_micros`) se čuvaju po stranici, a ukupno po tenantu i modelu vidi se u `GET /v1/admin/ocr-usage`. Cene su proverene 2026-11-06; menjaju se, pa ih treba proveriti pri promeni modela. Bez ijednog ključa upload radi, ali stranice padaju sa "OCR is not configured".
+
+Docker compose podiže MinIO (konzola http://localhost:9001, `menuly` / `menuly-minio-secret`); ključ se prosleđuje iz shell-a, npr. `MISTRAL_API_KEY=... docker compose up --build`.
 
 ## Slike (stavke, logo, naslovna, promocije)
 

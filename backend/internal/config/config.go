@@ -31,11 +31,17 @@ type Config struct {
 	// PublicMenuURL is the guest URL of a venue, used for QR codes.
 	PublicMenuURL string `env:"PUBLIC_MENU_URL" envDefault:"https://{tenant}.menuly.app/{venue}"`
 
-	// OCR import. Without ANTHROPIC_API_KEY uploads are accepted but every
-	// page fails with "OCR is not configured".
+	// OCR import: OCR_PROVIDER is anthropic, openai or mistral; empty picks
+	// the first one with an API key. OCR_MODEL and OCR_FALLBACK_MODEL default
+	// per provider (OCR_FALLBACK_MODEL=none disables escalation). Without any
+	// key uploads are accepted but every page fails with "OCR is not configured".
+	OCRProvider      string `env:"OCR_PROVIDER"`
 	AnthropicAPIKey  string `env:"ANTHROPIC_API_KEY"`
-	OCRModel         string `env:"OCR_MODEL" envDefault:"claude-haiku-5-5"`
-	OCRFallbackModel string `env:"OCR_FALLBACK_MODEL" envDefault:"claude-opus-5-5"`
+	OpenAIAPIKey     string `env:"OPENAI_API_KEY"`
+	OpenAIBaseURL    string `env:"OPENAI_BASE_URL"`
+	MistralAPIKey    string `env:"MISTRAL_API_KEY"`
+	OCRModel         string `env:"OCR_MODEL"`
+	OCRFallbackModel string `env:"OCR_FALLBACK_MODEL"`
 	OCREffort        string `env:"OCR_EFFORT" envDefault:"medium"`
 	// OCRWorkers is how many pages this process reads in parallel; 0 makes
 	// it an API-only process that just enqueues.
