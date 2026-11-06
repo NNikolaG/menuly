@@ -25,6 +25,7 @@ export interface AppMenuItem {
     <button
       type="button"
       class="trigger"
+      [attr.data-look]="look()"
       ngMenuTrigger
       #origin
       #trigger="ngMenuTrigger"
@@ -79,6 +80,26 @@ export interface AppMenuItem {
       font: var(--type-body-strong);
       cursor: pointer;
       transition: background-color var(--duration-fast);
+    }
+
+    /* Same box as a sidebar .nav-item, so it lines up with the navigation above it. */
+    .trigger[data-look='nav'] {
+      inline-size: 100%;
+      block-size: var(--size-nav-item);
+      gap: var(--space-3);
+      padding-inline: var(--space-3);
+      border: 0;
+      color: var(--color-text-muted);
+      font: var(--type-nav);
+    }
+
+    .trigger[data-look='nav']:hover,
+    .trigger[data-look='nav'][aria-expanded='true'] {
+      color: var(--color-text);
+    }
+
+    .trigger[data-look='nav'] .icon {
+      color: inherit;
     }
 
     .trigger:hover,
@@ -160,6 +181,8 @@ export class AppMenu {
   /** Shown before the label, or alone when `compact` (the label then becomes the accessible name). */
   readonly icon = input<LucideIcon>();
   readonly compact = input(false);
+  /** `nav`: full-width row that matches the sidebar navigation items. */
+  readonly look = input<'button' | 'nav'>('button');
   /** Open upwards first, for a trigger at the bottom of the screen (sidebar footer). */
   readonly above = input(false);
   readonly selected = output<string>();

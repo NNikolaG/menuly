@@ -37,7 +37,7 @@ describe('AdminShell', () => {
     const fixture = TestBed.createComponent(AdminShell);
     await fixture.whenStable();
     const root: HTMLElement = fixture.nativeElement;
-    const toggle = root.querySelector<HTMLButtonElement>('button.toggle')!;
+    const toggle = root.querySelector<HTMLButtonElement>('.topbar button')!;
     expect(toggle.getAttribute('aria-expanded')).toBe('true');
 
     toggle.click();

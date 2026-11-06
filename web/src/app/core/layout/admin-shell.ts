@@ -64,7 +64,7 @@ const NEXT_THEME: Record<ThemePreference, ThemePreference> = {
   dark: 'system',
 };
 
-/** Frame of every signed-in page: collapsible sidebar with venue, navigation, theme and account menu. */
+/** Frame of every signed-in page: collapsible sidebar (venue, navigation, theme, account), top bar for page tools. */
 @Component({
   selector: 'app-admin-shell',
   imports: [RouterOutlet, RouterLink, RouterLinkActive, AppMenu, AppPattern, LucideDynamicIcon],
@@ -75,29 +75,17 @@ const NEXT_THEME: Record<ThemePreference, ThemePreference> = {
       i18n-aria-label="@@shell.nav"
       aria-label="Glavna navigacija"
     >
-      <div class="sidebar__head">
-        <a class="sidebar__venue" routerLink="/" [attr.title]="collapsed() ? tenantName() : null">
-          @if (auth.me.value()?.tenant?.name; as venue) {
-            <app-pattern class="sidebar__mark" [seed]="venue" [cols]="2" [rows]="2" [big]="false" />
-          } @else {
-            <span class="sidebar__mark" aria-hidden="true">{{ initial() }}</span>
-          }
-          <span class="expanded-only">
-            <span class="sidebar__venue-name">{{ tenantName() }}</span>
-            <span class="sidebar__venue-plan">{{ auth.me.value()?.tenant?.plan }}</span>
-          </span>
-        </a>
-        <button
-          type="button"
-          class="icon-button toggle"
-          [attr.aria-label]="toggleLabel()"
-          [attr.aria-expanded]="!collapsed()"
-          [title]="toggleLabel()"
-          (click)="toggleSidebar()"
-        >
-          <svg [lucideIcon]="collapsed() ? openIcon : closeIcon"></svg>
-        </button>
-      </div>
+      <a class="sidebar__venue" routerLink="/" [attr.title]="collapsed() ? tenantName() : null">
+        @if (auth.me.value()?.tenant?.name; as venue) {
+          <app-pattern class="sidebar__mark" [seed]="venue" [cols]="2" [rows]="2" [big]="false" />
+        } @else {
+          <span class="sidebar__mark" aria-hidden="true">{{ initial() }}</span>
+        }
+        <span class="expanded-only">
+          <span class="sidebar__venue-name">{{ tenantName() }}</span>
+          <span class="sidebar__venue-plan">{{ auth.me.value()?.tenant?.plan }}</span>
+        </span>
+      </a>
       @for (item of nav(); track item.path) {
         <a
           class="nav-item"
@@ -126,6 +114,7 @@ const NEXT_THEME: Record<ThemePreference, ThemePreference> = {
             class="account"
             [label]="me.user.name"
             [icon]="userIcon"
+            look="nav"
             [compact]="collapsed()"
             [above]="true"
             [items]="accountItems()"
@@ -134,9 +123,24 @@ const NEXT_THEME: Record<ThemePreference, ThemePreference> = {
         }
       </div>
     </nav>
-    <main>
-      <router-outlet />
-    </main>
+    <div class="content">
+      <!-- Page tools will join the sidebar toggle here. -->
+      <header class="topbar">
+        <button
+          type="button"
+          class="icon-button"
+          [attr.aria-label]="toggleLabel()"
+          [attr.aria-expanded]="!collapsed()"
+          [title]="toggleLabel()"
+          (click)="toggleSidebar()"
+        >
+          <svg [lucideIcon]="collapsed() ? openIcon : closeIcon"></svg>
+        </button>
+      </header>
+      <main>
+        <router-outlet />
+      </main>
+    </div>
   `,
   styles: `
     :host {
@@ -154,18 +158,18 @@ const NEXT_THEME: Record<ThemePreference, ThemePreference> = {
       inset-block-start: 0;
       inline-size: auto;
       block-size: 100dvh;
+      padding-block-start: 0;
       overflow-y: auto;
     }
 
-    .sidebar__head {
-      display: flex;
-      align-items: flex-start;
-      gap: var(--space-1);
-    }
-
+    /* Mark, icons and labels share one left edge: the nav item's inline padding. */
+    /* Same height and bottom line as the top bar, edge to edge. */
     .sidebar__venue {
-      flex: 1;
-      min-inline-size: 0;
+      flex: none;
+      block-size: var(--topbar-height);
+      margin: 0 calc(var(--space-3) * -1) var(--space-4);
+      padding: 0 calc(var(--space-3) * 2);
+      border-block-end: var(--stroke-hairline) solid var(--color-border);
       color: inherit;
       text-decoration: none;
     }
@@ -191,7 +195,8 @@ const NEXT_THEME: Record<ThemePreference, ThemePreference> = {
       flex-direction: column;
       gap: var(--space-1);
       margin-block-start: auto;
-      padding-block-start: var(--space-4);
+      padding-block-start: var(--space-3);
+      border-block-start: var(--stroke-hairline) solid var(--color-border);
     }
 
     .theme {
@@ -200,6 +205,25 @@ const NEXT_THEME: Record<ThemePreference, ThemePreference> = {
       background: transparent;
       cursor: pointer;
       text-align: start;
+    }
+
+    .content {
+      display: flex;
+      flex-direction: column;
+      min-inline-size: 0;
+    }
+
+    .topbar {
+      position: sticky;
+      inset-block-start: 0;
+      z-index: var(--z-sticky);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      block-size: var(--topbar-height);
+      padding-inline: var(--space-4);
+      background: var(--color-bg);
+      border-block-end: var(--stroke-hairline) solid var(--color-border);
     }
 
     .icon-button {
@@ -230,13 +254,11 @@ const NEXT_THEME: Record<ThemePreference, ThemePreference> = {
       display: none;
     }
 
-    .sidebar[data-collapsed] .sidebar__head {
-      flex-direction: column;
-      align-items: center;
-    }
-
     .sidebar[data-collapsed] .sidebar__venue {
-      padding-block-end: var(--space-2);
+      align-self: stretch;
+      justify-content: center;
+      margin-inline: calc(var(--space-2) * -1);
+      padding-inline: 0;
     }
 
     .sidebar[data-collapsed] .nav-item {
@@ -246,6 +268,7 @@ const NEXT_THEME: Record<ThemePreference, ThemePreference> = {
     }
 
     .sidebar[data-collapsed] .sidebar__foot {
+      align-self: stretch;
       align-items: center;
     }
 
@@ -276,13 +299,17 @@ const NEXT_THEME: Record<ThemePreference, ThemePreference> = {
         border-block-end: var(--stroke-hairline) solid var(--color-border);
       }
 
-      .sidebar__venue {
-        padding-block-end: var(--space-2);
+      .sidebar__venue,
+      .sidebar[data-collapsed] .sidebar__venue {
+        block-size: auto;
+        margin: 0;
+        padding: 0;
+        border-block-end: 0;
       }
 
       .sidebar__venue > span:not(.sidebar__mark),
       .sidebar .theme .expanded-only,
-      .toggle {
+      .topbar {
         display: none;
       }
 
@@ -292,6 +319,7 @@ const NEXT_THEME: Record<ThemePreference, ThemePreference> = {
         margin-block-start: 0;
         margin-inline-start: auto;
         padding-block-start: 0;
+        border-block-start: 0;
       }
 
       .theme {
