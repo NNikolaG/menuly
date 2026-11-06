@@ -1,5 +1,5 @@
 import { HttpClient, httpResource, type HttpResourceRef } from '@angular/common/http';
-import { inject, Injectable, InjectionToken } from '@angular/core';
+import { computed, inject, Injectable, InjectionToken } from '@angular/core';
 import { catchError, throwError, type Observable } from 'rxjs';
 import { toApiError } from './api-error';
 
@@ -32,14 +32,20 @@ export class ApiClient {
   /**
    * Signal resource that loads `request()` and reloads whenever the signals it reads change.
    * Returning `undefined` keeps it idle. Call it in an injection context (a field initializer).
+   * It refetches only when the URL or query actually change, not on every run of `request`.
    */
   resource<T>(request: () => string | ApiRequest | undefined): HttpResourceRef<T | undefined> {
-    return httpResource<T>(() => {
-      const next = request();
-      if (next === undefined) return undefined;
-      const { path, query } = typeof next === 'string' ? { path: next, query: undefined } : next;
-      return { url: this.url(path), params: clean(query) };
-    });
+    const next = computed(
+      () => {
+        const value = request();
+        if (value === undefined) return undefined;
+        const { path, query } =
+          typeof value === 'string' ? { path: value, query: undefined } : value;
+        return { url: this.url(path), params: clean(query) };
+      },
+      { equal: (a, b) => JSON.stringify(a) === JSON.stringify(b) },
+    );
+    return httpResource<T>(next);
   }
 
   get<T>(path: string, query?: Query): Observable<T> {
@@ -52,6 +58,10 @@ export class ApiClient {
 
   patch<T>(path: string, body: unknown): Observable<T> {
     return this.http.patch<T>(this.url(path), body).pipe(catchError(rethrow));
+  }
+
+  put<T>(path: string, body: unknown): Observable<T> {
+    return this.http.put<T>(this.url(path), body).pipe(catchError(rethrow));
   }
 
   delete(path: string): Observable<void> {
