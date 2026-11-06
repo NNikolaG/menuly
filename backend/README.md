@@ -98,6 +98,7 @@ Hijerarhija: objekat → meni → kategorija → stavka → varijanta (cena). St
 
 - `GET /v1/menus/{id}` vraća celo stablo za admin editor, sortirano po `position`.
 - Redosled (drag & drop): `PUT .../categories/order` i `PUT .../items/order` sa svim ID-jevima u novom redosledu.
+- Tema menija: `GET`/`PUT /v1/menus/{id}/theme` (šablon `racun`/`galerija`/`tabla`, akcent i font kao ključevi preseta, svetla/tamna, prikaz slika/opisa/uzorka, logo i naslovna slika). Meni bez sačuvane teme vraća podrazumevanu; javni meni nosi `theme`.
 - Objava: `POST /v1/menus/{id}/publish`; objekat ima najviše jedan objavljen meni (`venue.active_menu_id`).
 - Svaka promena cene (pojedinačna ili masovna `POST /v1/menus/{id}/price-adjustments`) upisuje red u `price_changes`.
 - Prevodi: `translations` jsonb, npr. `{"en": {"name": "Drinks"}}`; osnovna polja su na srpskom.

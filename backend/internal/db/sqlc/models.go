@@ -122,6 +122,22 @@ type MenuItem struct {
 	UpdatedAt    time.Time       `json:"updated_at"`
 }
 
+type MenuTheme struct {
+	MenuID           uuid.UUID `json:"menu_id"`
+	TenantID         uuid.UUID `json:"tenant_id"`
+	Template         string    `json:"template"`
+	Accent           string    `json:"accent"`
+	Font             string    `json:"font"`
+	ColorMode        string    `json:"color_mode"`
+	ShowImages       bool      `json:"show_images"`
+	ShowDescriptions bool      `json:"show_descriptions"`
+	ShowPattern      bool      `json:"show_pattern"`
+	LogoUrl          string    `json:"logo_url"`
+	CoverUrl         string    `json:"cover_url"`
+	CreatedAt        time.Time `json:"created_at"`
+	UpdatedAt        time.Time `json:"updated_at"`
+}
+
 type PriceChange struct {
 	ID            uuid.UUID  `json:"id"`
 	TenantID      uuid.UUID  `json:"tenant_id"`

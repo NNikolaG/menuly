@@ -136,6 +136,8 @@ func (s *Server) Handler(opts Options) http.Handler {
 				r.With(editors).Delete("/", s.handleDeleteMenu)
 				r.With(editors).Post("/publish", s.handlePublishMenu)
 				r.With(editors).Post("/unpublish", s.handleUnpublishMenu)
+				r.Get("/theme", s.handleGetMenuTheme)
+				r.With(editors).Put("/theme", s.handlePutMenuTheme)
 				r.With(editors).Post("/categories", s.handleCreateCategory)
 				r.With(editors).Put("/categories/order", s.handleReorderCategories)
 				r.With(editors).Post("/price-adjustments", s.handlePriceAdjustment)

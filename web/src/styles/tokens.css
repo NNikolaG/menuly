@@ -138,6 +138,8 @@
   --type-tag: 400 12px/16px var(--font-mono);
   --type-price: 500 15px/22px var(--font-mono);
   --type-price-row: 500 15px/24px var(--font-mono);
+  --type-board-price: 500 16px/24px var(--font-mono);
+  --type-board-cat: 500 15px/20px var(--font-mono);
   --type-price-lg: 500 20px/26px var(--font-mono);
   --type-pos-price: 400 14px/18px var(--font-mono);
   --type-pos-qty: 500 14px/30px var(--font-mono);
@@ -183,6 +185,7 @@
   --radius-pos: 14px;
   --radius-lg: 20px;
   --radius-pill: 999px;
+  --radius-phone: 36px;
 
   --control-sm: 32px;
   --control-md: 40px;
@@ -213,6 +216,12 @@
   --size-ticket: 320px;
   --size-ticket-art: 160px;
   --size-pattern-cell: 48px;
+  --size-menu-thumb: 72px;
+  --size-menu-card-min: 260px;
+  --size-price-col: 10ch;
+  --size-phone-width: 390px;
+  --size-phone-height: 780px;
+  --size-option-min: 200px;
   --size-ticket-punch-width: 96px;
   --size-ticket-punch-height: 26px;
   --size-receipt: 330px;
@@ -229,6 +238,9 @@
   --stroke-control: 1px;
   --stroke-focus: 2px;
   --stroke-punch-ring: 3px;
+  --stroke-rule: 2px;
+  --stroke-phone: 6px;
+  --underline-offset: 3px;
   --focus-offset: 2px;
 
   /* ---------- Shadow, motion, layers ---------- */
@@ -334,4 +346,51 @@
   --color-on-accent: #141414;
   --color-accent-text: light-dark(#a12a5d, #f08bb0);
   --color-accent-subtle: light-dark(#fef3f7, #37272d);
+}
+
+/* ---------- Font presets: [data-font] on the public menu wrapper ----------
+   The --type-* shorthands resolve --font-sans where they are declared (:root),
+   so a wrapper that swaps the font must declare them again. Mono stays. */
+[data-font] {
+  --type-display-xl: 500 96px/0.92 var(--font-sans);
+  --type-display-lg: 500 64px/0.95 var(--font-sans);
+  --type-display-md: 500 44px/1 var(--font-sans);
+  --type-h1: 600 30px/36px var(--font-sans);
+  --type-h2: 600 22px/28px var(--font-sans);
+  --type-h3: 600 17px/24px var(--font-sans);
+  --type-h4: 600 15px/20px var(--font-sans);
+  --type-dialog-title: 600 19px/26px var(--font-sans);
+  --type-body-lg: 400 17px/26px var(--font-sans);
+  --type-body: 400 15px/22px var(--font-sans);
+  --type-body-strong: 600 15px/22px var(--font-sans);
+  --type-body-sm: 400 13px/18px var(--font-sans);
+  --type-label: 500 13px/18px var(--font-sans);
+  --type-control: 600 15px/22px var(--font-sans);
+  --type-control-sm: 600 13px/18px var(--font-sans);
+  --type-control-lg: 600 16px/22px var(--font-sans);
+  --type-nav: 500 15px/20px var(--font-sans);
+  --type-chip: 500 15px/22px var(--font-sans);
+  --type-segment: 500 13px/18px var(--font-sans);
+  --type-stat: 500 44px/1 var(--font-sans);
+  --type-ticket-title: 500 32px/0.98 var(--font-sans);
+  --type-receipt-title: 500 52px/0.9 var(--font-sans);
+  --type-receipt-total: 500 48px/1 var(--font-sans);
+  --type-brand-headline: 500 56px/0.95 var(--font-sans);
+  --type-brand-number: 500 72px/0.9 var(--font-sans);
+  --type-pos-cat: 500 17px/22px var(--font-sans);
+  --type-pos-tile: 600 18px/22px var(--font-sans);
+  --type-mark: 600 15px/1 var(--font-sans);
+  --type-receipt-line: 400 15px/20px var(--font-sans);
+}
+
+[data-font='onest'] {
+  --font-sans: 'Onest', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+[data-font='manrope'] {
+  --font-sans: 'Manrope', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+[data-font='plex'] {
+  --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
