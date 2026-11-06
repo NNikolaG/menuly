@@ -127,3 +127,8 @@ Why: stays in the Angular ecosystem (no extra libs), and one request per drop ma
 
 Angular's `@angular/common/locales/sr-Latn` returns "other" for every number, so ICU plurals would read "4 stavki". `registerSerbianLatinPlurals()` re-registers `sr-Latn` with the `sr` plural function (CLDR shares the rules between scripts) before bootstrap.
 Why: keeps plurals in ICU messages (the Angular way) instead of hand-rolled count helpers; one place to drop when Angular fixes the data.
+
+## #27 — Aria for every composite control (2026-11-06)
+
+Audit after #11: `AppMenu` (menu) and `AppSegmented` (listbox) were already on `@angular/aria`; native `<select>` was not used, the venue currency was a free text input, and row actions were loose buttons. Now: `AppSelect` is an Aria combobox (non-input host = select-only) with a listbox popup in a CDK overlay, `selectionMode="explicit"` so arrows move and Enter or click picks; row actions are Aria toolbars (`ngToolbar` / `ngToolbarWidget`); drag handles also move with Alt+ArrowUp/Down (CDK drag-drop has no keyboard reorder). Not Aria on purpose: dialogs (CDK Dialog), the switch (native checkbox with `role=switch`), and public menu chips (navigation links with `aria-current`, not tabs).
+Why: Nikola wants Aria wherever it fits; it brings roving focus, typeahead and correct ARIA without our own key handling.

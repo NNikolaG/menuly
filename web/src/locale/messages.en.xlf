@@ -259,11 +259,11 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
-          <context context-type="linenumber">201</context>
+          <context context-type="linenumber">215</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">375</context>
+          <context context-type="linenumber">392</context>
         </context-group>
       </trans-unit>
       <trans-unit id="auth.register.heading" datatype="html">
@@ -403,7 +403,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
-          <context context-type="linenumber">23,24</context>
+          <context context-type="linenumber">24,25</context>
         </context-group>
       </trans-unit>
       <trans-unit id="dashboard.publicLink" datatype="html">
@@ -483,7 +483,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
-          <context context-type="linenumber">114,116</context>
+          <context context-type="linenumber">121,123</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/ui/confirm-dialog/confirm-dialog.ts</context>
@@ -503,7 +503,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
-          <context context-type="linenumber">162</context>
+          <context context-type="linenumber">176</context>
         </context-group>
       </trans-unit>
       <trans-unit id="category.editTitle" datatype="html">
@@ -607,11 +607,11 @@
         <target>Published</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">67,69</context>
+          <context context-type="linenumber">78,80</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">126,127</context>
+          <context context-type="linenumber">129,130</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.status.draft" datatype="html">
@@ -619,11 +619,11 @@
         <target>Draft</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">70,72</context>
+          <context context-type="linenumber">81,83</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">130,131</context>
+          <context context-type="linenumber">133,134</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.unpublish" datatype="html">
@@ -631,11 +631,11 @@
         <target> Back to draft </target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">83,84</context>
+          <context context-type="linenumber">94,95</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">147</context>
+          <context context-type="linenumber">157</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.publishMenu" datatype="html">
@@ -643,7 +643,15 @@
         <target> Publish menu </target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">93,94</context>
+          <context context-type="linenumber">104,105</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="menu.moveHint" datatype="html">
+        <source> Alt + strelica gore ili dole pomera stavku. </source>
+        <target> Alt + arrow up or down moves the item. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
+          <context context-type="linenumber">116,119</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.addItem" datatype="html">
@@ -651,7 +659,7 @@
         <target>Add item</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">143,144</context>
+          <context context-type="linenumber">170,171</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.col.order" datatype="html">
@@ -659,7 +667,7 @@
         <target>Order</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">178,179</context>
+          <context context-type="linenumber">207,208</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.col.item" datatype="html">
@@ -667,7 +675,7 @@
         <target>Item</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">181,182</context>
+          <context context-type="linenumber">210,211</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.col.available" datatype="html">
@@ -675,7 +683,7 @@
         <target>Available</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">182,183</context>
+          <context context-type="linenumber">211,212</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.col.price" datatype="html">
@@ -683,7 +691,7 @@
         <target>Price</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">183,184</context>
+          <context context-type="linenumber">212,213</context>
         </context-group>
       </trans-unit>
       <trans-unit id="common.actions" datatype="html">
@@ -691,15 +699,15 @@
         <target>Actions</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">185,186</context>
+          <context context-type="linenumber">214,215</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">107,108</context>
+          <context context-type="linenumber">110,111</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
-          <context context-type="linenumber">57,58</context>
+          <context context-type="linenumber">58,59</context>
         </context-group>
       </trans-unit>
       <trans-unit id="item.available" datatype="html">
@@ -707,7 +715,7 @@
         <target>Available</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">232,233</context>
+          <context context-type="linenumber">266,267</context>
         </context-group>
       </trans-unit>
       <trans-unit id="item.unavailable" datatype="html">
@@ -715,7 +723,7 @@
         <target>Sold out</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">239,240</context>
+          <context context-type="linenumber">273,274</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.emptyCategory" datatype="html">
@@ -723,7 +731,7 @@
         <target>This category is empty.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">278,280</context>
+          <context context-type="linenumber">320,322</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.empty" datatype="html">
@@ -731,7 +739,7 @@
         <target>This menu has no categories yet.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">283,284</context>
+          <context context-type="linenumber">325,326</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.emptyBody" datatype="html">
@@ -739,7 +747,7 @@
         <target> Add your first category, e.g. “Hot drinks”, then add items with prices to it. </target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">285,286</context>
+          <context context-type="linenumber">327,328</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.addCategory" datatype="html">
@@ -747,7 +755,7 @@
         <target>Add category</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">295,296</context>
+          <context context-type="linenumber">337,338</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.notFound" datatype="html">
@@ -755,7 +763,7 @@
         <target>Menu not found.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">310,312</context>
+          <context context-type="linenumber">352,354</context>
         </context-group>
       </trans-unit>
       <trans-unit id="common.loading" datatype="html">
@@ -763,7 +771,7 @@
         <target>Loading…</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">312,316</context>
+          <context context-type="linenumber">354,358</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/public-menu/public-menu-page.ts</context>
@@ -771,11 +779,27 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
-          <context context-type="linenumber">50,52</context>
+          <context context-type="linenumber">53,55</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
-          <context context-type="linenumber">33,34</context>
+          <context context-type="linenumber">34,35</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="common.actionsFor" datatype="html">
+        <source>Akcije: <x id="name" equiv-text="name"/></source>
+        <target>Actions: <x id="name" equiv-text="name"/></target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
+          <context context-type="linenumber">450</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
+          <context context-type="linenumber">306</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
+          <context context-type="linenumber">165</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.moveLabel" datatype="html">
@@ -783,7 +807,7 @@
         <target>Move <x id="name" equiv-text="name"/></target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">425</context>
+          <context context-type="linenumber">474</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.editLabel" datatype="html">
@@ -791,7 +815,7 @@
         <target>Edit <x id="name" equiv-text="name"/></target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">429</context>
+          <context context-type="linenumber">478</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.deleteItemLabel" datatype="html">
@@ -799,7 +823,7 @@
         <target>Delete <x id="name" equiv-text="name"/></target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">433</context>
+          <context context-type="linenumber">482</context>
         </context-group>
       </trans-unit>
       <trans-unit id="category.delete.title" datatype="html">
@@ -807,7 +831,7 @@
         <target>Delete category?</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">462</context>
+          <context context-type="linenumber">511</context>
         </context-group>
       </trans-unit>
       <trans-unit id="category.delete.body" datatype="html">
@@ -815,7 +839,7 @@
         <target>The category “<x id="name" equiv-text="category.name"/>” is deleted with all its items.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">463</context>
+          <context context-type="linenumber">512</context>
         </context-group>
       </trans-unit>
       <trans-unit id="category.delete.confirm" datatype="html">
@@ -823,7 +847,7 @@
         <target>Delete category</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">464</context>
+          <context context-type="linenumber">513</context>
         </context-group>
       </trans-unit>
       <trans-unit id="item.delete.title" datatype="html">
@@ -831,7 +855,7 @@
         <target>Delete item?</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">519</context>
+          <context context-type="linenumber">568</context>
         </context-group>
       </trans-unit>
       <trans-unit id="item.delete.body" datatype="html">
@@ -839,7 +863,7 @@
         <target>The item “<x id="name" equiv-text="item.name"/>” is removed from the menu.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">520</context>
+          <context context-type="linenumber">569</context>
         </context-group>
       </trans-unit>
       <trans-unit id="item.delete.confirm" datatype="html">
@@ -847,7 +871,7 @@
         <target>Delete item</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">521</context>
+          <context context-type="linenumber">570</context>
         </context-group>
       </trans-unit>
       <trans-unit id="common.forbidden" datatype="html">
@@ -855,19 +879,19 @@
         <target>You are not allowed to do this.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">613</context>
+          <context context-type="linenumber">697</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
-          <context context-type="linenumber">197</context>
+          <context context-type="linenumber">211</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">374</context>
+          <context context-type="linenumber">391</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
-          <context context-type="linenumber">195</context>
+          <context context-type="linenumber">209</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.saveError" datatype="html">
@@ -875,7 +899,7 @@
         <target>The change was not saved. Try again.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">614</context>
+          <context context-type="linenumber">698</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.pageTitle" datatype="html">
@@ -959,7 +983,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
-          <context context-type="linenumber">45,46</context>
+          <context context-type="linenumber">46,47</context>
         </context-group>
       </trans-unit>
       <trans-unit id="publicMenu.pageTitle" datatype="html">
@@ -975,11 +999,11 @@
         <target>Venues</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
-          <context context-type="linenumber">42,44</context>
+          <context context-type="linenumber">45,47</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">44,46</context>
+          <context context-type="linenumber">47,49</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venues.notFound" datatype="html">
@@ -987,11 +1011,11 @@
         <target>Venue not found.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
-          <context context-type="linenumber">48,49</context>
+          <context context-type="linenumber">51,52</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">57,61</context>
+          <context context-type="linenumber">60,64</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venues.field.name" datatype="html">
@@ -999,7 +1023,7 @@
         <target>Name</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
-          <context context-type="linenumber">56</context>
+          <context context-type="linenumber">59</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venues.field.slug" datatype="html">
@@ -1007,7 +1031,7 @@
         <target>Slug</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
-          <context context-type="linenumber">64</context>
+          <context context-type="linenumber">67</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venues.field.address" datatype="html">
@@ -1015,11 +1039,11 @@
         <target>Address</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
-          <context context-type="linenumber">73</context>
+          <context context-type="linenumber">76</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">78,79</context>
+          <context context-type="linenumber">81,82</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venues.field.phone" datatype="html">
@@ -1027,7 +1051,7 @@
         <target>Phone</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
-          <context context-type="linenumber">87</context>
+          <context context-type="linenumber">90</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venues.field.currency" datatype="html">
@@ -1035,11 +1059,11 @@
         <target>Currency</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
-          <context context-type="linenumber">101</context>
+          <context context-type="linenumber">104</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">83</context>
+          <context context-type="linenumber">86</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venues.field.slugPattern" datatype="html">
@@ -1047,7 +1071,7 @@
         <target>Lowercase letters, numbers and hyphens only, e.g. centar-1.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
-          <context context-type="linenumber">146</context>
+          <context context-type="linenumber">153</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venues.field.currencyPattern" datatype="html">
@@ -1055,7 +1079,7 @@
         <target>Enter a three-letter code, e.g. RSD.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
-          <context context-type="linenumber">151</context>
+          <context context-type="linenumber">158</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venues.editHeading" datatype="html">
@@ -1063,7 +1087,7 @@
         <target>Edit venue</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
-          <context context-type="linenumber">158</context>
+          <context context-type="linenumber">172</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venues.newHeading" datatype="html">
@@ -1071,7 +1095,7 @@
         <target>New venue</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
-          <context context-type="linenumber">159</context>
+          <context context-type="linenumber">173</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venues.create" datatype="html">
@@ -1079,7 +1103,7 @@
         <target>Add venue</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
-          <context context-type="linenumber">162</context>
+          <context context-type="linenumber">176</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venues.field.slugEmptyHint" datatype="html">
@@ -1087,7 +1111,7 @@
         <target>Leave empty and we will make one from the name.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
-          <context context-type="linenumber">167</context>
+          <context context-type="linenumber">181</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venues.field.slugHint" datatype="html">
@@ -1095,7 +1119,7 @@
         <target>Public link: <x id="url" equiv-text="url"/></target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
-          <context context-type="linenumber">169</context>
+          <context context-type="linenumber">183</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venues.slugTaken" datatype="html">
@@ -1103,7 +1127,7 @@
         <target>Another venue already uses this slug.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
-          <context context-type="linenumber">195</context>
+          <context context-type="linenumber">209</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venues.validationFailed" datatype="html">
@@ -1111,7 +1135,7 @@
         <target>Check the details you entered.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
-          <context context-type="linenumber">199</context>
+          <context context-type="linenumber">213</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venue.edit" datatype="html">
@@ -1119,7 +1143,7 @@
         <target>Edit venue</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">52,53</context>
+          <context context-type="linenumber">55,56</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venues.col.link" datatype="html">
@@ -1127,11 +1151,11 @@
         <target>Public link</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">86,87</context>
+          <context context-type="linenumber">89,90</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
-          <context context-type="linenumber">55,56</context>
+          <context context-type="linenumber">56,57</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venue.menus" datatype="html">
@@ -1139,7 +1163,7 @@
         <target>Menus</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">94,96</context>
+          <context context-type="linenumber">97,99</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venue.col.menu" datatype="html">
@@ -1147,7 +1171,7 @@
         <target>Menu</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">105,106</context>
+          <context context-type="linenumber">108,109</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venue.col.status" datatype="html">
@@ -1155,7 +1179,7 @@
         <target>Status</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">106,107</context>
+          <context context-type="linenumber">109,110</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venue.publishedAt" datatype="html">
@@ -1163,7 +1187,7 @@
         <target>Published <x id="INTERPOLATION" equiv-text="{{ menu.published_at | date: &apos;dd.MM.y. HH:mm&apos; }}"/></target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">119,120</context>
+          <context context-type="linenumber">122,123</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.publish" datatype="html">
@@ -1171,7 +1195,7 @@
         <target> Publish </target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">159</context>
+          <context context-type="linenumber">170</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venue.noMenus" datatype="html">
@@ -1179,7 +1203,7 @@
         <target>This venue has no menu yet.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">181,183</context>
+          <context context-type="linenumber">193,195</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venue.menusLoadError" datatype="html">
@@ -1187,7 +1211,7 @@
         <target>Menus could not be loaded.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">184,187</context>
+          <context context-type="linenumber">196,199</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venue.newMenuName" datatype="html">
@@ -1195,7 +1219,7 @@
         <target>New menu</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">191,192</context>
+          <context context-type="linenumber">203,204</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venue.newMenuPlaceholder" datatype="html">
@@ -1203,7 +1227,7 @@
         <target>e.g. Main menu</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">199,200</context>
+          <context context-type="linenumber">211,212</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venue.addMenu" datatype="html">
@@ -1211,7 +1235,7 @@
         <target>Add menu</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">205,206</context>
+          <context context-type="linenumber">217,218</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.deleteLabel" datatype="html">
@@ -1219,7 +1243,7 @@
         <target>Delete menu <x id="name" equiv-text="menu.name"/></target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">320</context>
+          <context context-type="linenumber">337</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.delete.title" datatype="html">
@@ -1227,7 +1251,7 @@
         <target>Delete menu?</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">349</context>
+          <context context-type="linenumber">366</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.delete.body" datatype="html">
@@ -1235,7 +1259,7 @@
         <target>The menu “<x id="name" equiv-text="menu.name"/>” is deleted with all its categories and items.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">350</context>
+          <context context-type="linenumber">367</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.delete.confirm" datatype="html">
@@ -1243,7 +1267,7 @@
         <target>Delete menu</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">351</context>
+          <context context-type="linenumber">368</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venues.heading" datatype="html">
@@ -1251,7 +1275,7 @@
         <target>Venues</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
-          <context context-type="linenumber">19,20</context>
+          <context context-type="linenumber">20,21</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venues.loadError" datatype="html">
@@ -1259,7 +1283,7 @@
         <target>Venues could not be loaded.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
-          <context context-type="linenumber">36,38</context>
+          <context context-type="linenumber">37,39</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venues.col.name" datatype="html">
@@ -1267,7 +1291,7 @@
         <target>Venue</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
-          <context context-type="linenumber">54,55</context>
+          <context context-type="linenumber">55,56</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venues.col.currency" datatype="html">
@@ -1275,7 +1299,7 @@
         <target>Currency</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
-          <context context-type="linenumber">56,57</context>
+          <context context-type="linenumber">57,58</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venues.empty" datatype="html">
@@ -1283,7 +1307,7 @@
         <target>No venues yet.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
-          <context context-type="linenumber">106,107</context>
+          <context context-type="linenumber">115,116</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venues.emptyBody" datatype="html">
@@ -1291,7 +1315,7 @@
         <target>Add your first venue, then import or build its menu.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
-          <context context-type="linenumber">108,110</context>
+          <context context-type="linenumber">117,119</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venues.editLabel" datatype="html">
@@ -1299,7 +1323,7 @@
         <target>Edit <x id="name" equiv-text="venue.name"/></target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
-          <context context-type="linenumber">171</context>
+          <context context-type="linenumber">185</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venues.deleteLabel" datatype="html">
@@ -1307,7 +1331,7 @@
         <target>Delete <x id="name" equiv-text="venue.name"/></target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
-          <context context-type="linenumber">175</context>
+          <context context-type="linenumber">189</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venues.delete.title" datatype="html">
@@ -1315,7 +1339,7 @@
         <target>Delete venue?</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
-          <context context-type="linenumber">181</context>
+          <context context-type="linenumber">195</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venues.delete.body" datatype="html">
@@ -1323,7 +1347,7 @@
         <target>The venue “<x id="name" equiv-text="venue.name"/>” and its menus are deleted. Guests will no longer be able to open its menu.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
-          <context context-type="linenumber">182</context>
+          <context context-type="linenumber">196</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venues.delete.confirm" datatype="html">
@@ -1331,7 +1355,7 @@
         <target>Delete venue</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
-          <context context-type="linenumber">183</context>
+          <context context-type="linenumber">197</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venues.deleteError" datatype="html">
@@ -1339,7 +1363,7 @@
         <target>The venue was not deleted. Try again.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
-          <context context-type="linenumber">196</context>
+          <context context-type="linenumber">210</context>
         </context-group>
       </trans-unit>
       <trans-unit id="venues.pageTitle" datatype="html">

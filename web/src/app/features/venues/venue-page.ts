@@ -4,6 +4,7 @@ import { Component, computed, inject, input, signal } from '@angular/core';
 import { form, FormField, maxLength, required, submit } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
 import { LucideArrowLeft, LucidePencil, LucidePlus, LucideTrash2 } from '@lucide/angular';
+import { Toolbar, ToolbarWidget } from '@angular/aria/toolbar';
 import { firstValueFrom, type Observable } from 'rxjs';
 import { toApiError } from '../../core/api/api-error';
 import { AuthStore } from '../../core/auth/auth-store';
@@ -24,6 +25,8 @@ import {
 @Component({
   selector: 'app-venue-page',
   imports: [
+    Toolbar,
+    ToolbarWidget,
     AppPattern,
     DatePipe,
     FormField,
@@ -133,10 +136,17 @@ import {
                         </td>
                         <td data-num>
                           @if (canEdit()) {
-                            <div class="row actions" data-gap="1">
+                            <div
+                              class="row actions"
+                              data-gap="1"
+                              ngToolbar
+                              [softDisabled]="false"
+                              [attr.aria-label]="actionsLabel(menu.name)"
+                            >
                               @if (menu.status === 'published') {
                                 <button
                                   appButton
+                                  ngToolbarWidget
                                   variant="ghost"
                                   size="sm"
                                   type="button"
@@ -149,6 +159,7 @@ import {
                               } @else {
                                 <button
                                   appButton
+                                  ngToolbarWidget
                                   variant="secondary"
                                   size="sm"
                                   type="button"
@@ -161,6 +172,7 @@ import {
                               }
                               <button
                                 appButton
+                                ngToolbarWidget
                                 variant="ghost"
                                 size="sm"
                                 type="button"
@@ -289,6 +301,11 @@ import {
   `,
 })
 export default class VenuePage {
+  /** Accessible name of a row's action toolbar (arrow keys move between its buttons). */
+  protected actionsLabel(name: string): string {
+    return $localize`:@@common.actionsFor:Akcije: ${name}:name:`;
+  }
+
   private readonly menusApi = inject(MenusApi);
   private readonly auth = inject(AuthStore);
   private readonly dialog = inject(Dialog);

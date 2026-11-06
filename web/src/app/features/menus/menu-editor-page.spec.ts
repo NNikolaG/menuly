@@ -178,4 +178,30 @@ describe('MenuEditorPage', () => {
     await reload();
     await done;
   });
+
+  it('moves an item with Alt+ArrowDown on its handle', async () => {
+    await signIn('manager');
+    const fixture = await render();
+    const handle = fixture.nativeElement.querySelector('#move-i1') as HTMLButtonElement;
+    expect(handle.getAttribute('aria-keyshortcuts')).toBe('Alt+ArrowUp Alt+ArrowDown');
+    handle.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', altKey: true }));
+    fixture.detectChanges();
+
+    await tick();
+    const request = http.expectOne('/api/v1/categories/c1/items/order');
+    expect(request.request.body).toEqual({ ids: ['i2', 'i1'] });
+    request.flush(null);
+    await reload();
+  });
+
+  it('groups row actions in Aria toolbars with one tab stop each', async () => {
+    await signIn('manager');
+    const fixture = await render();
+    const toolbar = fixture.nativeElement.querySelector(
+      '[role="toolbar"][aria-label="Akcije: Espreso"]',
+    ) as HTMLElement;
+    expect(toolbar).not.toBeNull();
+    expect(toolbar.querySelectorAll('[tabindex="0"]').length).toBe(1);
+    expect(toolbar.querySelectorAll('button').length).toBe(2);
+  });
 });

@@ -1,11 +1,11 @@
-import { Component, computed, inject, input, linkedSignal, signal } from '@angular/core';
+import { Component, computed, inject, input, linkedSignal, LOCALE_ID, signal } from '@angular/core';
 import { form, FormField, maxLength, pattern, required, submit } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
 import { LucideArrowLeft } from '@lucide/angular';
 import { firstValueFrom } from 'rxjs';
 import { toApiError } from '../../core/api/api-error';
 import { AuthStore } from '../../core/auth/auth-store';
-import { AppButton, AppField, AppInput } from '../../shared/ui';
+import { AppButton, AppField, AppInput, AppSelect, type AppSelectOption } from '../../shared/ui';
 import type { Venue, VenueInput } from '../../core/venues/venue';
 import { venuePublicUrl } from '../../core/venues/venue-public-url';
 import { VenuesApi } from '../../core/venues/venues-api';
@@ -17,6 +17,9 @@ interface VenueModel {
   phone: string;
   currency: string;
 }
+
+/** Currencies of the region first; a venue's existing other code is kept in the list. */
+const CURRENCIES = ['RSD', 'EUR', 'BAM', 'MKD', 'HUF', 'RON', 'BGN', 'ALL', 'CHF', 'USD', 'GBP'];
 
 const SLUG = /^([a-z0-9]+(-[a-z0-9]+)*)?$/;
 
@@ -33,7 +36,7 @@ function toModel(venue: Venue | undefined): VenueModel {
 /** Create (`/objekti/novi`) and edit (`/objekti/:venueId/izmena`) a venue. */
 @Component({
   selector: 'app-venue-form-page',
-  imports: [FormField, RouterLink, AppButton, AppField, AppInput, LucideArrowLeft],
+  imports: [FormField, RouterLink, AppButton, AppField, AppInput, AppSelect, LucideArrowLeft],
   template: `
     <div class="stack" data-gap="6">
       <div class="stack" data-gap="2">
@@ -101,7 +104,11 @@ function toModel(venue: Venue | undefined): VenueModel {
               controlId="venue-currency"
               [field]="form.currency"
             >
-              <input appInput id="venue-currency" [formField]="form.currency" />
+              <app-select
+                controlId="venue-currency"
+                [options]="currencies()"
+                [formField]="form.currency"
+              />
             </app-field>
           </div>
           @if (error()) {
@@ -152,6 +159,13 @@ export default class VenueFormPage {
     });
   });
   protected readonly error = signal('');
+
+  private readonly currencyNames = new Intl.DisplayNames([inject(LOCALE_ID)], { type: 'currency' });
+  protected readonly currencies = computed<AppSelectOption[]>(() => {
+    const current = this.model().currency;
+    const codes = current && !CURRENCIES.includes(current) ? [current, ...CURRENCIES] : CURRENCIES;
+    return codes.map((code) => ({ value: code, label: code, hint: this.currencyNames.of(code) }));
+  });
 
   protected readonly heading = computed(() =>
     this.isEdit()

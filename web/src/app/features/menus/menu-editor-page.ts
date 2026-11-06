@@ -6,8 +6,16 @@ import {
   type CdkDragDrop,
 } from '@angular/cdk/drag-drop';
 import { Dialog } from '@angular/cdk/dialog';
-import { CurrencyPipe, NgTemplateOutlet } from '@angular/common';
-import { Component, computed, inject, input, signal } from '@angular/core';
+import { CurrencyPipe, DOCUMENT, NgTemplateOutlet } from '@angular/common';
+import {
+  afterNextRender,
+  Component,
+  computed,
+  inject,
+  Injector,
+  input,
+  signal,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   LucideArrowLeft,
@@ -16,6 +24,7 @@ import {
   LucidePlus,
   LucideTrash2,
 } from '@lucide/angular';
+import { Toolbar, ToolbarWidget } from '@angular/aria/toolbar';
 import { firstValueFrom, type Observable } from 'rxjs';
 import { toApiError } from '../../core/api/api-error';
 import { AuthStore } from '../../core/auth/auth-store';
@@ -31,6 +40,8 @@ import { toMajor, toMinor } from './price';
 @Component({
   selector: 'app-menu-editor-page',
   imports: [
+    Toolbar,
+    ToolbarWidget,
     CurrencyPipe,
     NgTemplateOutlet,
     RouterLink,
@@ -101,6 +112,10 @@ import { toMajor, toMinor } from './price';
           <p role="alert" class="error">{{ error() }}</p>
         }
 
+        <p id="move-hint" class="visually-hidden" i18n="@@menu.moveHint">
+          Alt + strelica gore ili dole pomera stavku.
+        </p>
+
         <div
           class="stack"
           data-gap="8"
@@ -122,7 +137,12 @@ import { toMajor, toMinor } from './price';
                       type="button"
                       class="handle"
                       cdkDragHandle
+                      [id]="'move-' + category.id"
                       [attr.aria-label]="moveLabel(category.name)"
+                      aria-describedby="move-hint"
+                      aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"
+                      (keydown.alt.arrowup)="nudgeCategory(tree, $index, -1, $event)"
+                      (keydown.alt.arrowdown)="nudgeCategory(tree, $index, 1, $event)"
                     >
                       <svg lucideGripVertical aria-hidden="true"></svg>
                     </button>
@@ -131,9 +151,16 @@ import { toMajor, toMinor } from './price';
                   <span class="meta">{{ category.items.length }}</span>
                 </div>
                 @if (canEdit()) {
-                  <div class="row" data-gap="1">
+                  <div
+                    class="row"
+                    data-gap="1"
+                    ngToolbar
+                    [softDisabled]="false"
+                    [attr.aria-label]="actionsLabel(category.name)"
+                  >
                     <button
                       appButton
+                      ngToolbarWidget
                       variant="secondary"
                       size="sm"
                       type="button"
@@ -144,6 +171,7 @@ import { toMajor, toMinor } from './price';
                     </button>
                     <button
                       appButton
+                      ngToolbarWidget
                       variant="ghost"
                       size="sm"
                       type="button"
@@ -154,6 +182,7 @@ import { toMajor, toMinor } from './price';
                     </button>
                     <button
                       appButton
+                      ngToolbarWidget
                       variant="ghost"
                       size="sm"
                       type="button"
@@ -199,7 +228,12 @@ import { toMajor, toMinor } from './price';
                               type="button"
                               class="handle"
                               cdkDragHandle
+                              [id]="'move-' + item.id"
                               [attr.aria-label]="moveLabel(item.name)"
+                              aria-describedby="move-hint"
+                              aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"
+                              (keydown.alt.arrowup)="nudgeItem(category, $index, -1, $event)"
+                              (keydown.alt.arrowdown)="nudgeItem(category, $index, 1, $event)"
                             >
                               <svg lucideGripVertical aria-hidden="true"></svg>
                             </button>
@@ -246,9 +280,16 @@ import { toMajor, toMinor } from './price';
                         </td>
                         @if (canEdit()) {
                           <td data-num>
-                            <div class="row actions" data-gap="1">
+                            <div
+                              class="row actions"
+                              data-gap="1"
+                              ngToolbar
+                              [softDisabled]="false"
+                              [attr.aria-label]="actionsLabel(item.name)"
+                            >
                               <button
                                 appButton
+                                ngToolbarWidget
                                 variant="ghost"
                                 size="sm"
                                 type="button"
@@ -259,6 +300,7 @@ import { toMajor, toMinor } from './price';
                               </button>
                               <button
                                 appButton
+                                ngToolbarWidget
                                 variant="ghost"
                                 size="sm"
                                 type="button"
@@ -403,9 +445,16 @@ import { toMajor, toMinor } from './price';
   `,
 })
 export default class MenuEditorPage {
+  /** Accessible name of a row's action toolbar (arrow keys move between its buttons). */
+  protected actionsLabel(name: string): string {
+    return $localize`:@@common.actionsFor:Akcije: ${name}:name:`;
+  }
+
   protected readonly api = inject(MenusApi);
   private readonly auth = inject(AuthStore);
   private readonly dialog = inject(Dialog);
+  private readonly document = inject(DOCUMENT);
+  private readonly injector = inject(Injector);
 
   readonly menuId = input.required<string>();
 
@@ -568,6 +617,41 @@ export default class MenuEditorPage {
         items.map((item) => item.id),
       ),
     );
+  }
+
+  /** Keyboard alternative to dragging: Alt+ArrowUp/Down on a handle moves one place. */
+  protected nudgeCategory(tree: MenuTree, index: number, step: -1 | 1, event: Event): void {
+    const target = index + step;
+    if (target < 0 || target >= tree.categories.length) return;
+    event.preventDefault();
+    void this.moveCategory(tree, {
+      previousIndex: index,
+      currentIndex: target,
+    } as CdkDragDrop<unknown>);
+    this.refocus(`move-${tree.categories[index].id}`);
+  }
+
+  protected nudgeItem(
+    category: CategoryWithItems,
+    index: number,
+    step: -1 | 1,
+    event: Event,
+  ): void {
+    const target = index + step;
+    if (target < 0 || target >= category.items.length) return;
+    event.preventDefault();
+    void this.moveItem(category, {
+      previousIndex: index,
+      currentIndex: target,
+    } as CdkDragDrop<unknown>);
+    this.refocus(`move-${category.items[index].id}`);
+  }
+
+  /** The moved row is re-inserted in the DOM, which drops focus; put it back on its handle. */
+  private refocus(id: string): void {
+    afterNextRender(() => this.document.getElementById(id)?.focus({ preventScroll: false }), {
+      injector: this.injector,
+    });
   }
 
   private patchItem(itemId: string, patch: Partial<ItemWithVariants>): void {

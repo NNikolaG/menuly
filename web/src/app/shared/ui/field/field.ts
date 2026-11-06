@@ -5,7 +5,7 @@ import type { FieldTree, ValidationError } from '@angular/forms/signals';
 @Component({
   selector: 'app-field',
   template: `
-    <label [for]="controlId()">{{ label() }}</label>
+    <label [for]="controlId()" [id]="controlId() + '-label'">{{ label() }}</label>
     <div class="control" [attr.data-suffix]="suffix() ? '' : null">
       <ng-content />
       @if (suffix()) {
