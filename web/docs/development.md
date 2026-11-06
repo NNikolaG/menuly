@@ -27,7 +27,7 @@ src/
         ├── design/         # /design
         ├── venues/         # /objekti list, /objekti/novi, /objekti/:venueId (+ menus), /objekti/:venueId/izmena
         ├── menus/          # /meniji/:menuId editor: categories, items, prices, availability
-        └── public-menu/    # guest menu on the tenant subdomain
+        └── public-menu/    # guest menu on the tenant subdomain (GET /v1/public/menus/{tenant}/{venue})
 ```
 
 ## Layers
@@ -94,6 +94,8 @@ protected readonly venues = inject(VenuesApi).listResource();
 - After adding or changing text: `npm run i18n:extract`, then copy new units into `messages.en.xlf` with an English `<target>`.
 - The production build emits one app per locale: Serbian at the root (`dist/menuly/browser/`), English under `/en/`. `npm start` serves Serbian, `npm run start:en` English. A venue slug can't be `en`.
 - A missing translation fails the build (`i18nMissingTranslation: error`).
+- Counts use ICU plurals with Serbian `one` / `few` / `other` (`{n, plural, one {…} few {…} other {…}}`), not `=1`, so 21 reads "21 stavka". Angular's `sr-Latn` locale data has no plural rules, so `main.ts` calls `registerSerbianLatinPlurals()` (`core/i18n/`); specs that render plurals call it too.
+- The public menu asks the API for content in the build's language (`?lang=en` in the English build); names come back translated.
 
 ## Hosts and routes
 
