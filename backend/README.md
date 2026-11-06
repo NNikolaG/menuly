@@ -130,11 +130,44 @@ Javni meni vraća `promotions` samo za kombo ponude koje su `live`. Opcije sa sk
 3. FE prati `GET /v1/imports/{id}` dok status ne postane `ready_for_review` (ili `failed`). Nacrt (`draft`) ima stavke sa `uncertain: ["name"|"price"]` i `price_text` kako piše na papiru; `GET .../pages/{pageID}/file` daje original za ekran pregleda.
 4. Korisnik ispravlja nacrt (`PUT /v1/imports/{id}/draft`), po potrebi ponovi neuspelu stranicu (`POST .../pages/{pageID}/retry`), pa `POST /v1/imports/{id}/commit` sa `menu_id` (dopuna postojećeg menija, iste kategorije se spajaju po imenu) ili `menu_name` (novi meni).
 
+Slikanje telefonom: može više fotografija jednog menija u jednom uvozu (redom kojim se čita). Kategorija koja se nastavlja na sledećoj slici se spaja, a redovi koji se ponove zbog preklapanja slika se izbacuju (isti naziv sa drugom cenom ostaje, označen `duplicate`). Za svaku sliku model javlja `photo_quality` (good/partial/poor) i `photo_issues` (blurry, cut_off, glare...), a neuspela slika ima `error_code` (`not_a_menu`, `no_items`...), pa aplikacija može da predloži da se slika ponovo. Bez trošenja novog uvoza: `PUT .../pages/{pageID}/file` menja sliku (stare stavke te slike izlaze iz nacrta, ostale izmene ostaju), `POST .../pages` dodaje zaboravljenu stranu, `DELETE .../pages/{pageID}` briše pogrešnu. `summary` u odgovoru daje broj stavki, stavki za proveru i stavki bez cene.
+
 Limit: `venues.ocr_import_limit` (podrazumevano 3); neuspeli uvozi se ne računaju. Preko limita API vraća `409 import_limit_reached`.
 
 Modeli: `OCR_MODEL=claude-haiku-5-5` čita svaku stranicu, a ako rezultat izgleda loše (nema stavki, previše nečitljivih cena ili nesigurnih stavki) stranica se čita ponovo sa `OCR_FALLBACK_MODEL=claude-opus-5-5`. Tokeni i procenjen trošak se čuvaju po stranici (`import_pages.cost_micros`) za praćenje troška po tenantu. Bez `ANTHROPIC_API_KEY` upload radi, ali stranice padaju sa "OCR is not configured".
 
 Docker compose podiže MinIO (konzola http://localhost:9001, `menuly` / `menuly-minio-secret`); ključ se prosleđuje iz shell-a: `ANTHROPIC_API_KEY=... docker compose up --build`.
+
+## Slike (stavke, logo, naslovna, promocije)
+
+`POST /v1/media/images` (multipart: `file`, `purpose` = `item`|`logo`|`cover`|`promotion`, `owner`/`manager`): JPEG, PNG ili WebP do 10 MB. Slika se rotira po EXIF-u, smanjuje (stavka i promocija 1600 px, naslovna 2400 px, logo 512 px) i čuva kao JPEG (logo sa providnošću kao PNG). Odgovor ima `url` koji FE upisuje u `image_url` stavke ili promocije, odnosno `logo_url`/`cover_url` teme. Slike se serviraju bez prijave na `GET /v1/public/media/{tenantID}/{ime}` i keširaju godinu dana (fajl se nikad ne menja). `PUBLIC_API_URL` određuje početak tog linka.
+
+## Brojač otvaranja menija
+
+Gostujuća aplikacija jednom po poseti zove `POST /v1/public/menus/{tenant}/{venue}/views` (ne na svaki refresh). Broji se po danu u vremenskoj zoni objekta (`menu_view_daily`), bez kolačića i ličnih podataka. `GET /v1/venues/{id}/stats?days=30` vraća otvaranja po danu (dani bez otvaranja su 0) i ukupno.
+
+## Tim i pozivnice
+
+- `GET /v1/members` (owner, manager), `PATCH /v1/members/{userID}` `{"role"}` i `DELETE /v1/members/{userID}` (samo owner; vlasnik se ne menja i ne briše). Uklonjen član se odmah odjavljuje iz tog tenanta.
+- `POST /v1/invitations` `{"email", "role"}`: owner poziva `manager`/`staff`, manager samo `staff`. Email sadrži `{APP_URL}/invite?token=...`, važi 7 dana; nova pozivnica za isti email poništava staru. `GET /v1/invitations` (na čekanju), `DELETE /v1/invitations/{id}`.
+- Stranica `/invite` prvo zove `GET /v1/public/invitations/{token}` (tenant, uloga, status, `has_account`). Ako nalog postoji, korisnik se prijavi pa šalje `POST /v1/auth/accept-invite` `{"token"}` sa svojim access tokenom; inače šalje `{"token", "name", "password"}` i nalog se pravi. Odgovor su tokeni za tenant koji je pozvao.
+- U bazi se čuva samo sha256 tokena. Pozvani nema tenant kontekst, pa pozivnicu i tenant vidi samo kroz usku RLS politiku `invite_lookup` (red čiji hash odgovara).
+
+## Reset lozinke
+
+`POST /v1/auth/forgot-password` `{"email"}` uvek vraća `204` (ne otkriva da li nalog postoji) i šalje `{APP_URL}/reset-password?token=...`, koji važi sat vremena; najviše 3 linka na sat po nalogu. `POST /v1/auth/reset-password` `{"token", "password"}` menja lozinku, poništava ostale linkove i odjavljuje sve sesije.
+
+Email: bez `SMTP_HOST` poruke se samo upisuju u log (lokalni razvoj: link se kopira iz loga). Sa `SMTP_HOST`/`SMTP_PORT`/`SMTP_USERNAME`/`SMTP_PASSWORD` šalje se preko SMTP-a (STARTTLS), od `MAIL_FROM`.
+
+## Platform admin
+
+`/v1/admin/*` je za tim Menuly-ja: lista tenanata sa brojem objekata, članova, uvoza, OCR troškom i otvaranjima za 30 dana, detalj tenanta (vlasnici i objekti sa iskorišćenim uvozima), suspendovanje (`PATCH /v1/admin/tenants/{id}` `{"status": "suspended"}` gasi javni meni i prijavu) i promena `ocr_import_limit` objekta, plus `GET /v1/admin/ocr-usage?days=30` (stranice, tokeni i trošak po tenantu i modelu). `users.is_platform_admin` se proverava u bazi na svakom zahtevu, pa oduzimanje važi odmah; `GET /v1/me` ga vraća u `user`. Admin se dodeljuje ručno:
+
+```sql
+UPDATE users SET is_platform_admin = true WHERE email = 'ti@menuly.app';
+```
+
+Admin transakcije postavljaju `app.platform_admin = 'on'`, što otvara samo `platform_admin` RLS politike za čitanje preko tenanata; sve ostale rute rade kao i do sada.
 
 ## Struktura
 
@@ -152,15 +185,14 @@ backend/
   internal/ocr/            priprema fajlova, Claude ekstrakcija, nacrt, parsiranje cena
   internal/jobs/           River red poslova (OCR stranice)
   internal/storage/        S3/MinIO ili folder
+  internal/images/         obrada uploadovanih slika
+  internal/mail/           slanje emaila (SMTP ili log)
   api/openapi.yaml         API ugovor za web i iOS
 ```
 
 ## Šta još nije urađeno (sledeći koraci)
 
-- Pozivnice za članove tima i reset lozinke (treba slanje emaila).
 - Ograničenje `manager`/`staff` na određene objekte (`memberships.venue_ids` postoji u šemi, provera još ne).
-- `platform_admin` rute (kolona `users.is_platform_admin` postoji).
-- Brojač otvaranja menija (`menu_view_daily`).
-- Tema menija, upload slika stavki i promocija (sada samo `image_url`).
+- Brisanje slika koje više ništa ne koristi (`media_files` čuva sve upload-ove).
 - Popusti na stavku/kategoriju i ponavljajući termini promocija (V2).
 - Rate limiting za login/register.

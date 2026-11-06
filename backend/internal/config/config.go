@@ -50,6 +50,19 @@ type Config struct {
 	S3UseSSL    bool   `env:"S3_USE_SSL" envDefault:"false"`
 	StorageDir  string `env:"STORAGE_DIR" envDefault:"./data/uploads"`
 
+	// PublicAPIURL is this API's public base URL; uploaded image URLs start
+	// with it. AppURL is the web admin, used for links in emails.
+	PublicAPIURL string `env:"PUBLIC_API_URL" envDefault:"http://localhost:8080"`
+	AppURL       string `env:"APP_URL" envDefault:"http://localhost:4200"`
+
+	// Email (invitations, password reset). Without SMTP_HOST emails are
+	// only logged.
+	SMTPHost     string `env:"SMTP_HOST"`
+	SMTPPort     int    `env:"SMTP_PORT" envDefault:"587"`
+	SMTPUsername string `env:"SMTP_USERNAME"`
+	SMTPPassword string `env:"SMTP_PASSWORD"`
+	MailFrom     string `env:"MAIL_FROM" envDefault:"Menuly <no-reply@menuly.app>"`
+
 	CORSAllowedOrigins []string `env:"CORS_ALLOWED_ORIGINS" envSeparator:"," envDefault:"http://localhost:4200"`
 }
 

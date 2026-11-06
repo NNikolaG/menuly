@@ -42,8 +42,13 @@ type importPageDTO struct {
 	Status    string    `json:"status"`
 	Attempts  int32     `json:"attempts"`
 	Error     string    `json:"error"`
+	ErrorCode string    `json:"error_code"`
 	Filename  string    `json:"filename"`
 	MIME      string    `json:"mime"`
+	// PhotoQuality / PhotoIssues come from the model once the page is read,
+	// so the app can suggest retaking a blurry or cut-off photo.
+	PhotoQuality string   `json:"photo_quality"`
+	PhotoIssues  []string `json:"photo_issues"`
 }
 
 type importJobDTO struct {
@@ -56,15 +61,22 @@ type importJobDTO struct {
 	CreatedAt       time.Time       `json:"created_at"`
 	UpdatedAt       time.Time       `json:"updated_at"`
 	CommittedAt     *time.Time      `json:"committed_at"`
+	Summary         *ocr.Summary    `json:"summary,omitempty"`
 	Draft           json.RawMessage `json:"draft,omitempty"`
 	Pages           []importPageDTO `json:"pages,omitempty"`
 }
 
 func toImportJobDTO(j sqlc.ImportJob) importJobDTO {
-	return importJobDTO{
+	dto := importJobDTO{
 		ID: j.ID, VenueID: j.VenueID, Status: j.Status, Error: j.Error, DraftEdited: j.DraftEdited,
 		CommittedMenuID: j.CommittedMenuID, CreatedAt: j.CreatedAt, UpdatedAt: j.UpdatedAt, CommittedAt: j.CommittedAt,
 	}
+	var d ocr.Draft
+	if j.Draft != nil && json.Unmarshal(j.Draft, &d) == nil {
+		sum := ocr.Summarize(d)
+		dto.Summary = &sum
+	}
+	return dto
 }
 
 // loadImport returns the job with its pages and draft.
@@ -88,10 +100,19 @@ func loadImport(ctx context.Context, q *sqlc.Queries, tenantID, id uuid.UUID) (i
 		if err != nil {
 			return importJobDTO{}, err
 		}
-		dto.Pages = append(dto.Pages, importPageDTO{
+		pd := importPageDTO{
 			ID: p.ID, PageIndex: p.PageIndex, PageCount: p.PageCount, Status: p.Status,
-			Attempts: p.Attempts, Error: p.Error, Filename: f.Filename, MIME: f.Mime,
-		})
+			Attempts: p.Attempts, Error: p.Error, ErrorCode: p.ErrorCode, Filename: f.Filename, MIME: f.Mime,
+			PhotoIssues: []string{},
+		}
+		var raw ocr.Extracted
+		if p.RawResult != nil && json.Unmarshal(p.RawResult, &raw) == nil {
+			pd.PhotoQuality = raw.PhotoQuality
+			if raw.PhotoIssues != nil {
+				pd.PhotoIssues = raw.PhotoIssues
+			}
+		}
+		dto.Pages = append(dto.Pages, pd)
 	}
 	return dto, nil
 }
@@ -101,16 +122,122 @@ func errImportLimit(limit int32) *APIError {
 		Message: fmt.Sprintf("this venue has used all %d menu imports; edit the existing menu by hand", limit)}
 }
 
+func errTooManyPages(n int) *APIError {
+	return errValidation(fmt.Sprintf("the import would have %d pages; at most %d pages per import", n, maxImportPages))
+}
+
+// checkImportQuota fails with import_limit_reached when the venue cannot
+// start (or bring back) another import. lock takes the venue row lock so
+// that concurrent requests cannot both pass.
+func checkImportQuota(ctx context.Context, q *sqlc.Queries, tenantID, venueID uuid.UUID, lock bool) error {
+	var limit int32
+	if lock {
+		l, err := q.LockVenueImportLimit(ctx, sqlc.LockVenueImportLimitParams{TenantID: tenantID, ID: venueID})
+		if err != nil {
+			return err
+		}
+		limit = l
+	} else {
+		v, err := q.GetVenue(ctx, sqlc.GetVenueParams{TenantID: tenantID, ID: venueID})
+		if err != nil {
+			return err
+		}
+		limit = v.OcrImportLimit
+	}
+	used, err := q.CountVenueImports(ctx, sqlc.CountVenueImportsParams{TenantID: tenantID, VenueID: venueID})
+	if err != nil {
+		return err
+	}
+	if used >= int64(limit) {
+		return errImportLimit(limit)
+	}
+	return nil
+}
+
 type preparedUpload struct {
 	filename string
+	key      string
 	ocr.Prepared
+}
+
+func (s *Server) importsEnabled(w http.ResponseWriter, r *http.Request) bool {
+	if s.store == nil || s.jobs == nil {
+		writeError(w, r, errImportsDisabled)
+		return false
+	}
+	return true
+}
+
+// readUploads parses the multipart body, prepares every file in field and
+// stores it. maxPages is how many pages may still be added.
+func (s *Server) readUploads(w http.ResponseWriter, r *http.Request, tenantID, jobID uuid.UUID, field string, maxFiles, maxPages int) ([]preparedUpload, error) {
+	r.Body = http.MaxBytesReader(w, r.Body, maxImportBodyBytes)
+	if err := r.ParseMultipartForm(32 << 20); err != nil {
+		return nil, errBadRequest("invalid_upload", "expected multipart/form-data with files (at most 80 MB in total)")
+	}
+	headers := r.MultipartForm.File[field]
+	if len(headers) == 0 {
+		return nil, errValidation(fmt.Sprintf("upload at least one file in the %q field", field))
+	}
+	if len(headers) > maxFiles {
+		return nil, errValidation(fmt.Sprintf("at most %d file(s) here", maxFiles))
+	}
+	uploads := make([]preparedUpload, 0, len(headers))
+	pages := 0
+	for _, h := range headers {
+		up, apiErr := prepareUpload(h)
+		if apiErr != nil {
+			return nil, apiErr
+		}
+		pages += up.PageCount
+		uploads = append(uploads, up)
+	}
+	if pages > maxPages {
+		return nil, errValidation(fmt.Sprintf("the upload has %d pages; only %d more fit in this import (at most %d)", pages, maxPages, maxImportPages))
+	}
+	// Files go to storage before the transaction; if it fails they are
+	// orphaned, which is harmless (keys are unique).
+	for i := range uploads {
+		uploads[i].key = fmt.Sprintf("tenants/%s/imports/%s/%s", tenantID, jobID, uuid.Must(uuid.NewV7()))
+		if err := s.store.Put(r.Context(), uploads[i].key, uploads[i].Data, uploads[i].MIME); err != nil {
+			return nil, fmt.Errorf("store upload: %w", err)
+		}
+	}
+	return uploads, nil
+}
+
+func createMediaFile(ctx context.Context, q *sqlc.Queries, p Principal, up preparedUpload) (sqlc.MediaFile, error) {
+	return q.CreateMediaFile(ctx, sqlc.CreateMediaFileParams{
+		ID: uuid.Must(uuid.NewV7()), TenantID: p.TenantID, StorageKey: up.key, Mime: up.MIME,
+		SizeBytes: int64(len(up.Data)), Filename: up.filename, CreatedBy: &p.UserID,
+	})
+}
+
+// addPages records uploads as pages of the job and enqueues their reads.
+func (s *Server) addPages(ctx context.Context, tx pgx.Tx, q *sqlc.Queries, p Principal, jobID uuid.UUID, start int32, uploads []preparedUpload) error {
+	for i, up := range uploads {
+		f, err := createMediaFile(ctx, q, p, up)
+		if err != nil {
+			return err
+		}
+		page, err := q.CreateImportPage(ctx, sqlc.CreateImportPageParams{
+			ID: uuid.Must(uuid.NewV7()), TenantID: p.TenantID, JobID: jobID, MediaFileID: f.ID,
+			PageIndex: start + int32(i), PageCount: int32(up.PageCount),
+		})
+		if err != nil {
+			return err
+		}
+		if err := s.jobs.EnqueueTx(ctx, tx, jobs.ExtractPageArgs{TenantID: p.TenantID, JobID: jobID, PageID: page.ID}); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // POST /v1/venues/{venueID}/imports (multipart, field "files", 1..n files)
 func (s *Server) handleCreateImport(w http.ResponseWriter, r *http.Request) {
 	p := mustPrincipal(r)
-	if s.store == nil || s.jobs == nil {
-		writeError(w, r, errImportsDisabled)
+	if !s.importsEnabled(w, r) {
 		return
 	}
 	venueID, err := urlID(r, "venueID")
@@ -118,111 +245,278 @@ func (s *Server) handleCreateImport(w http.ResponseWriter, r *http.Request) {
 		writeError(w, r, err)
 		return
 	}
-	// Cheap checks first, before reading and decoding the upload.
-	var limit int32
-	err = s.tx(r, func(q *sqlc.Queries) error {
-		v, err := q.GetVenue(r.Context(), sqlc.GetVenueParams{TenantID: p.TenantID, ID: venueID})
-		if err != nil {
-			return err
-		}
-		used, err := q.CountVenueImports(r.Context(), sqlc.CountVenueImportsParams{TenantID: p.TenantID, VenueID: venueID})
-		if err != nil {
-			return err
-		}
-		if used >= int64(v.OcrImportLimit) {
-			return errImportLimit(v.OcrImportLimit)
-		}
-		limit = v.OcrImportLimit
-		return nil
-	})
-	if err != nil {
+	// Cheap check first, before reading and decoding the upload.
+	if err := s.tx(r, func(q *sqlc.Queries) error { return checkImportQuota(r.Context(), q, p.TenantID, venueID, false) }); err != nil {
 		writeError(w, r, notFoundAs(err))
 		return
 	}
-
-	r.Body = http.MaxBytesReader(w, r.Body, maxImportBodyBytes)
-	if err := r.ParseMultipartForm(32 << 20); err != nil {
-		writeError(w, r, errBadRequest("invalid_upload", "expected multipart/form-data with files (at most 80 MB in total)"))
+	jobID := uuid.Must(uuid.NewV7())
+	uploads, err := s.readUploads(w, r, p.TenantID, jobID, "files", maxImportPages, maxImportPages)
+	if err != nil {
+		writeError(w, r, err)
 		return
 	}
 	defer r.MultipartForm.RemoveAll() //nolint:errcheck
-	headers := r.MultipartForm.File["files"]
-	if len(headers) == 0 {
-		writeError(w, r, errValidation("upload at least one file in the \"files\" field"))
-		return
-	}
-	if len(headers) > maxImportPages {
-		writeError(w, r, errValidation(fmt.Sprintf("at most %d pages per import", maxImportPages)))
-		return
-	}
-	uploads := make([]preparedUpload, 0, len(headers))
-	pages := 0
-	for _, h := range headers {
-		up, apiErr := prepareUpload(h)
-		if apiErr != nil {
-			writeError(w, r, apiErr)
-			return
-		}
-		pages += up.PageCount
-		uploads = append(uploads, up)
-	}
-	if pages > maxImportPages {
-		writeError(w, r, errValidation(fmt.Sprintf("the upload has %d pages; at most %d pages per import", pages, maxImportPages)))
-		return
-	}
-
-	// Files go to storage before the transaction; if it fails they are
-	// orphaned, which is harmless (keys are unique per job).
-	jobID := uuid.Must(uuid.NewV7())
-	keys := make([]string, len(uploads))
-	for i, up := range uploads {
-		keys[i] = fmt.Sprintf("tenants/%s/imports/%s/%d", p.TenantID, jobID, i)
-		if err := s.store.Put(r.Context(), keys[i], up.Data, up.MIME); err != nil {
-			writeError(w, r, fmt.Errorf("store upload: %w", err))
-			return
-		}
-	}
 
 	var out importJobDTO
 	err = s.db.TxRaw(r.Context(), p.Scope(), func(tx pgx.Tx, q *sqlc.Queries) error {
 		ctx := r.Context()
-		// Re-check under the venue lock so parallel uploads cannot both pass.
-		if limit, err = q.LockVenueImportLimit(ctx, sqlc.LockVenueImportLimitParams{TenantID: p.TenantID, ID: venueID}); err != nil {
+		if err := checkImportQuota(ctx, q, p.TenantID, venueID, true); err != nil {
 			return err
-		}
-		used, err := q.CountVenueImports(ctx, sqlc.CountVenueImportsParams{TenantID: p.TenantID, VenueID: venueID})
-		if err != nil {
-			return err
-		}
-		if used >= int64(limit) {
-			return errImportLimit(limit)
 		}
 		if _, err := q.CreateImportJob(ctx, sqlc.CreateImportJobParams{ID: jobID, TenantID: p.TenantID, VenueID: venueID, CreatedBy: &p.UserID}); err != nil {
 			return err
 		}
-		for i, up := range uploads {
-			f, err := q.CreateMediaFile(ctx, sqlc.CreateMediaFileParams{
-				ID: uuid.Must(uuid.NewV7()), TenantID: p.TenantID, StorageKey: keys[i], Mime: up.MIME,
-				SizeBytes: int64(len(up.Data)), Filename: up.filename, CreatedBy: &p.UserID,
-			})
-			if err != nil {
-				return err
-			}
-			page, err := q.CreateImportPage(ctx, sqlc.CreateImportPageParams{
-				ID: uuid.Must(uuid.NewV7()), TenantID: p.TenantID, JobID: jobID, MediaFileID: f.ID,
-				PageIndex: int32(i), PageCount: int32(up.PageCount),
-			})
-			if err != nil {
-				return err
-			}
-			if err := s.jobs.EnqueueTx(ctx, tx, jobs.ExtractPageArgs{TenantID: p.TenantID, JobID: jobID, PageID: page.ID}); err != nil {
-				return err
-			}
+		if err := s.addPages(ctx, tx, q, p, jobID, 0, uploads); err != nil {
+			return err
 		}
 		out, err = loadImport(ctx, q, p.TenantID, jobID)
 		return err
 	})
 	writeResult(w, r, http.StatusAccepted, out, err)
+}
+
+// lockOpenImport locks a job that may still change. A failed job is brought
+// back, so it has to fit the venue's limit again.
+func lockOpenImport(ctx context.Context, q *sqlc.Queries, tenantID, id uuid.UUID) (sqlc.ImportJob, error) {
+	j, err := q.GetImportJobForUpdate(ctx, sqlc.GetImportJobForUpdateParams{TenantID: tenantID, ID: id})
+	if err != nil {
+		return j, err
+	}
+	if j.Status == "committed" {
+		return j, errImportState(j.Status, "a committed import cannot change")
+	}
+	if j.Status == "failed" {
+		if err := checkImportQuota(ctx, q, tenantID, j.VenueID, true); err != nil {
+			return j, err
+		}
+	}
+	return j, nil
+}
+
+// POST /v1/imports/{importID}/pages adds forgotten photos to an import
+// (multipart "files"); it does not use up another import.
+func (s *Server) handleAddImportPages(w http.ResponseWriter, r *http.Request) {
+	p := mustPrincipal(r)
+	if !s.importsEnabled(w, r) {
+		return
+	}
+	jobID, err := urlID(r, "importID")
+	if err != nil {
+		writeError(w, r, err)
+		return
+	}
+	var stats sqlc.ImportPageStatsRow
+	err = s.tx(r, func(q *sqlc.Queries) error {
+		j, err := q.GetImportJob(r.Context(), sqlc.GetImportJobParams{TenantID: p.TenantID, ID: jobID})
+		if err != nil {
+			return err
+		}
+		if j.Status == "committed" {
+			return errImportState(j.Status, "a committed import cannot change")
+		}
+		stats, err = q.ImportPageStats(r.Context(), sqlc.ImportPageStatsParams{TenantID: p.TenantID, JobID: jobID})
+		return err
+	})
+	if err != nil {
+		writeError(w, r, notFoundAs(err))
+		return
+	}
+	room := maxImportPages - int(stats.TotalPages)
+	if room <= 0 {
+		writeError(w, r, errTooManyPages(int(stats.TotalPages)+1))
+		return
+	}
+	uploads, err := s.readUploads(w, r, p.TenantID, jobID, "files", room, room)
+	if err != nil {
+		writeError(w, r, err)
+		return
+	}
+	defer r.MultipartForm.RemoveAll() //nolint:errcheck
+
+	var out importJobDTO
+	err = s.db.TxRaw(r.Context(), p.Scope(), func(tx pgx.Tx, q *sqlc.Queries) error {
+		ctx := r.Context()
+		if _, err := lockOpenImport(ctx, q, p.TenantID, jobID); err != nil {
+			return err
+		}
+		stats, err := q.ImportPageStats(ctx, sqlc.ImportPageStatsParams{TenantID: p.TenantID, JobID: jobID})
+		if err != nil {
+			return err
+		}
+		total := int(stats.TotalPages)
+		for _, up := range uploads {
+			total += up.PageCount
+		}
+		if total > maxImportPages {
+			return errTooManyPages(total)
+		}
+		if err := s.addPages(ctx, tx, q, p, jobID, stats.NextIndex, uploads); err != nil {
+			return err
+		}
+		if err := q.ReopenImportJob(ctx, sqlc.ReopenImportJobParams{TenantID: p.TenantID, ID: jobID}); err != nil {
+			return err
+		}
+		out, err = loadImport(ctx, q, p.TenantID, jobID)
+		return err
+	})
+	writeResult(w, r, http.StatusAccepted, out, err)
+}
+
+// lockSettledPage locks a page of the job that is not being read right now.
+func lockSettledPage(ctx context.Context, q *sqlc.Queries, tenantID, jobID, pageID uuid.UUID) (sqlc.ImportPage, error) {
+	page, err := q.GetImportPageForUpdate(ctx, sqlc.GetImportPageForUpdateParams{TenantID: tenantID, ID: pageID})
+	if err != nil {
+		return page, err
+	}
+	if page.JobID != jobID {
+		return page, errNotFound
+	}
+	if page.Status == "queued" || page.Status == "processing" {
+		return page, errImportState(page.Status, "wait until this page has been read")
+	}
+	return page, nil
+}
+
+// dropPageFromEditedDraft removes a page's items from a draft the user has
+// already edited (an unedited draft is rebuilt from the pages anyway).
+func dropPageFromEditedDraft(ctx context.Context, q *sqlc.Queries, j sqlc.ImportJob, page sqlc.ImportPage) error {
+	if !j.DraftEdited || j.Draft == nil || page.Status != "done" {
+		return nil
+	}
+	var d ocr.Draft
+	if err := json.Unmarshal(j.Draft, &d); err != nil {
+		return err
+	}
+	b, _ := json.Marshal(ocr.RemovePage(d, int(page.PageIndex)))
+	return q.SetImportJobDraft(ctx, sqlc.SetImportJobDraftParams{TenantID: j.TenantID, ID: j.ID, Draft: b})
+}
+
+// PUT /v1/imports/{importID}/pages/{pageID}/file replaces a page with a
+// retaken photo (multipart "file") and reads it again. Its old items leave
+// the draft; the user's other edits stay.
+func (s *Server) handleReplaceImportPage(w http.ResponseWriter, r *http.Request) {
+	p := mustPrincipal(r)
+	if !s.importsEnabled(w, r) {
+		return
+	}
+	jobID, err := urlID(r, "importID")
+	if err != nil {
+		writeError(w, r, err)
+		return
+	}
+	pageID, err := urlID(r, "pageID")
+	if err != nil {
+		writeError(w, r, err)
+		return
+	}
+	var room int
+	err = s.tx(r, func(q *sqlc.Queries) error {
+		page, err := q.GetImportPage(r.Context(), sqlc.GetImportPageParams{TenantID: p.TenantID, ID: pageID})
+		if err != nil {
+			return err
+		}
+		if page.JobID != jobID {
+			return errNotFound
+		}
+		stats, err := q.ImportPageStats(r.Context(), sqlc.ImportPageStatsParams{TenantID: p.TenantID, JobID: jobID})
+		room = maxImportPages - int(stats.TotalPages) + int(page.PageCount)
+		return err
+	})
+	if err != nil {
+		writeError(w, r, notFoundAs(err))
+		return
+	}
+	uploads, err := s.readUploads(w, r, p.TenantID, jobID, "file", 1, room)
+	if err != nil {
+		writeError(w, r, err)
+		return
+	}
+	defer r.MultipartForm.RemoveAll() //nolint:errcheck
+
+	var out importJobDTO
+	err = s.db.TxRaw(r.Context(), p.Scope(), func(tx pgx.Tx, q *sqlc.Queries) error {
+		ctx := r.Context()
+		j, err := lockOpenImport(ctx, q, p.TenantID, jobID)
+		if err != nil {
+			return err
+		}
+		page, err := lockSettledPage(ctx, q, p.TenantID, jobID, pageID)
+		if err != nil {
+			return err
+		}
+		if err := dropPageFromEditedDraft(ctx, q, j, page); err != nil {
+			return err
+		}
+		f, err := createMediaFile(ctx, q, p, uploads[0])
+		if err != nil {
+			return err
+		}
+		if err := q.ReplaceImportPageFile(ctx, sqlc.ReplaceImportPageFileParams{
+			TenantID: p.TenantID, ID: pageID, MediaFileID: f.ID, PageCount: int32(uploads[0].PageCount),
+		}); err != nil {
+			return err
+		}
+		if err := q.ReopenImportJob(ctx, sqlc.ReopenImportJobParams{TenantID: p.TenantID, ID: jobID}); err != nil {
+			return err
+		}
+		if err := s.jobs.EnqueueTx(ctx, tx, jobs.ExtractPageArgs{TenantID: p.TenantID, JobID: jobID, PageID: pageID}); err != nil {
+			return err
+		}
+		out, err = loadImport(ctx, q, p.TenantID, jobID)
+		return err
+	})
+	writeResult(w, r, http.StatusAccepted, out, err)
+}
+
+// DELETE /v1/imports/{importID}/pages/{pageID} removes a wrong photo and its
+// items. The last page cannot be removed.
+func (s *Server) handleDeleteImportPage(w http.ResponseWriter, r *http.Request) {
+	p := mustPrincipal(r)
+	jobID, err := urlID(r, "importID")
+	if err != nil {
+		writeError(w, r, err)
+		return
+	}
+	pageID, err := urlID(r, "pageID")
+	if err != nil {
+		writeError(w, r, err)
+		return
+	}
+	var out importJobDTO
+	err = s.tx(r, func(q *sqlc.Queries) error {
+		ctx := r.Context()
+		j, err := q.GetImportJobForUpdate(ctx, sqlc.GetImportJobForUpdateParams{TenantID: p.TenantID, ID: jobID})
+		if err != nil {
+			return err
+		}
+		if j.Status == "committed" {
+			return errImportState(j.Status, "a committed import cannot change")
+		}
+		page, err := lockSettledPage(ctx, q, p.TenantID, jobID, pageID)
+		if err != nil {
+			return err
+		}
+		stats, err := q.ImportPageStats(ctx, sqlc.ImportPageStatsParams{TenantID: p.TenantID, JobID: jobID})
+		if err != nil {
+			return err
+		}
+		if stats.Files <= 1 {
+			return errImportState(j.Status, "an import needs at least one page")
+		}
+		if err := dropPageFromEditedDraft(ctx, q, j, page); err != nil {
+			return err
+		}
+		if err := q.DeleteImportPage(ctx, sqlc.DeleteImportPageParams{TenantID: p.TenantID, ID: pageID}); err != nil {
+			return err
+		}
+		if err := jobs.Finalize(ctx, q, p.TenantID, jobID); err != nil {
+			return err
+		}
+		out, err = loadImport(ctx, q, p.TenantID, jobID)
+		return err
+	})
+	writeResult(w, r, http.StatusOK, out, err)
 }
 
 func prepareUpload(h *multipart.FileHeader) (preparedUpload, *APIError) {
@@ -243,7 +537,7 @@ func prepareUpload(h *multipart.FileHeader) (preparedUpload, *APIError) {
 	if err != nil {
 		if errors.Is(err, ocr.ErrUnsupported) {
 			return preparedUpload{}, &APIError{Status: http.StatusUnsupportedMediaType, Code: "unsupported_file",
-				Message: name + ": upload JPEG, PNG, WebP or PDF"}
+				Message: name + ": upload JPEG, PNG, WebP or PDF (HEIC photos: let the phone convert them, or export as JPEG)"}
 		}
 		return preparedUpload{}, errValidation(name + ": " + err.Error())
 	}

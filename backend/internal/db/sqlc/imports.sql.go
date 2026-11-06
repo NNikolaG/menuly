@@ -85,7 +85,7 @@ func (q *Queries) CreateImportJob(ctx context.Context, arg CreateImportJobParams
 const createImportPage = `-- name: CreateImportPage :one
 INSERT INTO import_pages (id, tenant_id, job_id, media_file_id, page_index, page_count)
 VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING id, tenant_id, job_id, media_file_id, page_index, page_count, status, attempts, raw_result, parsed_result, merged, error, provider, model, input_tokens, output_tokens, cost_micros, created_at, updated_at
+RETURNING id, tenant_id, job_id, media_file_id, page_index, page_count, status, attempts, raw_result, parsed_result, merged, error, provider, model, input_tokens, output_tokens, cost_micros, created_at, updated_at, error_code
 `
 
 type CreateImportPageParams struct {
@@ -127,6 +127,7 @@ func (q *Queries) CreateImportPage(ctx context.Context, arg CreateImportPagePara
 		&i.CostMicros,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.ErrorCode,
 	)
 	return i, err
 }
@@ -134,7 +135,7 @@ func (q *Queries) CreateImportPage(ctx context.Context, arg CreateImportPagePara
 const createMediaFile = `-- name: CreateMediaFile :one
 INSERT INTO media_files (id, tenant_id, storage_key, mime, size_bytes, filename, created_by)
 VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING id, tenant_id, storage_key, mime, size_bytes, filename, created_by, created_at
+RETURNING id, tenant_id, storage_key, mime, size_bytes, filename, created_by, created_at, purpose
 `
 
 type CreateMediaFileParams struct {
@@ -167,17 +168,32 @@ func (q *Queries) CreateMediaFile(ctx context.Context, arg CreateMediaFileParams
 		&i.Filename,
 		&i.CreatedBy,
 		&i.CreatedAt,
+		&i.Purpose,
 	)
 	return i, err
+}
+
+const deleteImportPage = `-- name: DeleteImportPage :exec
+DELETE FROM import_pages WHERE tenant_id = $1 AND id = $2
+`
+
+type DeleteImportPageParams struct {
+	TenantID uuid.UUID `json:"tenant_id"`
+	ID       uuid.UUID `json:"id"`
+}
+
+func (q *Queries) DeleteImportPage(ctx context.Context, arg DeleteImportPageParams) error {
+	_, err := q.db.Exec(ctx, deleteImportPage, arg.TenantID, arg.ID)
+	return err
 }
 
 const finishImportPage = `-- name: FinishImportPage :exec
 UPDATE import_pages SET
     status = $1, raw_result = $2, parsed_result = $3,
-    error = $4, provider = $5, model = $6,
-    input_tokens = input_tokens + $7, output_tokens = output_tokens + $8,
-    cost_micros = cost_micros + $9
-WHERE tenant_id = $10 AND id = $11
+    error = $4, error_code = $5, provider = $6, model = $7,
+    input_tokens = input_tokens + $8, output_tokens = output_tokens + $9,
+    cost_micros = cost_micros + $10
+WHERE tenant_id = $11 AND id = $12
 `
 
 type FinishImportPageParams struct {
@@ -185,6 +201,7 @@ type FinishImportPageParams struct {
 	RawResult    []byte    `json:"raw_result"`
 	ParsedResult []byte    `json:"parsed_result"`
 	Error        string    `json:"error"`
+	ErrorCode    string    `json:"error_code"`
 	Provider     string    `json:"provider"`
 	Model        string    `json:"model"`
 	InputTokens  int64     `json:"input_tokens"`
@@ -200,6 +217,7 @@ func (q *Queries) FinishImportPage(ctx context.Context, arg FinishImportPagePara
 		arg.RawResult,
 		arg.ParsedResult,
 		arg.Error,
+		arg.ErrorCode,
 		arg.Provider,
 		arg.Model,
 		arg.InputTokens,
@@ -270,7 +288,7 @@ func (q *Queries) GetImportJobForUpdate(ctx context.Context, arg GetImportJobFor
 }
 
 const getImportPage = `-- name: GetImportPage :one
-SELECT id, tenant_id, job_id, media_file_id, page_index, page_count, status, attempts, raw_result, parsed_result, merged, error, provider, model, input_tokens, output_tokens, cost_micros, created_at, updated_at FROM import_pages WHERE tenant_id = $1 AND id = $2
+SELECT id, tenant_id, job_id, media_file_id, page_index, page_count, status, attempts, raw_result, parsed_result, merged, error, provider, model, input_tokens, output_tokens, cost_micros, created_at, updated_at, error_code FROM import_pages WHERE tenant_id = $1 AND id = $2
 `
 
 type GetImportPageParams struct {
@@ -301,12 +319,13 @@ func (q *Queries) GetImportPage(ctx context.Context, arg GetImportPageParams) (I
 		&i.CostMicros,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.ErrorCode,
 	)
 	return i, err
 }
 
 const getImportPageForUpdate = `-- name: GetImportPageForUpdate :one
-SELECT id, tenant_id, job_id, media_file_id, page_index, page_count, status, attempts, raw_result, parsed_result, merged, error, provider, model, input_tokens, output_tokens, cost_micros, created_at, updated_at FROM import_pages WHERE tenant_id = $1 AND id = $2 FOR UPDATE
+SELECT id, tenant_id, job_id, media_file_id, page_index, page_count, status, attempts, raw_result, parsed_result, merged, error, provider, model, input_tokens, output_tokens, cost_micros, created_at, updated_at, error_code FROM import_pages WHERE tenant_id = $1 AND id = $2 FOR UPDATE
 `
 
 type GetImportPageForUpdateParams struct {
@@ -337,12 +356,13 @@ func (q *Queries) GetImportPageForUpdate(ctx context.Context, arg GetImportPageF
 		&i.CostMicros,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.ErrorCode,
 	)
 	return i, err
 }
 
 const getMediaFile = `-- name: GetMediaFile :one
-SELECT id, tenant_id, storage_key, mime, size_bytes, filename, created_by, created_at FROM media_files WHERE tenant_id = $1 AND id = $2
+SELECT id, tenant_id, storage_key, mime, size_bytes, filename, created_by, created_at, purpose FROM media_files WHERE tenant_id = $1 AND id = $2
 `
 
 type GetMediaFileParams struct {
@@ -362,6 +382,7 @@ func (q *Queries) GetMediaFile(ctx context.Context, arg GetMediaFileParams) (Med
 		&i.Filename,
 		&i.CreatedBy,
 		&i.CreatedAt,
+		&i.Purpose,
 	)
 	return i, err
 }
@@ -394,8 +415,32 @@ func (q *Queries) GetMenuCategoryByName(ctx context.Context, arg GetMenuCategory
 	return i, err
 }
 
+const importPageStats = `-- name: ImportPageStats :one
+SELECT COALESCE(max(page_index) + 1, 0)::int AS next_index, COALESCE(sum(page_count), 0)::int AS total_pages,
+       count(*)::int AS files
+FROM import_pages WHERE tenant_id = $1 AND job_id = $2
+`
+
+type ImportPageStatsParams struct {
+	TenantID uuid.UUID `json:"tenant_id"`
+	JobID    uuid.UUID `json:"job_id"`
+}
+
+type ImportPageStatsRow struct {
+	NextIndex  int32 `json:"next_index"`
+	TotalPages int32 `json:"total_pages"`
+	Files      int32 `json:"files"`
+}
+
+func (q *Queries) ImportPageStats(ctx context.Context, arg ImportPageStatsParams) (ImportPageStatsRow, error) {
+	row := q.db.QueryRow(ctx, importPageStats, arg.TenantID, arg.JobID)
+	var i ImportPageStatsRow
+	err := row.Scan(&i.NextIndex, &i.TotalPages, &i.Files)
+	return i, err
+}
+
 const listImportPages = `-- name: ListImportPages :many
-SELECT id, tenant_id, job_id, media_file_id, page_index, page_count, status, attempts, raw_result, parsed_result, merged, error, provider, model, input_tokens, output_tokens, cost_micros, created_at, updated_at FROM import_pages WHERE tenant_id = $1 AND job_id = $2 ORDER BY page_index
+SELECT id, tenant_id, job_id, media_file_id, page_index, page_count, status, attempts, raw_result, parsed_result, merged, error, provider, model, input_tokens, output_tokens, cost_micros, created_at, updated_at, error_code FROM import_pages WHERE tenant_id = $1 AND job_id = $2 ORDER BY page_index
 `
 
 type ListImportPagesParams struct {
@@ -432,6 +477,7 @@ func (q *Queries) ListImportPages(ctx context.Context, arg ListImportPagesParams
 			&i.CostMicros,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.ErrorCode,
 		); err != nil {
 			return nil, err
 		}
@@ -530,8 +576,32 @@ func (q *Queries) ReopenImportJob(ctx context.Context, arg ReopenImportJobParams
 	return err
 }
 
+const replaceImportPageFile = `-- name: ReplaceImportPageFile :exec
+UPDATE import_pages SET media_file_id = $3, page_count = $4, status = 'queued', error = '', error_code = '',
+    raw_result = NULL, parsed_result = NULL, merged = false
+WHERE tenant_id = $1 AND id = $2
+`
+
+type ReplaceImportPageFileParams struct {
+	TenantID    uuid.UUID `json:"tenant_id"`
+	ID          uuid.UUID `json:"id"`
+	MediaFileID uuid.UUID `json:"media_file_id"`
+	PageCount   int32     `json:"page_count"`
+}
+
+// A retaken photo: new file, read again from scratch.
+func (q *Queries) ReplaceImportPageFile(ctx context.Context, arg ReplaceImportPageFileParams) error {
+	_, err := q.db.Exec(ctx, replaceImportPageFile,
+		arg.TenantID,
+		arg.ID,
+		arg.MediaFileID,
+		arg.PageCount,
+	)
+	return err
+}
+
 const requeueImportPage = `-- name: RequeueImportPage :exec
-UPDATE import_pages SET status = 'queued', error = '' WHERE tenant_id = $1 AND id = $2
+UPDATE import_pages SET status = 'queued', error = '', error_code = '' WHERE tenant_id = $1 AND id = $2
 `
 
 type RequeueImportPageParams struct {
@@ -541,6 +611,21 @@ type RequeueImportPageParams struct {
 
 func (q *Queries) RequeueImportPage(ctx context.Context, arg RequeueImportPageParams) error {
 	_, err := q.db.Exec(ctx, requeueImportPage, arg.TenantID, arg.ID)
+	return err
+}
+
+const setImportJobDraft = `-- name: SetImportJobDraft :exec
+UPDATE import_jobs SET draft = $3 WHERE tenant_id = $1 AND id = $2
+`
+
+type SetImportJobDraftParams struct {
+	TenantID uuid.UUID `json:"tenant_id"`
+	ID       uuid.UUID `json:"id"`
+	Draft    []byte    `json:"draft"`
+}
+
+func (q *Queries) SetImportJobDraft(ctx context.Context, arg SetImportJobDraftParams) error {
+	_, err := q.db.Exec(ctx, setImportJobDraft, arg.TenantID, arg.ID, arg.Draft)
 	return err
 }
 
@@ -583,7 +668,7 @@ func (q *Queries) SetImportJobStatus(ctx context.Context, arg SetImportJobStatus
 }
 
 const startImportPage = `-- name: StartImportPage :exec
-UPDATE import_pages SET status = 'processing', attempts = attempts + 1, error = ''
+UPDATE import_pages SET status = 'processing', attempts = attempts + 1, error = '', error_code = ''
 WHERE tenant_id = $1 AND id = $2
 `
 

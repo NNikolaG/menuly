@@ -14,6 +14,7 @@ import (
 
 	"github.com/nnikolag/menuly/backend/internal/auth"
 	"github.com/nnikolag/menuly/backend/internal/db"
+	"github.com/nnikolag/menuly/backend/internal/mail"
 	"github.com/nnikolag/menuly/backend/internal/storage"
 )
 
@@ -26,6 +27,10 @@ type Server struct {
 	// store and jobs back menu imports; nil disables the upload endpoints.
 	store storage.Store
 	jobs  JobQueue
+	// mailer sends invitations and password reset links to appURL.
+	mailer mail.Mailer
+	appURL string
+	apiURL string
 }
 
 type Options struct {
@@ -38,6 +43,11 @@ type Options struct {
 	// for imports, which answer 503 without them.
 	Store storage.Store
 	Jobs  JobQueue
+	// Mailer defaults to logging. AppURL (web admin) is used in email links,
+	// PublicAPIURL in uploaded image URLs.
+	Mailer       mail.Mailer
+	AppURL       string
+	PublicAPIURL string
 }
 
 func New(database *db.DB, issuer *auth.Issuer) *Server {
@@ -47,6 +57,16 @@ func New(database *db.DB, issuer *auth.Issuer) *Server {
 func (s *Server) Handler(opts Options) http.Handler {
 	s.publicURLTemplate = opts.PublicMenuURL
 	s.store, s.jobs = opts.Store, opts.Jobs
+	s.mailer, s.appURL, s.apiURL = opts.Mailer, strings.TrimRight(opts.AppURL, "/"), strings.TrimRight(opts.PublicAPIURL, "/")
+	if s.mailer == nil {
+		s.mailer = mail.Log{}
+	}
+	if s.appURL == "" {
+		s.appURL = "http://localhost:4200"
+	}
+	if s.apiURL == "" {
+		s.apiURL = "http://localhost:8080"
+	}
 	r := chi.NewRouter()
 	editors := requireRole(auth.RoleOwner, auth.RoleManager)
 	r.Use(middleware.RequestID)
@@ -78,6 +98,9 @@ func (s *Server) Handler(opts Options) http.Handler {
 
 	r.Route("/v1", func(r chi.Router) {
 		r.Get("/public/menus/{tenantSlug}/{venueSlug}", s.handlePublicMenu)
+		r.Post("/public/menus/{tenantSlug}/{venueSlug}/views", s.handlePublicMenuView)
+		r.Get("/public/media/{tenantID}/{name}", s.handlePublicMedia)
+		r.Get("/public/invitations/{token}", s.handleGetPublicInvitation)
 
 		r.Route("/auth", func(r chi.Router) {
 			r.Post("/register", s.handleRegister)
@@ -85,11 +108,31 @@ func (s *Server) Handler(opts Options) http.Handler {
 			r.Post("/refresh", s.handleRefresh)
 			r.Post("/logout", s.handleLogout)
 			r.With(s.requireAuth).Post("/switch-tenant", s.handleSwitchTenant)
+			r.Post("/accept-invite", s.handleAcceptInvitation)
+			r.Post("/forgot-password", s.handleForgotPassword)
+			r.Post("/reset-password", s.handleResetPassword)
 		})
 
 		r.Group(func(r chi.Router) {
 			r.Use(s.requireAuth)
 			r.Get("/me", s.handleMe)
+			r.With(editors).Post("/media/images", s.handleUploadImage)
+
+			r.With(editors).Get("/members", s.handleListMembers)
+			r.With(requireRole(auth.RoleOwner)).Patch("/members/{userID}", s.handleUpdateMember)
+			r.With(requireRole(auth.RoleOwner)).Delete("/members/{userID}", s.handleRemoveMember)
+			r.With(editors).Get("/invitations", s.handleListInvitations)
+			r.With(editors).Post("/invitations", s.handleCreateInvitation)
+			r.With(editors).Delete("/invitations/{invitationID}", s.handleRevokeInvitation)
+
+			r.Route("/admin", func(r chi.Router) {
+				r.Use(s.requirePlatformAdmin)
+				r.Get("/tenants", s.handleAdminListTenants)
+				r.Get("/tenants/{tenantID}", s.handleAdminGetTenant)
+				r.Patch("/tenants/{tenantID}", s.handleAdminUpdateTenant)
+				r.Patch("/venues/{venueID}", s.handleAdminUpdateVenue)
+				r.Get("/ocr-usage", s.handleAdminOCRUsage)
+			})
 
 			r.Route("/venues", func(r chi.Router) {
 				r.Get("/", s.handleListVenues)
@@ -100,6 +143,7 @@ func (s *Server) Handler(opts Options) http.Handler {
 					r.With(requireRole(auth.RoleOwner)).Delete("/", s.handleDeleteVenue)
 					r.Get("/menus", s.handleListMenus)
 					r.Get("/public-link", s.handleVenuePublicLink)
+					r.Get("/stats", s.handleVenueStats)
 					r.Get("/qr", s.handleVenueQR)
 					r.With(editors).Post("/menus", s.handleCreateMenu)
 					r.Get("/promotions", s.handleListPromotions)
@@ -120,6 +164,9 @@ func (s *Server) Handler(opts Options) http.Handler {
 			r.Route("/imports/{importID}", func(r chi.Router) {
 				r.Get("/", s.handleGetImport)
 				r.Get("/pages/{pageID}/file", s.handleGetImportFile)
+				r.With(editors).Post("/pages", s.handleAddImportPages)
+				r.With(editors).Put("/pages/{pageID}/file", s.handleReplaceImportPage)
+				r.With(editors).Delete("/pages/{pageID}", s.handleDeleteImportPage)
 				r.With(editors).Post("/pages/{pageID}/retry", s.handleRetryImportPage)
 				r.With(editors).Put("/draft", s.handleUpdateImportDraft)
 				r.With(editors).Post("/commit", s.handleCommitImport)

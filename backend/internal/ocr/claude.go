@@ -54,7 +54,9 @@ Rules:
 - description is the smaller text that describes an item (ingredients, weight); empty if none.
 - name_confidence and price_confidence are your confidence from 0 to 1 that the name and the price(s) were read correctly; lower them for blurry, cut-off or ambiguous text.
 - currency_hint is the currency mark printed anywhere on the page ("din", "RSD", "€"), or empty.
-- Ignore decorations, addresses, opening hours and prose that are not menu items.`
+- Ignore decorations, addresses, opening hours and prose that are not menu items.
+- Photos are often taken with a phone: at an angle, curved, with glare or partly cut off. Read what you can. Several photos of one menu may overlap; transcribe everything visible on this one anyway.
+- photo_quality: "good" if everything is readable, "partial" if some text cannot be read, "poor" if most of it cannot. photo_issues lists the reasons that apply (blurry, cut_off, glare, too_dark, too_far, skewed, not_a_menu); empty when good.`
 
 func extractionSchema() map[string]any {
 	str := map[string]any{"type": "string"}
@@ -73,7 +75,11 @@ func extractionSchema() map[string]any {
 		"name_confidence": num, "price_confidence": num,
 	})
 	category := obj(map[string]any{"name": str, "description": str, "items": arr(item)})
-	return obj(map[string]any{"currency_hint": str, "categories": arr(category)})
+	return obj(map[string]any{
+		"currency_hint": str, "categories": arr(category),
+		"photo_quality": map[string]any{"type": "string", "enum": PhotoQualityValues},
+		"photo_issues":  arr(map[string]any{"type": "string", "enum": PhotoIssueValues}),
+	})
 }
 
 // Extract reads a page with the primary model and, if the result fails

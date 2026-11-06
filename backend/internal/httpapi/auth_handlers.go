@@ -20,10 +20,12 @@ type userDTO struct {
 	Email  string    `json:"email"`
 	Name   string    `json:"name"`
 	Locale string    `json:"locale"`
+	// IsPlatformAdmin marks Menuly staff (access to /v1/admin).
+	IsPlatformAdmin bool `json:"is_platform_admin"`
 }
 
 func toUserDTO(u sqlc.User) userDTO {
-	return userDTO{ID: u.ID, Email: u.Email, Name: u.Name, Locale: u.Locale}
+	return userDTO{ID: u.ID, Email: u.Email, Name: u.Name, Locale: u.Locale, IsPlatformAdmin: u.IsPlatformAdmin}
 }
 
 type tenantDTO struct {

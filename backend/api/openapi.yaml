@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Menuly API
-  version: 0.2.0
+  version: 0.3.0
   description: |
     Multi-tenant API for Menuly. All authenticated routes act inside the tenant
     carried by the access token (`tid` claim). Switch tenants with
@@ -25,6 +25,9 @@ tags:
   - { name: Public }
   - { name: Promotions, description: "Combo offers: a fixed price for a set of slots, each a fixed item or a choice" }
   - { name: Imports, description: "OCR import of an existing (paper/PDF) menu: upload, review the draft, commit into a menu" }
+  - { name: Media, description: "Image uploads for items, promotions, logos and covers" }
+  - { name: Team, description: "Members of a tenant and email invitations" }
+  - { name: Admin, description: "Platform admin (users.is_platform_admin); 403 for everyone else" }
 servers:
   - url: http://localhost:8080
 security:
@@ -548,6 +551,9 @@ paths:
       description: |
         `multipart/form-data` with one or more `files` parts: JPEG, PNG, WebP or PDF, at most 15 MB each,
         at most 20 pages in total (a PDF counts its pages). Photos are auto-rotated and scaled down.
+        Several overlapping phone photos of one menu are fine: send them in reading order; categories that continue
+        on the next photo are merged and rows repeated by the overlap are dropped.
+        HEIC is not accepted: on iPhone, `accept="image/jpeg,image/png,image/webp,application/pdf"` makes Safari convert.
 
         Answers `202` right away with status `processing`; every file is read in the background.
         Poll `GET /v1/imports/{importID}` (e.g. every 2 s) until the status changes:
@@ -595,6 +601,57 @@ paths:
               schema: { $ref: "#/components/schemas/Import" }
         "404": { $ref: "#/components/responses/Error" }
 
+  /v1/imports/{importID}/pages:
+    parameters:
+      - $ref: "#/components/parameters/ImportID"
+    post:
+      tags: [Imports]
+      operationId: addImportPages
+      summary: Add forgotten photos to an import (owner, manager)
+      description: |
+        Same `files` multipart field and rules as the upload; the import's total stays at most 20 pages.
+        Does not use up another import. The import goes back to `processing`; new items are appended to the draft
+        (after the user's edits, if any).
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [files]
+              properties:
+                files: { type: array, items: { type: string, format: binary } }
+      responses:
+        "202":
+          description: Accepted, processing
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Import" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+        "415": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+
+  /v1/imports/{importID}/pages/{pageID}:
+    parameters:
+      - $ref: "#/components/parameters/ImportID"
+      - $ref: "#/components/parameters/PageID"
+    delete:
+      tags: [Imports]
+      operationId: deleteImportPage
+      summary: Remove a wrong photo and its items (owner, manager)
+      description: Not while the page is being read, and not the last page (`409 invalid_import_state`).
+      responses:
+        "200":
+          description: The import without that page
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Import" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+
   /v1/imports/{importID}/pages/{pageID}/file:
     parameters:
       - $ref: "#/components/parameters/ImportID"
@@ -616,6 +673,35 @@ paths:
             application/pdf:
               schema: { type: string, format: binary }
         "404": { $ref: "#/components/responses/Error" }
+
+    put:
+      tags: [Imports]
+      operationId: replaceImportPageFile
+      summary: Retake a photo (owner, manager)
+      description: |
+        Multipart with one `file`. Replaces the page's file and reads it again; the page's old items leave the draft,
+        the user's other edits stay and the new reading is appended. Use it for pages with `photo_quality` poor/partial
+        or a failed page with `error_code` `no_items`/`unreadable`. Not while the page is being read.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file: { type: string, format: binary }
+      responses:
+        "202":
+          description: Accepted, processing
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Import" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+        "415": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
 
   /v1/imports/{importID}/pages/{pageID}/retry:
     parameters:
@@ -1113,6 +1199,460 @@ paths:
                   items: { type: array, items: { $ref: "#/components/schemas/PriceChange" } }
         "404": { $ref: "#/components/responses/Error" }
 
+  /v1/public/menus/{tenantSlug}/{venueSlug}/views:
+    post:
+      tags: [Public]
+      operationId: countPublicMenuView
+      summary: Count a menu open (no auth)
+      description: |
+        Call once per guest visit (e.g. once per browser session), not on every refresh or language switch.
+        Counted per day in the venue's time zone; see `GET /v1/venues/{venueID}/stats`.
+      security: []
+      parameters:
+        - { name: tenantSlug, in: path, required: true, schema: { type: string } }
+        - { name: venueSlug, in: path, required: true, schema: { type: string } }
+      responses:
+        "204": { description: Counted }
+        "404": { $ref: "#/components/responses/Error" }
+  /v1/public/media/{tenantID}/{name}:
+    get:
+      tags: [Media]
+      operationId: getPublicMedia
+      summary: An uploaded image (no auth)
+      description: |
+        The `url` returned by `POST /v1/media/images` points here. Files never change, so they are
+        cached for a year (`Cache-Control: public, max-age=31536000, immutable`).
+      security: []
+      parameters:
+        - { name: tenantID, in: path, required: true, schema: { type: string, format: uuid } }
+        - { name: name, in: path, required: true, schema: { type: string, pattern: "^[0-9a-f-]{36}\\.(jpg|png)$" } }
+      responses:
+        "200":
+          description: The image
+          content:
+            image/jpeg:
+              schema: { type: string, format: binary }
+            image/png:
+              schema: { type: string, format: binary }
+        "404": { $ref: "#/components/responses/Error" }
+  /v1/public/invitations/{token}:
+    get:
+      tags: [Team]
+      operationId: getPublicInvitation
+      summary: What an invitation link is for (no auth)
+      description: |
+        For the `/invite?token=` page. `has_account` tells the page whether to ask the person to log in
+        (then accept with their access token) or to register with a name and password.
+      security: []
+      parameters:
+        - { name: token, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  email: { type: string }
+                  role: { type: string, enum: [manager, staff] }
+                  tenant_name: { type: string }
+                  expires_at: { type: string, format: date-time }
+                  status: { type: string, enum: [pending, accepted, revoked, expired] }
+                  has_account: { type: boolean }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /v1/auth/accept-invite:
+    post:
+      tags: [Auth]
+      operationId: acceptInvite
+      summary: Accept an invitation and get tokens for the inviting tenant
+      description: |
+        Logged in (send `Authorization`): the account's email must match the invitation, otherwise 403
+        `invite_email_mismatch`. Not logged in: `name` and `password` create the account; if an account
+        with that email already exists, 409 `login_required`. An expired, revoked or used link is 400 `invalid_token`;
+        409 `already_member` if the user already belongs to the tenant.
+      security: [{}, { bearer: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token]
+              properties:
+                token: { type: string }
+                name: { type: string, description: "Required for a new account" }
+                password: { type: string, minLength: 8, description: "Required for a new account" }
+      responses:
+        "200":
+          description: OK, tokens for the inviting tenant
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/TokenPair"
+                  - type: object
+                    properties:
+                      user: { $ref: "#/components/schemas/User" }
+        "400": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+  /v1/auth/forgot-password:
+    post:
+      tags: [Auth]
+      operationId: forgotPassword
+      summary: Email a password reset link
+      description: |
+        Always 204, whether or not the email has an account. The link is `{APP_URL}/reset-password?token=...`,
+        valid for one hour; at most 3 links per account per hour.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string, format: email }
+      responses:
+        "204": { description: Accepted }
+        "422": { $ref: "#/components/responses/Error" }
+  /v1/auth/reset-password:
+    post:
+      tags: [Auth]
+      operationId: resetPassword
+      summary: Set a new password with a reset link's token
+      description: |
+        Signs the user out everywhere (all refresh tokens are revoked); log in again afterwards.
+        An unknown, expired or used token is 400 `invalid_token`.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, password]
+              properties:
+                token: { type: string }
+                password: { type: string, minLength: 8 }
+      responses:
+        "204": { description: Password changed }
+        "400": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+
+  /v1/media/images:
+    post:
+      tags: [Media]
+      operationId: uploadImage
+      summary: Upload an image for an item, logo, cover or promotion (owner, manager)
+      description: |
+        JPEG, PNG or WebP up to 10 MB (HEIC is 415: ask the phone to send JPEG). The image is rotated
+        upright, scaled down (item and promotion 1600 px, cover 2400 px, logo 512 px on the long side)
+        and re-encoded: JPEG, or PNG for a logo with transparency. Put the returned `url` in an item's
+        `image_url`, a promotion's `image_url` or a theme's `logo_url`/`cover_url`.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file: { type: string, format: binary }
+                purpose: { type: string, enum: [item, logo, cover, promotion], default: item }
+      responses:
+        "201":
+          description: Stored
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: { type: string, format: uuid }
+                  url: { type: string, format: uri, example: "https://api.menuly.app/v1/public/media/0192.../0193....jpg" }
+                  mime: { type: string, enum: [image/jpeg, image/png] }
+                  width: { type: integer }
+                  height: { type: integer }
+                  size_bytes: { type: integer }
+        "400": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "415": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
+
+  /v1/venues/{venueID}/stats:
+    parameters:
+      - $ref: "#/components/parameters/VenueID"
+    get:
+      tags: [Venues]
+      operationId: getVenueStats
+      summary: Menu opens per day
+      description: Days in the venue's time zone, oldest first, ending today; days without opens are 0.
+      parameters:
+        - { name: days, in: query, schema: { type: integer, minimum: 1, maximum: 365, default: 30 } }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  days:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        date: { type: string, format: date }
+                        views: { type: integer }
+                  total: { type: integer }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+
+  /v1/members:
+    get:
+      tags: [Team]
+      operationId: listMembers
+      summary: Members of the tenant (owner, manager)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: "#/components/schemas/Member" }
+        "403": { $ref: "#/components/responses/Error" }
+  /v1/members/{userID}:
+    parameters:
+      - $ref: "#/components/parameters/UserID"
+    patch:
+      tags: [Team]
+      operationId: updateMember
+      summary: Change a member's role (owner)
+      description: The owner's own role cannot change (404). The new role applies from the member's next login or token refresh.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [role]
+              properties:
+                role: { type: string, enum: [manager, staff] }
+      responses:
+        "204": { description: Updated }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+    delete:
+      tags: [Team]
+      operationId: removeMember
+      summary: Remove a manager or staff member (owner)
+      description: Also signs them out of this tenant. The owner cannot be removed (404).
+      responses:
+        "204": { description: Removed }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+  /v1/invitations:
+    get:
+      tags: [Team]
+      operationId: listInvitations
+      summary: Pending invitations (owner, manager)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: "#/components/schemas/Invitation" }
+        "403": { $ref: "#/components/responses/Error" }
+    post:
+      tags: [Team]
+      operationId: createInvitation
+      summary: Invite someone by email (owner, manager)
+      description: |
+        Owners invite managers or staff, managers invite staff only (403 otherwise). The email holds a link to
+        `{APP_URL}/invite?token=...`, valid for 7 days. A new invitation replaces a pending one for the same email.
+        409 `already_member` if the person is already in the tenant.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, role]
+              properties:
+                email: { type: string, format: email }
+                role: { type: string, enum: [manager, staff] }
+      responses:
+        "201":
+          description: Sent
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Invitation" }
+        "403": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+  /v1/invitations/{invitationID}:
+    parameters:
+      - { name: invitationID, in: path, required: true, schema: { type: string, format: uuid } }
+    delete:
+      tags: [Team]
+      operationId: revokeInvitation
+      summary: Revoke a pending invitation (owner, manager)
+      responses:
+        "204": { description: Revoked }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /v1/admin/tenants:
+    get:
+      tags: [Admin]
+      operationId: adminListTenants
+      summary: All tenants with usage counts (platform admin)
+      description: Newest first, at most 200. `q` matches name or slug.
+      parameters:
+        - { name: q, in: query, schema: { type: string } }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: "#/components/schemas/AdminTenantSummary" }
+        "403": { $ref: "#/components/responses/Error" }
+  /v1/admin/tenants/{tenantID}:
+    parameters:
+      - $ref: "#/components/parameters/TenantID"
+    get:
+      tags: [Admin]
+      operationId: adminGetTenant
+      summary: A tenant with its owners and venues (platform admin)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tenant: { $ref: "#/components/schemas/Tenant" }
+                  owners:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string, format: uuid }
+                        name: { type: string }
+                        email: { type: string }
+                  venues:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string, format: uuid }
+                        name: { type: string }
+                        slug: { type: string }
+                        ocr_import_limit: { type: integer }
+                        imports_used: { type: integer }
+                        created_at: { type: string, format: date-time }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+    patch:
+      tags: [Admin]
+      operationId: adminUpdateTenant
+      summary: Suspend or reactivate a tenant (platform admin)
+      description: A suspended tenant's public menus return 404 and its users cannot log in to it.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { type: string, enum: [active, suspended] }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Tenant" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+  /v1/admin/venues/{venueID}:
+    parameters:
+      - $ref: "#/components/parameters/VenueID"
+    patch:
+      tags: [Admin]
+      operationId: adminUpdateVenue
+      summary: Set a venue's OCR import limit (platform admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ocr_import_limit]
+              properties:
+                ocr_import_limit: { type: integer, minimum: 0, maximum: 1000 }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Venue" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+  /v1/admin/ocr-usage:
+    get:
+      tags: [Admin]
+      operationId: adminOcrUsage
+      summary: OCR pages, tokens and estimated cost per tenant and model (platform admin)
+      parameters:
+        - { name: days, in: query, schema: { type: integer, minimum: 1, maximum: 365, default: 30 } }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        tenant_id: { type: string, format: uuid }
+                        tenant_name: { type: string }
+                        model: { type: string }
+                        pages: { type: integer }
+                        input_tokens: { type: integer }
+                        output_tokens: { type: integer }
+                        cost_micros: { type: integer, description: "USD millionths" }
+                  total_cost_micros: { type: integer }
+        "403": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+
 components:
   parameters:
     VenueID:
@@ -1152,6 +1692,16 @@ components:
       schema: { type: string, format: uuid }
     PageID:
       name: pageID
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    UserID:
+      name: userID
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    TenantID:
+      name: tenantID
       in: path
       required: true
       schema: { type: string, format: uuid }
@@ -1199,6 +1749,37 @@ components:
         email: { type: string }
         name: { type: string }
         locale: { type: string }
+        is_platform_admin: { type: boolean, description: "Show the admin screens; /v1/admin/* checks it on every request" }
+    Member:
+      type: object
+      properties:
+        user_id: { type: string, format: uuid }
+        name: { type: string }
+        email: { type: string }
+        role: { $ref: "#/components/schemas/Role" }
+        created_at: { type: string, format: date-time, description: "When they joined" }
+    Invitation:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        email: { type: string }
+        role: { type: string, enum: [manager, staff] }
+        expires_at: { type: string, format: date-time }
+        created_at: { type: string, format: date-time }
+    AdminTenantSummary:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        slug: { type: string }
+        status: { type: string, enum: [active, suspended] }
+        plan: { type: string }
+        created_at: { type: string, format: date-time }
+        venues: { type: integer }
+        members: { type: integer }
+        imports: { type: integer }
+        ocr_cost_micros: { type: integer, description: "Estimated OCR cost, USD millionths" }
+        views_30d: { type: integer, description: "Menu opens in the last 30 days" }
     Tenant:
       type: object
       properties:
@@ -1470,6 +2051,14 @@ components:
         created_at: { type: string, format: date-time }
         updated_at: { type: string, format: date-time }
         committed_at: { type: [string, "null"], format: date-time }
+        summary:
+          description: Counts for the review screen, present once there is a draft.
+          type: object
+          properties:
+            categories: { type: integer }
+            items: { type: integer }
+            items_to_check: { type: integer, description: "Items with an uncertain name or price, or a possible duplicate" }
+            missing_prices: { type: integer, description: "Items with a variant without price_minor; commit needs 0" }
         draft:
           description: Null until a page has been read. Not included in lists.
           oneOf:
@@ -1487,9 +2076,22 @@ components:
         page_count: { type: integer, description: "Pages in the file (PDF), else 1" }
         status: { type: string, enum: [queued, processing, done, failed] }
         attempts: { type: integer }
-        error: { type: string }
+        error: { type: string, description: "English detail for logs; show your own text by error_code" }
+        error_code:
+          type: string
+          enum: ["", not_configured, not_a_menu, no_items, unreadable, temporary, gave_up]
+          description: |
+            Empty unless failed or retrying. `not_a_menu` / `no_items` / `unreadable`: suggest retaking the photo
+            (`PUT .../file`). `temporary`: will be retried automatically. `gave_up`: temporary errors on every attempt, use retry.
         filename: { type: string }
         mime: { type: string, examples: [image/jpeg, application/pdf] }
+        photo_quality:
+          type: string
+          enum: ["", good, partial, poor]
+          description: The model's view of the photo, once read. Suggest a retake for partial/poor.
+        photo_issues:
+          type: array
+          items: { type: string, enum: [blurry, cut_off, glare, too_dark, too_far, skewed, not_a_menu] }
     ImportDraft:
       type: object
       description: |
@@ -1515,7 +2117,10 @@ components:
                     page_index: { type: integer }
                     uncertain:
                       type: array
-                      items: { type: string, enum: [name, price] }
+                      description: |
+                        `duplicate`: the same name appears more than once in the category with other prices
+                        (overlapping photos repeat rows; exact repeats are already dropped).
+                      items: { type: string, enum: [name, price, duplicate] }
                     variants:
                       type: array
                       items:
