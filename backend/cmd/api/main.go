@@ -2,6 +2,7 @@
 //
 //	api serve            start the HTTP server (default)
 //	api migrate up|down|status|reset
+//	api seed [--reset]    create the demo account (development only)
 package main
 
 import (
@@ -12,6 +13,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"slices"
 	"strings"
 	"syscall"
 	"time"
@@ -21,6 +23,7 @@ import (
 	"github.com/nnikolag/menuly/backend/internal/config"
 	"github.com/nnikolag/menuly/backend/internal/db"
 	"github.com/nnikolag/menuly/backend/internal/httpapi"
+	"github.com/nnikolag/menuly/backend/internal/seed"
 )
 
 func main() {
@@ -53,8 +56,10 @@ func run(args []string) error {
 			sub = args[1]
 		}
 		return db.Migrate(ctx, cfg.MigrateDatabaseURL, sub)
+	case "seed":
+		return runSeed(ctx, cfg, slices.Contains(args[1:], "--reset"))
 	default:
-		return fmt.Errorf("unknown command %q (use serve or migrate)", cmd)
+		return fmt.Errorf("unknown command %q (use serve, migrate or seed)", cmd)
 	}
 }
 
@@ -95,6 +100,27 @@ func serve(ctx context.Context, cfg config.Config) error {
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 	return srv.Shutdown(shutdownCtx)
+}
+
+func runSeed(ctx context.Context, cfg config.Config, reset bool) error {
+	if cfg.Env == "production" {
+		return errors.New("seed: refusing to run with APP_ENV=production")
+	}
+	database, err := db.Open(ctx, cfg.DatabaseURL)
+	if err != nil {
+		return fmt.Errorf("db: %w", err)
+	}
+	defer database.Close()
+	res, err := seed.Run(ctx, database, reset)
+	if err != nil {
+		return fmt.Errorf("seed: %w", err)
+	}
+	if res.Created {
+		slog.Info("demo account created", "email", seed.Email, "password", seed.Password, "tenant", seed.TenantSlug, "menu_id", res.MenuID)
+	} else {
+		slog.Info("demo account already exists, nothing changed (use --reset to recreate)", "email", seed.Email, "password", seed.Password)
+	}
+	return nil
 }
 
 func setupLogger(cfg config.Config) {

@@ -1,4 +1,4 @@
-.PHONY: run migrate test test-unit sqlc lint db-up
+.PHONY: run migrate seed seed-reset test test-unit sqlc lint db-up
 
 -include .env
 export
@@ -8,6 +8,13 @@ run:
 
 migrate:
 	go run ./cmd/api migrate up
+
+# Demo account demo@menuly.app / demo1234 with venues and a published menu.
+seed:
+	go run ./cmd/api seed
+
+seed-reset:
+	go run ./cmd/api seed --reset
 
 # Integration tests need Postgres (e.g. `make db-up`); they reset the menuly_test database.
 TEST_DATABASE_URL ?= postgres://menuly_app:menuly_app@localhost:5432/menuly_test?sslmode=disable
@@ -25,6 +32,6 @@ lint:
 	gofmt -l . && go vet ./...
 
 db-up:
-	docker compose -f ../../docker-compose.yml up -d postgres
-	docker compose -f ../../docker-compose.yml exec -T postgres sh -c \
+	docker compose -f ../docker-compose.yml up -d postgres
+	docker compose -f ../docker-compose.yml exec -T postgres sh -c \
 	  'psql -U menuly -tc "SELECT 1 FROM pg_database WHERE datname = '"'"'menuly_test'"'"'" | grep -q 1 || psql -U menuly -c "CREATE DATABASE menuly_test"'

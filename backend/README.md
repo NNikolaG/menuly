@@ -13,7 +13,17 @@ Go + Postgres, multi-tenant. Specifikacija proizvoda: [../docs/product/mvp.md](.
 ```sh
 # iz korena repoa: Postgres + migracije + API na http://localhost:8080
 docker compose up --build
+# demo podaci (jednom, posle prvog pokretanja)
+docker compose run --rm api seed
 ```
+
+### Demo podaci (seed)
+
+`api seed` pravi demo nalog za lokalni razvoj: tenant `demo` (Kafana Mornar d.o.o.),
+vlasnika **demo@menuly.app / demo1234**, dva objekta (`mornar` sa objavljenim menijem i
+nacrtom, `basta` bez menija) i meni sa 6 kategorija, stavkama, veličinama, cenama u RSD,
+engleskim prevodima i jednom nedostupnom stavkom. Ponovno pokretanje ne menja ništa;
+`api seed --reset` briše demo nalog i pravi ga iz početka. Odbija da radi sa `APP_ENV=production`.
 
 Bez Dockera (Go 1.26, Postgres 16):
 
@@ -22,6 +32,7 @@ cd backend
 cp .env.example .env
 make db-up      # samo Postgres iz docker compose-a + menuly_test baza
 make migrate
+make seed       # demo nalog demo@menuly.app / demo1234 (make seed-reset za ispočetka)
 make run
 make test       # integracioni testovi, resetuju bazu menuly_test
 ```
@@ -95,13 +106,14 @@ Hijerarhija: objekat → meni → kategorija → stavka → varijanta (cena). St
 
 ```
 backend/
-  cmd/api/                 main: `api serve`, `api migrate up|down|status|reset`
+  cmd/api/                 main: `api serve`, `api migrate up|down|status|reset`, `api seed [--reset]`
   internal/config/         env konfiguracija
   internal/db/             pool, db.Tx (tenant kontekst), migracije (goose, embed)
   internal/db/migrations/  SQL migracije = šema za sqlc
   internal/db/queries/     SQL upiti za sqlc
   internal/db/sqlc/        generisan kod (ne menjati ručno)
   internal/auth/           lozinke, JWT, refresh tokeni
+  internal/seed/           demo podaci za lokalni razvoj
   internal/httpapi/        router, middleware, handleri, integracioni testovi
   api/openapi.yaml         API ugovor za web i iOS
 ```

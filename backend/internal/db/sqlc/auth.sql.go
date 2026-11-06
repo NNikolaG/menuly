@@ -124,6 +124,25 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	return i, err
 }
 
+const deleteTenant = `-- name: DeleteTenant :exec
+DELETE FROM tenants WHERE id = $1
+`
+
+// Used by the dev seed to reset the demo account; cascades to all tenant data.
+func (q *Queries) DeleteTenant(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteTenant, id)
+	return err
+}
+
+const deleteUser = `-- name: DeleteUser :exec
+DELETE FROM users WHERE id = $1
+`
+
+func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteUser, id)
+	return err
+}
+
 const getMembership = `-- name: GetMembership :one
 SELECT tenant_id, user_id, role, venue_ids, created_at, updated_at FROM memberships WHERE tenant_id = $1 AND user_id = $2
 `
