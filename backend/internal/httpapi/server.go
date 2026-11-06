@@ -14,6 +14,7 @@ import (
 
 	"github.com/nnikolag/menuly/backend/internal/auth"
 	"github.com/nnikolag/menuly/backend/internal/db"
+	"github.com/nnikolag/menuly/backend/internal/storage"
 )
 
 type Server struct {
@@ -22,6 +23,9 @@ type Server struct {
 	// publicURLTemplate builds a venue's public menu URL, e.g.
 	// "https://{tenant}.menuly.app/{venue}".
 	publicURLTemplate string
+	// store and jobs back menu imports; nil disables the upload endpoints.
+	store storage.Store
+	jobs  JobQueue
 }
 
 type Options struct {
@@ -30,6 +34,10 @@ type Options struct {
 	DocsEnabled bool
 	// PublicMenuURL is the template for QR codes and public links.
 	PublicMenuURL string
+	// Store keeps uploaded files; Jobs enqueues OCR work. Both are needed
+	// for imports, which answer 503 without them.
+	Store storage.Store
+	Jobs  JobQueue
 }
 
 func New(database *db.DB, issuer *auth.Issuer) *Server {
@@ -38,6 +46,7 @@ func New(database *db.DB, issuer *auth.Issuer) *Server {
 
 func (s *Server) Handler(opts Options) http.Handler {
 	s.publicURLTemplate = opts.PublicMenuURL
+	s.store, s.jobs = opts.Store, opts.Jobs
 	r := chi.NewRouter()
 	editors := requireRole(auth.RoleOwner, auth.RoleManager)
 	r.Use(middleware.RequestID)
@@ -93,7 +102,18 @@ func (s *Server) Handler(opts Options) http.Handler {
 					r.Get("/public-link", s.handleVenuePublicLink)
 					r.Get("/qr", s.handleVenueQR)
 					r.With(editors).Post("/menus", s.handleCreateMenu)
+					r.Get("/imports", s.handleListImports)
+					r.With(editors).Post("/imports", s.handleCreateImport)
 				})
+			})
+
+			// OCR import review: reads for every member, changes for owner/manager.
+			r.Route("/imports/{importID}", func(r chi.Router) {
+				r.Get("/", s.handleGetImport)
+				r.Get("/pages/{pageID}/file", s.handleGetImportFile)
+				r.With(editors).Post("/pages/{pageID}/retry", s.handleRetryImportPage)
+				r.With(editors).Put("/draft", s.handleUpdateImportDraft)
+				r.With(editors).Post("/commit", s.handleCommitImport)
 			})
 
 			// Menu editing: reads for every member, writes for owner/manager.

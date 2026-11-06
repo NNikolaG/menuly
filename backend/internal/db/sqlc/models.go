@@ -24,6 +24,43 @@ type Category struct {
 	UpdatedAt    time.Time       `json:"updated_at"`
 }
 
+type ImportJob struct {
+	ID              uuid.UUID  `json:"id"`
+	TenantID        uuid.UUID  `json:"tenant_id"`
+	VenueID         uuid.UUID  `json:"venue_id"`
+	Status          string     `json:"status"`
+	Draft           []byte     `json:"draft"`
+	DraftEdited     bool       `json:"draft_edited"`
+	CommittedMenuID *uuid.UUID `json:"committed_menu_id"`
+	Error           string     `json:"error"`
+	CreatedBy       *uuid.UUID `json:"created_by"`
+	CreatedAt       time.Time  `json:"created_at"`
+	UpdatedAt       time.Time  `json:"updated_at"`
+	CommittedAt     *time.Time `json:"committed_at"`
+}
+
+type ImportPage struct {
+	ID           uuid.UUID `json:"id"`
+	TenantID     uuid.UUID `json:"tenant_id"`
+	JobID        uuid.UUID `json:"job_id"`
+	MediaFileID  uuid.UUID `json:"media_file_id"`
+	PageIndex    int32     `json:"page_index"`
+	PageCount    int32     `json:"page_count"`
+	Status       string    `json:"status"`
+	Attempts     int32     `json:"attempts"`
+	RawResult    []byte    `json:"raw_result"`
+	ParsedResult []byte    `json:"parsed_result"`
+	Merged       bool      `json:"merged"`
+	Error        string    `json:"error"`
+	Provider     string    `json:"provider"`
+	Model        string    `json:"model"`
+	InputTokens  int64     `json:"input_tokens"`
+	OutputTokens int64     `json:"output_tokens"`
+	CostMicros   int64     `json:"cost_micros"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+}
+
 type ItemVariant struct {
 	ID           uuid.UUID       `json:"id"`
 	TenantID     uuid.UUID       `json:"tenant_id"`
@@ -34,6 +71,17 @@ type ItemVariant struct {
 	Position     int32           `json:"position"`
 	CreatedAt    time.Time       `json:"created_at"`
 	UpdatedAt    time.Time       `json:"updated_at"`
+}
+
+type MediaFile struct {
+	ID         uuid.UUID  `json:"id"`
+	TenantID   uuid.UUID  `json:"tenant_id"`
+	StorageKey string     `json:"storage_key"`
+	Mime       string     `json:"mime"`
+	SizeBytes  int64      `json:"size_bytes"`
+	Filename   string     `json:"filename"`
+	CreatedBy  *uuid.UUID `json:"created_by"`
+	CreatedAt  time.Time  `json:"created_at"`
 }
 
 type Membership struct {

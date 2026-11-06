@@ -52,6 +52,12 @@ type Scope struct {
 // Tx runs fn inside a transaction whose RLS context is set to scope.
 // Every query touching tenant tables must go through Tx.
 func (d *DB) Tx(ctx context.Context, scope Scope, fn func(q *sqlc.Queries) error) error {
+	return d.TxRaw(ctx, scope, func(_ pgx.Tx, q *sqlc.Queries) error { return fn(q) })
+}
+
+// TxRaw is Tx that also hands fn the raw transaction, for work that must
+// commit atomically with the queries (e.g. enqueueing a background job).
+func (d *DB) TxRaw(ctx context.Context, scope Scope, fn func(tx pgx.Tx, q *sqlc.Queries) error) error {
 	tx, err := d.Pool.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
 		return err
@@ -64,7 +70,7 @@ func (d *DB) Tx(ctx context.Context, scope Scope, fn func(q *sqlc.Queries) error
 	); err != nil {
 		return fmt.Errorf("set tenant context: %w", err)
 	}
-	if err := fn(sqlc.New(tx)); err != nil {
+	if err := fn(tx, sqlc.New(tx)); err != nil {
 		return err
 	}
 	return tx.Commit(ctx)

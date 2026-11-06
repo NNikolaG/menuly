@@ -5,3 +5,4 @@ coverage.out
 .idea/
 .vscode/
 node_modules/
+backend/data/
