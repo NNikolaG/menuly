@@ -102,6 +102,12 @@ Hijerarhija: objekat → meni → kategorija → stavka → varijanta (cena). St
 - Uloge: svi čitaju; `owner` i `manager` uređuju; `staff` sme samo `PATCH /v1/items/{id}/status` (nema na stanju / sakrij).
 - Deca referenciraju roditelja preko `(id, tenant_id)`, pa ni direktan SQL ne može da veže stavku za kategoriju drugog tenanta.
 
+## Javni meni (gosti)
+
+`GET /v1/public/menus/{tenant-slug}/{venue-slug}?lang=en`, bez prijave. Vraća objavljeni meni objekta kao jedan JSON: samo vidljive kategorije i stavke, a nedostupne stavke na kraju svoje kategorije sa `is_available: false`. Uz `lang` se nazivi i opisi prevode gde prevod postoji, inače ostaje srpski. Odgovor ima `ETag` i `Cache-Control: public, max-age=30`, pa gost vidi promenu cene najkasnije za 30 sekundi, a `If-None-Match` vraća `304`.
+
+Gost nema tenant kontekst. Zato se tenant prvo nađe po slugu kroz usku RLS politiku `public_lookup` (samo red tog tenanta), a ostatak transakcije ide kroz obične tenant politike, samo za čitanje.
+
 ## Struktura
 
 ```
@@ -123,6 +129,6 @@ backend/
 - Pozivnice za članove tima i reset lozinke (treba slanje emaila).
 - Ograničenje `manager`/`staff` na određene objekte (`memberships.venue_ids` postoji u šemi, provera još ne).
 - `platform_admin` rute (kolona `users.is_platform_admin` postoji).
-- Javni meni (keširan JSON po `{tenant}.menuly.app/{venue}`, `?lang=en`, nedostupne stavke na dnu kategorije).
+- QR kod za javni link objekta, brojač otvaranja menija (`menu_view_daily`).
 - Promocije / kombo, tema menija, upload slika (MinIO), OCR uvoz.
 - Rate limiting za login/register.

@@ -4,6 +4,8 @@ package httpapi
 import (
 	"context"
 	"net/http"
+	"slices"
+	"strings"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -38,10 +40,14 @@ func (s *Server) Handler(opts Options) http.Handler {
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(30 * time.Second))
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   opts.CORSAllowedOrigins,
+		// Admin routes accept the configured origins; the public menu is
+		// read from every tenant subdomain, so it accepts any origin.
+		AllowOriginFunc: func(r *http.Request, origin string) bool {
+			return strings.HasPrefix(r.URL.Path, "/v1/public/") || slices.Contains(opts.CORSAllowedOrigins, origin)
+		},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Authorization", "Content-Type"},
-		ExposedHeaders:   []string{"X-Request-Id"},
+		AllowedHeaders:   []string{"Authorization", "Content-Type", "If-None-Match"},
+		ExposedHeaders:   []string{"X-Request-Id", "ETag"},
 		AllowCredentials: false,
 		MaxAge:           300,
 	}))
@@ -56,6 +62,8 @@ func (s *Server) Handler(opts Options) http.Handler {
 	}
 
 	r.Route("/v1", func(r chi.Router) {
+		r.Get("/public/menus/{tenantSlug}/{venueSlug}", s.handlePublicMenu)
+
 		r.Route("/auth", func(r chi.Router) {
 			r.Post("/register", s.handleRegister)
 			r.Post("/login", s.handleLogin)

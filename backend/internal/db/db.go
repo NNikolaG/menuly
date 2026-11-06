@@ -121,3 +121,33 @@ func IsCheckViolation(err error) bool {
 	var pgErr *pgconn.PgError
 	return errors.As(err, &pgErr) && pgErr.Code == "23514"
 }
+
+// PublicTx serves anonymous (guest) reads. It resolves the active tenant with
+// the given slug through the narrow public_lookup policy, then scopes the
+// rest of the transaction to that tenant. fn gets the tenant row.
+// It returns pgx.ErrNoRows when no active tenant has that slug.
+func (d *DB) PublicTx(ctx context.Context, tenantSlug string, fn func(q *sqlc.Queries, t sqlc.GetPublicTenantBySlugRow) error) error {
+	tx, err := d.Pool.BeginTx(ctx, pgx.TxOptions{AccessMode: pgx.ReadOnly})
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx) //nolint:errcheck // no-op after commit
+
+	if _, err := tx.Exec(ctx, `SELECT set_config('app.public_tenant_slug', $1, true)`, tenantSlug); err != nil {
+		return fmt.Errorf("set public context: %w", err)
+	}
+	q := sqlc.New(tx)
+	t, err := q.GetPublicTenantBySlug(ctx, tenantSlug)
+	if err != nil {
+		return err
+	}
+	if _, err := tx.Exec(ctx,
+		`SELECT set_config('app.public_tenant_slug', '', true), set_config('app.tenant_id', $1, true)`, t.ID.String(),
+	); err != nil {
+		return fmt.Errorf("set tenant context: %w", err)
+	}
+	if err := fn(q, t); err != nil {
+		return err
+	}
+	return tx.Commit(ctx)
+}
