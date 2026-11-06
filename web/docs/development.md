@@ -25,7 +25,8 @@ src/
         ├── auth/           # login, registration
         ├── dashboard/
         ├── design/         # /design
-        ├── venues/         # /objekti, template for feature APIs
+        ├── venues/         # /objekti list, /objekti/novi, /objekti/:venueId (+ menus), /objekti/:venueId/izmena
+        ├── menus/          # /meniji/:menuId editor: categories, items, prices, availability
         └── public-menu/    # guest menu on the tenant subdomain
 ```
 
@@ -59,7 +60,10 @@ Every API call goes through `ApiClient` (`core/api/api-client.ts`); nothing else
 
 - **Base URL:** `environment.apiBaseUrl` (`src/environments/`), provided as `API_BASE_URL` in `app.config.ts`. It is `/api` in both builds: `/api/v1/x` reaches the API's `/v1/x` through `proxy.conf.json` in dev and nginx (`API_UPSTREAM`) in Docker. An absolute URL works too, but then the API's CORS must allow the web origin.
 - **Paths** are API paths (`/v1/venues`), never with the base URL.
-- **One API class per resource**, next to its feature (`features/venues/venues-api.ts`), or in `core/` when app-wide (`core/auth/auth-api.ts`). Response types next to it; shared ones in `core/api/api-types.ts`.
+- **One API class per resource**, next to its feature, or in `core/` once two features need it (`core/venues/venues-api.ts`, `core/menus/menus-api.ts`, `core/auth/auth-api.ts`). Response types next to it; shared ones in `core/api/api-types.ts`. Test fixtures go in `*.testing.ts` next to the types (`venue.testing.ts`, `menu.testing.ts`).
+- **Resources refetch only when the request changes.** `ApiClient.resource` compares URL and query, so a resource keyed on another resource's value (the venue of a menu) does not reload when that value changes for other reasons.
+- **Prices** are integer minor units in the API (`price_minor`); forms work in major units and convert with `toMinor`/`toMajor` (`features/menus/price.ts`). Show them with `CurrencyPipe`.
+- **Optimistic edits** (availability switch, drag reorder) update the resource with `.update()`, then call the API; on failure they roll back or reload.
 - **Reads** are signal resources: `xxxResource()` returns `api.resource<T>(() => path | { path, query } | undefined)` (an `httpResource`). Call it in a field initializer; it reloads when the signals it reads change and stays idle on `undefined`. Templates use `isLoading()`, `error()`, `value()`, `reload()`.
 - **Writes** return Observables (`api.post/patch/delete`) that fail with `ApiError` (`status`, `code`). In components: `await firstValueFrom(api.create(...))`, then `reload()` the affected resources.
 - **Errors:** `toApiError(error)` turns anything (also a resource's `error()`) into `ApiError`; map `code` to a Serbian message, never show the API's English `message`.

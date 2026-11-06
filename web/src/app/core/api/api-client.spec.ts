@@ -72,4 +72,18 @@ describe('ApiClient', () => {
     await TestBed.inject(ApplicationRef).whenStable();
     expect(resource.value()).toEqual({ id: 'b' });
   });
+
+  it('resource does not refetch when its signals change but the request stays the same', async () => {
+    const parent = signal({ venueId: 'a', name: 'Meni' });
+    runInInjectionContext(TestBed.inject(Injector), () =>
+      api.resource(() => ({ path: `/v1/venues/${parent().venueId}`, query: { page: 1 } })),
+    );
+    TestBed.tick();
+    http.expectOne('https://api.test/v1/venues/a?page=1').flush({});
+    await TestBed.inject(ApplicationRef).whenStable();
+
+    parent.set({ venueId: 'a', name: 'Drugi meni' });
+    TestBed.tick();
+    http.expectNone(() => true);
+  });
 });

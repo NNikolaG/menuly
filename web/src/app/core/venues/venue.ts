@@ -10,6 +10,8 @@ export interface Venue {
   timezone: string;
   opening_hours: Record<string, unknown>;
   ocr_import_limit: number;
+  /** The published menu guests see. */
+  active_menu_id: string | null;
   created_at: string;
   updated_at: string;
 }

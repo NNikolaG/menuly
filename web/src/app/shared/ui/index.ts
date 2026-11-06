@@ -1,4 +1,5 @@
 export { AppButton, type AppButtonSize, type AppButtonVariant } from './button/button';
+export { ConfirmDialog, type ConfirmDialogData } from './confirm-dialog/confirm-dialog';
 export { AppDialog } from './dialog/dialog';
 export { AppField } from './field/field';
 export { AppInput, type AppInputVariant } from './input/input';
