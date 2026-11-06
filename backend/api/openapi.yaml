@@ -782,6 +782,39 @@ paths:
               schema: { $ref: "#/components/schemas/Menu" }
         "403": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
+  /v1/menus/{menuID}/theme:
+    parameters:
+      - $ref: "#/components/parameters/MenuID"
+    get:
+      operationId: getMenuTheme
+      tags: [Menus]
+      summary: How the public menu is drawn (template, accent, font, options)
+      description: A menu that never saved a theme returns the defaults.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MenuTheme" }
+        "404": { $ref: "#/components/responses/Error" }
+    put:
+      operationId: putMenuTheme
+      tags: [Menus]
+      summary: Save the theme (owner, manager); fields left out keep their value
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/MenuTheme" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MenuTheme" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
   /v1/menus/{menuID}/categories:
     parameters:
       - $ref: "#/components/parameters/MenuID"
@@ -1491,9 +1524,28 @@ components:
                           label: { type: string, description: "Size/portion, empty for a single price" }
                           price_minor: { type: [integer, "null"], format: int64 }
                           price_text: { type: string }
+    MenuTheme:
+      type: object
+      description: |
+        Keys only, never raw colors or font names: the client maps them to the Receipt design system
+        (accent = `[data-tenant]` preset, font = font preset), so every combination stays readable.
+      properties:
+        template:
+          type: string
+          enum: [racun, galerija, tabla]
+          description: "racun: one column text list; galerija: photo cards; tabla: compact board with variant columns"
+        accent: { type: string, enum: [tinta, narandza, espresso, bordo, maslina, teget, kobalt, smaragd, senf, roze] }
+        font: { type: string, enum: [onest, manrope, plex] }
+        color_mode: { type: string, enum: [auto, light, dark], description: "Starting theme; guests can still switch" }
+        show_images: { type: boolean }
+        show_descriptions: { type: boolean }
+        show_pattern: { type: boolean, description: "Venue's Bauhaus pattern band in the header" }
+        logo_url: { type: string, description: "Empty or an http(s) URL" }
+        cover_url: { type: string, description: "Empty or an http(s) URL" }
     PublicMenu:
       type: object
       properties:
+        theme: { $ref: "#/components/schemas/MenuTheme" }
         lang: { type: string, description: "Language actually requested (sr when omitted)" }
         tenant:
           type: object

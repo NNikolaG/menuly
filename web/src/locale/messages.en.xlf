@@ -110,6 +110,566 @@
           <context context-type="linenumber">7,10</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="label.diet.vegan" datatype="html">
+        <source>Vegan</source>
+        <target>Vegan</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-labels.ts</context>
+          <context context-type="linenumber">15</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="label.diet.vegetarian" datatype="html">
+        <source>Vegetarijansko</source>
+        <target>Vegetarian</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-labels.ts</context>
+          <context context-type="linenumber">16</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="label.diet.glutenFree" datatype="html">
+        <source>Bez glutena</source>
+        <target>Gluten-free</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-labels.ts</context>
+          <context context-type="linenumber">17</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="label.diet.lactoseFree" datatype="html">
+        <source>Bez laktoze</source>
+        <target>Lactose-free</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-labels.ts</context>
+          <context context-type="linenumber">18</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="label.diet.spicy" datatype="html">
+        <source>Ljuto</source>
+        <target>Spicy</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-labels.ts</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="label.highlight.new" datatype="html">
+        <source>Novo</source>
+        <target>New</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-labels.ts</context>
+          <context context-type="linenumber">24</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="label.highlight.recommended" datatype="html">
+        <source>Preporuka</source>
+        <target>Recommended</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-labels.ts</context>
+          <context context-type="linenumber">25</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="label.highlight.house" datatype="html">
+        <source>Specijalitet kuće</source>
+        <target>House special</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-labels.ts</context>
+          <context context-type="linenumber">26</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="label.allergen.gluten" datatype="html">
+        <source>Gluten</source>
+        <target>Gluten</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-labels.ts</context>
+          <context context-type="linenumber">31</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="label.allergen.crustaceans" datatype="html">
+        <source>Rakovi</source>
+        <target>Crustaceans</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-labels.ts</context>
+          <context context-type="linenumber">32</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="label.allergen.eggs" datatype="html">
+        <source>Jaja</source>
+        <target>Eggs</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-labels.ts</context>
+          <context context-type="linenumber">33</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="label.allergen.fish" datatype="html">
+        <source>Riba</source>
+        <target>Fish</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-labels.ts</context>
+          <context context-type="linenumber">34</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="label.allergen.peanuts" datatype="html">
+        <source>Kikiriki</source>
+        <target>Peanuts</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-labels.ts</context>
+          <context context-type="linenumber">35</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="label.allergen.soy" datatype="html">
+        <source>Soja</source>
+        <target>Soy</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-labels.ts</context>
+          <context context-type="linenumber">36</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="label.allergen.milk" datatype="html">
+        <source>Mleko</source>
+        <target>Milk</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-labels.ts</context>
+          <context context-type="linenumber">37</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="label.allergen.nuts" datatype="html">
+        <source>Orašasti plodovi</source>
+        <target>Tree nuts</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-labels.ts</context>
+          <context context-type="linenumber">38</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="label.allergen.celery" datatype="html">
+        <source>Celer</source>
+        <target>Celery</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-labels.ts</context>
+          <context context-type="linenumber">39</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="label.allergen.mustard" datatype="html">
+        <source>Senf</source>
+        <target>Mustard</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-labels.ts</context>
+          <context context-type="linenumber">40</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="label.allergen.sesame" datatype="html">
+        <source>Susam</source>
+        <target>Sesame</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-labels.ts</context>
+          <context context-type="linenumber">41</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="label.allergen.sulphites" datatype="html">
+        <source>Sulfiti</source>
+        <target>Sulphites</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-labels.ts</context>
+          <context context-type="linenumber">42</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="label.allergen.lupin" datatype="html">
+        <source>Lupina</source>
+        <target>Lupin</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-labels.ts</context>
+          <context context-type="linenumber">43</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="label.allergen.molluscs" datatype="html">
+        <source>Mekušci</source>
+        <target>Molluscs</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-labels.ts</context>
+          <context context-type="linenumber">44</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="theme.template.racun" datatype="html">
+        <source>Račun</source>
+        <target>Receipt</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-theme.ts</context>
+          <context context-type="linenumber">55</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="theme.template.racunBody" datatype="html">
+        <source>Jedna kolona, isprekidane linije i cene desno. Najčitljiviji, za kafiće i barove.</source>
+        <target>One column, dashed rules, prices on the right. The most readable, for cafés and bars.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-theme.ts</context>
+          <context context-type="linenumber">56</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="theme.template.galerija" datatype="html">
+        <source>Galerija</source>
+        <target>Gallery</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-theme.ts</context>
+          <context context-type="linenumber">60</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="theme.template.galerijaBody" datatype="html">
+        <source>Kartice sa velikom slikom. Za restorane sa fotografijama jela.</source>
+        <target>Cards with a large photo. For restaurants with food photos.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-theme.ts</context>
+          <context context-type="linenumber">61</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="theme.template.tabla" datatype="html">
+        <source>Tabla</source>
+        <target>Board</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-theme.ts</context>
+          <context context-type="linenumber">65</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="theme.template.tablaBody" datatype="html">
+        <source>Gusta lista sa krupnim tekstom i varijantama u kolonama. Za pića i duge menije.</source>
+        <target>Dense list with large text and sizes in columns. For drinks and long menus.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-theme.ts</context>
+          <context context-type="linenumber">66</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="theme.accent.tinta" datatype="html">
+        <source>Tinta</source>
+        <target>Ink</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-theme.ts</context>
+          <context context-type="linenumber">71</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="theme.accent.narandza" datatype="html">
+        <source>Pečena narandža</source>
+        <target>Burnt orange</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-theme.ts</context>
+          <context context-type="linenumber">72</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="theme.accent.espresso" datatype="html">
+        <source>Espresso</source>
+        <target>Espresso</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-theme.ts</context>
+          <context context-type="linenumber">73</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="theme.accent.bordo" datatype="html">
+        <source>Bordo</source>
+        <target>Burgundy</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-theme.ts</context>
+          <context context-type="linenumber">74</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="theme.accent.maslina" datatype="html">
+        <source>Maslina</source>
+        <target>Olive</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-theme.ts</context>
+          <context context-type="linenumber">75</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="theme.accent.teget" datatype="html">
+        <source>Teget</source>
+        <target>Navy</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-theme.ts</context>
+          <context context-type="linenumber">76</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="theme.accent.kobalt" datatype="html">
+        <source>Kobalt</source>
+        <target>Cobalt</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-theme.ts</context>
+          <context context-type="linenumber">77</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="theme.accent.smaragd" datatype="html">
+        <source>Smaragd</source>
+        <target>Emerald</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-theme.ts</context>
+          <context context-type="linenumber">78</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="theme.accent.senf" datatype="html">
+        <source>Senf</source>
+        <target>Mustard</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-theme.ts</context>
+          <context context-type="linenumber">79</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="theme.accent.roze" datatype="html">
+        <source>Roze</source>
+        <target>Pink</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-theme.ts</context>
+          <context context-type="linenumber">80</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="theme.mode.auto" datatype="html">
+        <source>Po telefonu</source>
+        <target>Follow phone</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-theme.ts</context>
+          <context context-type="linenumber">91</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="theme.mode.light" datatype="html">
+        <source>Svetla</source>
+        <target>Light</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-theme.ts</context>
+          <context context-type="linenumber">92</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="theme.mode.dark" datatype="html">
+        <source>Tamna</source>
+        <target>Dark</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-theme.ts</context>
+          <context context-type="linenumber">93</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="common.close" datatype="html">
+        <source>Zatvori</source>
+        <target>Close</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/public-menu/item-sheet.ts</context>
+          <context context-type="linenumber">34</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="publicMenu.unavailable" datatype="html">
+        <source>Nema danas</source>
+        <target>Sold out today</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/public-menu/item-sheet.ts</context>
+          <context context-type="linenumber">47,50</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/public-menu/public-menu-view.ts</context>
+          <context context-type="linenumber">329,331</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/public-menu/public-menu-view.ts</context>
+          <context context-type="linenumber">425,428</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="publicMenu.price" datatype="html">
+        <source>Cena</source>
+        <target>Price</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/public-menu/item-sheet.ts</context>
+          <context context-type="linenumber">68,69</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="publicMenu.tags" datatype="html">
+        <source>Oznake</source>
+        <target>Tags</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/public-menu/item-sheet.ts</context>
+          <context context-type="linenumber">80,81</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="publicMenu.allergens" datatype="html">
+        <source>Alergeni</source>
+        <target>Allergens</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/public-menu/item-sheet.ts</context>
+          <context context-type="linenumber">89,90</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="publicMenu.noAllergens" datatype="html">
+        <source> Lokal nije naveo alergene. Pitaj osoblje ako nisi siguran. </source>
+        <target> The venue has not listed allergens. Ask the staff if you are unsure. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/public-menu/item-sheet.ts</context>
+          <context context-type="linenumber">98,101</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="publicMenu.search" datatype="html">
+        <source>Pretraga</source>
+        <target>Search</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/public-menu/public-menu-view.ts</context>
+          <context context-type="linenumber">142,144</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="publicMenu.searchPlaceholder" datatype="html">
+        <source>Pretraži meni</source>
+        <target>Search the menu</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/public-menu/public-menu-view.ts</context>
+          <context context-type="linenumber">148,150</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="publicMenu.clearSearch" datatype="html">
+        <source>Obriši pretragu</source>
+        <target>Clear search</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/public-menu/public-menu-view.ts</context>
+          <context context-type="linenumber">157,158</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="publicMenu.filters" datatype="html">
+        <source>Filteri</source>
+        <target>Filters</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/public-menu/public-menu-view.ts</context>
+          <context context-type="linenumber">173,174</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="publicMenu.filter.diet" datatype="html">
+        <source>Ishrana</source>
+        <target>Diet</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/public-menu/public-menu-view.ts</context>
+          <context context-type="linenumber">185,187</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/public-menu/public-menu-view.ts</context>
+          <context context-type="linenumber">618</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="publicMenu.filter.without" datatype="html">
+        <source>Bez alergena</source>
+        <target>Without allergens</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/public-menu/public-menu-view.ts</context>
+          <context context-type="linenumber">197,199</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/public-menu/public-menu-view.ts</context>
+          <context context-type="linenumber">619</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="publicMenu.filter.available" datatype="html">
+        <source> Samo dostupno danas </source>
+        <target> Available today only </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/public-menu/public-menu-view.ts</context>
+          <context context-type="linenumber">216,217</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="publicMenu.categories" datatype="html">
+        <source>Kategorije</source>
+        <target>Categories</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/public-menu/public-menu-view.ts</context>
+          <context context-type="linenumber">224,225</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="publicMenu.resultCount" datatype="html">
+        <source>{VAR_PLURAL, plural, one {<x id="INTERPOLATION"/> stavka} few {<x id="INTERPOLATION"/> stavke} other {<x id="INTERPOLATION"/> stavki}}</source>
+        <target>{VAR_PLURAL, plural, one {<x id="INTERPOLATION"/> item} other {<x id="INTERPOLATION"/> items}}</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/public-menu/public-menu-view.ts</context>
+          <context context-type="linenumber">241,244</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="publicMenu.clearAll" datatype="html">
+        <source> Poništi filtere </source>
+        <target> Clear filters </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/public-menu/public-menu-view.ts</context>
+          <context context-type="linenumber">255,257</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/public-menu/public-menu-view.ts</context>
+          <context context-type="linenumber">390,391</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="publicMenu.combos" datatype="html">
+        <source> Kombo ponude </source>
+        <target> Combo deals </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/public-menu/public-menu-view.ts</context>
+          <context context-type="linenumber">264,266</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="publicMenu.itemCount" datatype="html">
+        <source>{VAR_PLURAL, plural, one {<x id="INTERPOLATION"/> stavka} few {<x id="INTERPOLATION"/> stavke} other {<x id="INTERPOLATION"/> stavki}}</source>
+        <target>{VAR_PLURAL, plural, one {<x id="INTERPOLATION"/> item} other {<x id="INTERPOLATION"/> items}}</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/public-menu/public-menu-view.ts</context>
+          <context context-type="linenumber">295,297</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="publicMenu.noResults" datatype="html">
+        <source>Ništa ne odgovara pretrazi.</source>
+        <target>Nothing matches your search.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/public-menu/public-menu-view.ts</context>
+          <context context-type="linenumber">382,384</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="publicMenu.empty" datatype="html">
+        <source>Meni je trenutno prazan.</source>
+        <target>The menu is empty right now.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/public-menu/public-menu-view.ts</context>
+          <context context-type="linenumber">395,399</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="publicMenu.poweredBy" datatype="html">
+        <source>Meni pokreće Menuly</source>
+        <target>Menu powered by Menuly</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/public-menu/public-menu-view.ts</context>
+          <context context-type="linenumber">400,402</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="publicMenu.combo" datatype="html">
+        <source>Kombo</source>
+        <target>Combo</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/public-menu/public-menu-view.ts</context>
+          <context context-type="linenumber">422,423</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="publicMenu.slotChoice" datatype="html">
+        <source>po izboru:</source>
+        <target>your choice of:</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/public-menu/public-menu-view.ts</context>
+          <context context-type="linenumber">449,450</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="publicMenu.savings" datatype="html">
+        <source>Ušteda <x id="INTERPOLATION" equiv-text="{{
+                  promo.savings_minor / 100 | currency: data.venue.currency : &apos;code&apos; : &apos;1.0-2&apos;
+                }}"/></source>
+        <target>You save <x id="INTERPOLATION" equiv-text="{{
+                  promo.savings_minor / 100 | currency: data.venue.currency : &apos;code&apos; : &apos;1.0-2&apos;
+                }}"/></target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/public-menu/public-menu-view.ts</context>
+          <context context-type="linenumber">463,466</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="publicMenu.lightMode" datatype="html">
+        <source>Svetla tema</source>
+        <target>Light theme</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/public-menu/public-menu-view.ts</context>
+          <context context-type="linenumber">507</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="publicMenu.darkMode" datatype="html">
+        <source>Tamna tema</source>
+        <target>Dark theme</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/public-menu/public-menu-view.ts</context>
+          <context context-type="linenumber">508</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="auth.brand.label" datatype="html">
         <source>Menuly · digitalni meni</source>
         <target>Menuly · digital menu</target>
@@ -479,7 +1039,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/item-dialog.ts</context>
-          <context context-type="linenumber">130,132</context>
+          <context context-type="linenumber">167,169</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
@@ -499,7 +1059,11 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/item-dialog.ts</context>
-          <context context-type="linenumber">132,133</context>
+          <context context-type="linenumber">169,170</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-design-page.ts</context>
+          <context context-type="linenumber">77,78</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
@@ -527,7 +1091,7 @@
         <target>Name</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/item-dialog.ts</context>
-          <context context-type="linenumber">46</context>
+          <context context-type="linenumber">51</context>
         </context-group>
       </trans-unit>
       <trans-unit id="item.field.description" datatype="html">
@@ -535,7 +1099,23 @@
         <target>Description (optional)</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/item-dialog.ts</context>
-          <context context-type="linenumber">53,54</context>
+          <context context-type="linenumber">58,59</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="item.field.image" datatype="html">
+        <source>Slika (URL, opciono)</source>
+        <target>Photo (URL, optional)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/item-dialog.ts</context>
+          <context context-type="linenumber">72,73</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="item.field.imageHint" datatype="html">
+        <source>Gost je vidi u detalju stavke i u šablonu Galerija.</source>
+        <target>Guests see it in the item detail and in the Gallery template.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/item-dialog.ts</context>
+          <context context-type="linenumber">75,76</context>
         </context-group>
       </trans-unit>
       <trans-unit id="item.field.variantLabel" datatype="html">
@@ -543,7 +1123,7 @@
         <target>Size</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/item-dialog.ts</context>
-          <context context-type="linenumber">70,71</context>
+          <context context-type="linenumber">86,87</context>
         </context-group>
       </trans-unit>
       <trans-unit id="item.field.variantLabelPlaceholder" datatype="html">
@@ -551,7 +1131,7 @@
         <target>e.g. 0.5 l</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/item-dialog.ts</context>
-          <context context-type="linenumber">78,79</context>
+          <context context-type="linenumber">94,95</context>
         </context-group>
       </trans-unit>
       <trans-unit id="item.field.price" datatype="html">
@@ -559,7 +1139,7 @@
         <target>Price</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/item-dialog.ts</context>
-          <context context-type="linenumber">86</context>
+          <context context-type="linenumber">102</context>
         </context-group>
       </trans-unit>
       <trans-unit id="item.removeVariant" datatype="html">
@@ -567,7 +1147,7 @@
         <target>Remove size</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/item-dialog.ts</context>
-          <context context-type="linenumber">107,108</context>
+          <context context-type="linenumber">123,124</context>
         </context-group>
       </trans-unit>
       <trans-unit id="item.addVariant" datatype="html">
@@ -575,7 +1155,31 @@
         <target>Add size</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/item-dialog.ts</context>
-          <context context-type="linenumber">118,119</context>
+          <context context-type="linenumber">134,135</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="item.field.tags" datatype="html">
+        <source>Oznake</source>
+        <target>Tags</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/item-dialog.ts</context>
+          <context context-type="linenumber">139,140</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/item-dialog.ts</context>
+          <context context-type="linenumber">258</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="item.field.allergens" datatype="html">
+        <source>Alergeni</source>
+        <target>Allergens</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/item-dialog.ts</context>
+          <context context-type="linenumber">149,150</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/item-dialog.ts</context>
+          <context context-type="linenumber">259</context>
         </context-group>
       </trans-unit>
       <trans-unit id="item.editTitle" datatype="html">
@@ -583,7 +1187,7 @@
         <target>Edit item</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/item-dialog.ts</context>
-          <context context-type="linenumber">166</context>
+          <context context-type="linenumber">216</context>
         </context-group>
       </trans-unit>
       <trans-unit id="item.newTitle" datatype="html">
@@ -591,7 +1195,19 @@
         <target>New item</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/item-dialog.ts</context>
-          <context context-type="linenumber">167</context>
+          <context context-type="linenumber">217</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="menuDesign.urlInvalid" datatype="html">
+        <source>Unesi link koji počinje sa https://</source>
+        <target>Enter a link that starts with https://</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/item-dialog.ts</context>
+          <context context-type="linenumber">235</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-design-page.ts</context>
+          <context context-type="linenumber">381</context>
         </context-group>
       </trans-unit>
       <trans-unit id="item.field.priceRequired" datatype="html">
@@ -599,7 +1215,235 @@
         <target>Enter a price, e.g. 250.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/item-dialog.ts</context>
-          <context context-type="linenumber">184</context>
+          <context context-type="linenumber">240</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="menuDesign.heading" datatype="html">
+        <source>Dizajn menija</source>
+        <target>Menu design</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-design-page.ts</context>
+          <context context-type="linenumber">51,52</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="menuDesign.saved" datatype="html">
+        <source>Sačuvano</source>
+        <target>Saved</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-design-page.ts</context>
+          <context context-type="linenumber">57,58</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="menuDesign.reset" datatype="html">
+        <source> Poništi izmene </source>
+        <target> Discard changes </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-design-page.ts</context>
+          <context context-type="linenumber">68,69</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="menuDesign.template" datatype="html">
+        <source>Šablon</source>
+        <target>Template</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-design-page.ts</context>
+          <context context-type="linenumber">96,97</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="menuDesign.accent" datatype="html">
+        <source>Boja lokala</source>
+        <target>Venue color</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-design-page.ts</context>
+          <context context-type="linenumber">115,116</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="menuDesign.accentHint" datatype="html">
+        <source> Vidi se samo u akcentima: aktivna kategorija, bedževi i kombo ponude. </source>
+        <target> Shows only in accents: active category, badges and combo deals. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-design-page.ts</context>
+          <context context-type="linenumber">117,119</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="menuDesign.font" datatype="html">
+        <source>Font</source>
+        <target>Font</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-design-page.ts</context>
+          <context context-type="linenumber">138,139</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-design-page.ts</context>
+          <context context-type="linenumber">142</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="menuDesign.mode" datatype="html">
+        <source>Tema</source>
+        <target>Theme</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-design-page.ts</context>
+          <context context-type="linenumber">148,149</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-design-page.ts</context>
+          <context context-type="linenumber">152</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="menuDesign.show" datatype="html">
+        <source>Prikaz</source>
+        <target>Display</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-design-page.ts</context>
+          <context context-type="linenumber">160,161</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="menuDesign.showImages" datatype="html">
+        <source>Slike stavki i naslovna slika</source>
+        <target>Item photos and cover image</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-design-page.ts</context>
+          <context context-type="linenumber">163,165</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="menuDesign.showDescriptions" datatype="html">
+        <source>Opisi stavki i kategorija</source>
+        <target>Item and category descriptions</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-design-page.ts</context>
+          <context context-type="linenumber">167,169</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="menuDesign.showPattern" datatype="html">
+        <source>Bauhaus uzorak lokala u zaglavlju</source>
+        <target>Venue Bauhaus pattern in the header</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-design-page.ts</context>
+          <context context-type="linenumber">171,173</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="menuDesign.images" datatype="html">
+        <source>Logo i naslovna slika</source>
+        <target>Logo and cover image</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-design-page.ts</context>
+          <context context-type="linenumber">176,177</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="menuDesign.logoUrl" datatype="html">
+        <source>Logo (URL slike)</source>
+        <target>Logo (image URL)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-design-page.ts</context>
+          <context context-type="linenumber">179,180</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="menuDesign.urlHint" datatype="html">
+        <source>Link na sliku, npr. https://…/logo.png</source>
+        <target>Link to an image, e.g. https://…/logo.png</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-design-page.ts</context>
+          <context context-type="linenumber">182,183</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="menuDesign.coverUrl" datatype="html">
+        <source>Naslovna slika (URL)</source>
+        <target>Cover image (URL)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-design-page.ts</context>
+          <context context-type="linenumber">189,190</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="menuDesign.coverHint" datatype="html">
+        <source>Zamenjuje uzorak u zaglavlju kada su slike uključene.</source>
+        <target>Replaces the pattern in the header when photos are on.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-design-page.ts</context>
+          <context context-type="linenumber">192,193</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="menuDesign.preview" datatype="html">
+        <source>Pregled</source>
+        <target>Preview</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-design-page.ts</context>
+          <context context-type="linenumber">202,203</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="menuDesign.previewHint" datatype="html">
+        <source>Ovako gost vidi meni na telefonu</source>
+        <target>How guests see the menu on a phone</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-design-page.ts</context>
+          <context context-type="linenumber">204,206</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="menu.notFound" datatype="html">
+        <source>Meni nije pronađen.</source>
+        <target>Menu not found.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-design-page.ts</context>
+          <context context-type="linenumber">216,218</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
+          <context context-type="linenumber">360,362</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="common.loading" datatype="html">
+        <source>Učitavanje…</source>
+        <target>Loading…</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-design-page.ts</context>
+          <context context-type="linenumber">218,222</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
+          <context context-type="linenumber">362,366</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/public-menu/public-menu-page.ts</context>
+          <context context-type="linenumber">32,35</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">53,55</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
+          <context context-type="linenumber">34,35</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="common.forbidden" datatype="html">
+        <source>Nemaš dozvolu za ovu radnju.</source>
+        <target>You are not allowed to do this.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-design-page.ts</context>
+          <context context-type="linenumber">431</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
+          <context context-type="linenumber">714</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">211</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
+          <context context-type="linenumber">391</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
+          <context context-type="linenumber">209</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="menuDesign.saveError" datatype="html">
+        <source>Dizajn nije sačuvan. Proveri linkove i pokušaj ponovo.</source>
+        <target>Design not saved. Check the links and try again.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-design-page.ts</context>
+          <context context-type="linenumber">432</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.status.published" datatype="html">
@@ -607,7 +1451,7 @@
         <target>Published</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">78,80</context>
+          <context context-type="linenumber">80,82</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
@@ -619,11 +1463,19 @@
         <target>Draft</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">81,83</context>
+          <context context-type="linenumber">83,85</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
           <context context-type="linenumber">133,134</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="menu.design" datatype="html">
+        <source>Dizajn</source>
+        <target>Design</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
+          <context context-type="linenumber">89,90</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.unpublish" datatype="html">
@@ -631,7 +1483,7 @@
         <target> Back to draft </target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">94,95</context>
+          <context context-type="linenumber">101,102</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
@@ -643,7 +1495,7 @@
         <target> Publish menu </target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">104,105</context>
+          <context context-type="linenumber">111,112</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.moveHint" datatype="html">
@@ -651,7 +1503,7 @@
         <target> Alt + arrow up or down moves the item. </target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">116,119</context>
+          <context context-type="linenumber">124,127</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.addItem" datatype="html">
@@ -659,7 +1511,7 @@
         <target>Add item</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">170,171</context>
+          <context context-type="linenumber">178,179</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.col.order" datatype="html">
@@ -667,7 +1519,7 @@
         <target>Order</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">207,208</context>
+          <context context-type="linenumber">215,216</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.col.item" datatype="html">
@@ -675,7 +1527,7 @@
         <target>Item</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">210,211</context>
+          <context context-type="linenumber">218,219</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.col.available" datatype="html">
@@ -683,7 +1535,7 @@
         <target>Available</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">211,212</context>
+          <context context-type="linenumber">219,220</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.col.price" datatype="html">
@@ -691,7 +1543,7 @@
         <target>Price</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">212,213</context>
+          <context context-type="linenumber">220,221</context>
         </context-group>
       </trans-unit>
       <trans-unit id="common.actions" datatype="html">
@@ -699,7 +1551,7 @@
         <target>Actions</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">214,215</context>
+          <context context-type="linenumber">222,223</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
@@ -715,7 +1567,7 @@
         <target>Available</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">266,267</context>
+          <context context-type="linenumber">274,275</context>
         </context-group>
       </trans-unit>
       <trans-unit id="item.unavailable" datatype="html">
@@ -723,7 +1575,7 @@
         <target>Sold out</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">273,274</context>
+          <context context-type="linenumber">281,282</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.emptyCategory" datatype="html">
@@ -731,7 +1583,7 @@
         <target>This category is empty.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">320,322</context>
+          <context context-type="linenumber">328,330</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.empty" datatype="html">
@@ -739,7 +1591,7 @@
         <target>This menu has no categories yet.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">325,326</context>
+          <context context-type="linenumber">333,334</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.emptyBody" datatype="html">
@@ -747,7 +1599,7 @@
         <target> Add your first category, e.g. “Hot drinks”, then add items with prices to it. </target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">327,328</context>
+          <context context-type="linenumber">335,336</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.addCategory" datatype="html">
@@ -755,35 +1607,7 @@
         <target>Add category</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">337,338</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="menu.notFound" datatype="html">
-        <source>Meni nije pronađen.</source>
-        <target>Menu not found.</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">352,354</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="common.loading" datatype="html">
-        <source>Učitavanje…</source>
-        <target>Loading…</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">354,358</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/public-menu/public-menu-page.ts</context>
-          <context context-type="linenumber">146,149</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
-          <context context-type="linenumber">53,55</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
-          <context context-type="linenumber">34,35</context>
+          <context context-type="linenumber">345,346</context>
         </context-group>
       </trans-unit>
       <trans-unit id="common.actionsFor" datatype="html">
@@ -791,7 +1615,7 @@
         <target>Actions: <x id="name" equiv-text="name"/></target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">450</context>
+          <context context-type="linenumber">458</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
@@ -807,7 +1631,7 @@
         <target>Move <x id="name" equiv-text="name"/></target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">474</context>
+          <context context-type="linenumber">482</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.editLabel" datatype="html">
@@ -815,7 +1639,7 @@
         <target>Edit <x id="name" equiv-text="name"/></target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">478</context>
+          <context context-type="linenumber">486</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.deleteItemLabel" datatype="html">
@@ -823,7 +1647,7 @@
         <target>Delete <x id="name" equiv-text="name"/></target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">482</context>
+          <context context-type="linenumber">490</context>
         </context-group>
       </trans-unit>
       <trans-unit id="category.delete.title" datatype="html">
@@ -831,7 +1655,7 @@
         <target>Delete category?</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">511</context>
+          <context context-type="linenumber">519</context>
         </context-group>
       </trans-unit>
       <trans-unit id="category.delete.body" datatype="html">
@@ -839,7 +1663,7 @@
         <target>The category “<x id="name" equiv-text="category.name"/>” is deleted with all its items.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">512</context>
+          <context context-type="linenumber">520</context>
         </context-group>
       </trans-unit>
       <trans-unit id="category.delete.confirm" datatype="html">
@@ -847,7 +1671,7 @@
         <target>Delete category</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">513</context>
+          <context context-type="linenumber">521</context>
         </context-group>
       </trans-unit>
       <trans-unit id="item.delete.title" datatype="html">
@@ -855,7 +1679,7 @@
         <target>Delete item?</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">568</context>
+          <context context-type="linenumber">585</context>
         </context-group>
       </trans-unit>
       <trans-unit id="item.delete.body" datatype="html">
@@ -863,7 +1687,7 @@
         <target>The item “<x id="name" equiv-text="item.name"/>” is removed from the menu.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">569</context>
+          <context context-type="linenumber">586</context>
         </context-group>
       </trans-unit>
       <trans-unit id="item.delete.confirm" datatype="html">
@@ -871,27 +1695,7 @@
         <target>Delete item</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">570</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="common.forbidden" datatype="html">
-        <source>Nemaš dozvolu za ovu radnju.</source>
-        <target>You are not allowed to do this.</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">697</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
-          <context context-type="linenumber">211</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/venues/venue-page.ts</context>
-          <context context-type="linenumber">391</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>
-          <context context-type="linenumber">209</context>
+          <context context-type="linenumber">587</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.saveError" datatype="html">
@@ -899,7 +1703,7 @@
         <target>The change was not saved. Try again.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
-          <context context-type="linenumber">698</context>
+          <context context-type="linenumber">715</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.pageTitle" datatype="html">
@@ -910,44 +1714,12 @@
           <context context-type="linenumber">6</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="publicMenu.categories" datatype="html">
-        <source>Kategorije</source>
-        <target>Categories</target>
+      <trans-unit id="menuDesign.pageTitle" datatype="html">
+        <source>Dizajn menija</source>
+        <target>Menu design</target>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/public-menu/public-menu-page.ts</context>
-          <context context-type="linenumber">45,47</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="publicMenu.itemCount" datatype="html">
-        <source>{VAR_PLURAL, plural, one {<x id="INTERPOLATION"/> stavka} few {<x id="INTERPOLATION"/> stavke} other {<x id="INTERPOLATION"/> stavki}}</source>
-        <target>{VAR_PLURAL, plural, one {<x id="INTERPOLATION"/> item} other {<x id="INTERPOLATION"/> items}}</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/public-menu/public-menu-page.ts</context>
-          <context context-type="linenumber">72,74</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="publicMenu.unavailable" datatype="html">
-        <source>Nema danas</source>
-        <target>Sold out today</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/public-menu/public-menu-page.ts</context>
-          <context context-type="linenumber">107,109</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="publicMenu.empty" datatype="html">
-        <source>Meni je trenutno prazan.</source>
-        <target>The menu is empty right now.</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/public-menu/public-menu-page.ts</context>
-          <context context-type="linenumber">122,125</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="publicMenu.poweredBy" datatype="html">
-        <source>Meni pokreće Menuly</source>
-        <target>Menu powered by Menuly</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/public-menu/public-menu-page.ts</context>
-          <context context-type="linenumber">126,127</context>
+          <context context-type="sourcefile">src/app/features/menus/menus.routes.ts</context>
+          <context context-type="linenumber">11</context>
         </context-group>
       </trans-unit>
       <trans-unit id="publicMenu.notFound" datatype="html">
@@ -955,7 +1727,7 @@
         <target>Menu not available</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/public-menu/public-menu-page.ts</context>
-          <context context-type="linenumber">134,135</context>
+          <context context-type="linenumber">20,21</context>
         </context-group>
       </trans-unit>
       <trans-unit id="publicMenu.notFoundBody" datatype="html">
@@ -963,7 +1735,7 @@
         <target> Check the address or ask the staff for a new QR code. </target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/public-menu/public-menu-page.ts</context>
-          <context context-type="linenumber">136,138</context>
+          <context context-type="linenumber">22,24</context>
         </context-group>
       </trans-unit>
       <trans-unit id="publicMenu.loadError" datatype="html">
@@ -971,7 +1743,7 @@
         <target>The menu could not be loaded</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/public-menu/public-menu-page.ts</context>
-          <context context-type="linenumber">139,140</context>
+          <context context-type="linenumber">25,26</context>
         </context-group>
       </trans-unit>
       <trans-unit id="common.retry" datatype="html">
@@ -979,7 +1751,7 @@
         <target>Try again</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/public-menu/public-menu-page.ts</context>
-          <context context-type="linenumber">141,142</context>
+          <context context-type="linenumber">27,28</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/venues/venues-page.ts</context>

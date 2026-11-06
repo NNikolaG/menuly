@@ -15,10 +15,13 @@ let nextId = 0;
     <div class="actions"><ng-content select="[dialog-actions]" /></div>
   `,
   styles: `
+    /* Tall content (an item with many allergens) scrolls inside; title and actions stay put. */
     :host {
-      display: block;
+      display: flex;
+      flex-direction: column;
       inline-size: var(--dialog-width);
       max-inline-size: 100%;
+      max-block-size: calc(100dvh - 2 * var(--space-4));
       overflow: hidden;
       background: var(--color-surface-raised);
       color: var(--color-text);
@@ -34,6 +37,9 @@ let nextId = 0;
     }
 
     .body {
+      flex: 1 1 auto;
+      min-block-size: 0;
+      overflow-y: auto;
       padding: var(--space-2) var(--space-6) var(--space-5);
       color: var(--color-text-muted);
     }

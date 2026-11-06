@@ -13,6 +13,7 @@ import type {
   Variant,
   VariantInput,
 } from './menu';
+import type { MenuTheme } from './menu-theme';
 
 const id = encodeURIComponent;
 
@@ -35,6 +36,19 @@ export class MenusApi {
       const menu = menuId();
       return menu ? `/v1/menus/${id(menu)}` : undefined;
     });
+  }
+
+  /** The menu's theme; defaults when it never saved one. */
+  themeResource(menuId: () => string | undefined) {
+    return this.api.resource<MenuTheme>(() => {
+      const menu = menuId();
+      return menu ? `/v1/menus/${id(menu)}/theme` : undefined;
+    });
+  }
+
+  /** Owner, manager. Fields left out keep their value. */
+  saveTheme(menuId: string, theme: Partial<MenuTheme>): Observable<MenuTheme> {
+    return this.api.put(`/v1/menus/${id(menuId)}/theme`, theme);
   }
 
   createMenu(venueId: string, name: string): Observable<Menu> {

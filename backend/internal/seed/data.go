@@ -46,7 +46,7 @@ var demoMenu = []category{
 		{name: "Ćevapi", desc: "Sa lepinjom, lukom i ajvarom", en: "Ćevapi", enDesc: "With flatbread, onion and ajvar", allergens: []string{"gluten"},
 			variants: []variant{{"5 kom", "5 pcs", 690}, {"10 kom", "10 pcs", 1190}}},
 		{name: "Pljeskavica", desc: "Punjena kajmakom", en: "Stuffed burger patty", enDesc: "Filled with kajmak", allergens: []string{"mleko"}, variants: price(990)},
-		{name: "Karađorđeva šnicla", en: "Karađorđe's schnitzel", allergens: []string{"gluten", "jaja", "mleko"}, tags: []string{"specijalitet kuće"}, variants: price(1450)},
+		{name: "Karađorđeva šnicla", en: "Karađorđe's schnitzel", allergens: []string{"gluten", "jaja", "mleko"}, tags: []string{"specijalitet kuće", "preporuka"}, variants: price(1450)},
 		{name: "Grilovano povrće", en: "Grilled vegetables", tags: []string{"vegan"}, variants: price(650)},
 	}},
 	{name: "Deserti", en: "Desserts", items: []item{

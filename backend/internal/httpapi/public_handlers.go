@@ -66,6 +66,8 @@ type publicMenu struct {
 		PublishedAt *time.Time       `json:"published_at"`
 		Categories  []publicCategory `json:"categories"`
 	} `json:"menu"`
+	// How the menu is drawn; defaults when the menu has no saved theme.
+	Theme themeDTO `json:"theme"`
 	// Promotions that are live now; featured ones are meant for the banner.
 	Promotions []publicPromotion `json:"promotions"`
 }
@@ -126,6 +128,9 @@ func (s *Server) handlePublicMenu(w http.ResponseWriter, r *http.Request) {
 		out.Venue.Currency, out.Venue.Timezone = v.Currency, v.Timezone
 		out.Menu.ID, out.Menu.Name, out.Menu.PublishedAt = tree.ID, tree.Name, tree.PublishedAt
 		out.Menu.Categories = buildPublicCategories(tree, lang)
+		if out.Theme, err = loadTheme(r, q, t.ID, tree.ID); err != nil {
+			return err
+		}
 		out.Promotions, err = buildPublicPromotions(ctx, q, t.ID, v, tree, lang)
 		return err
 	})

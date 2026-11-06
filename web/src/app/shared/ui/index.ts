@@ -1,4 +1,5 @@
 export { AppButton, type AppButtonSize, type AppButtonVariant } from './button/button';
+export { AppChipGroup, type AppChipOption } from './chip-group/chip-group';
 export { ConfirmDialog, type ConfirmDialogData } from './confirm-dialog/confirm-dialog';
 export { AppDialog } from './dialog/dialog';
 export { AppField } from './field/field';
