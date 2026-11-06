@@ -548,6 +548,9 @@ paths:
       description: |
         `multipart/form-data` with one or more `files` parts: JPEG, PNG, WebP or PDF, at most 15 MB each,
         at most 20 pages in total (a PDF counts its pages). Photos are auto-rotated and scaled down.
+        Several overlapping phone photos of one menu are fine: send them in reading order; categories that continue
+        on the next photo are merged and rows repeated by the overlap are dropped.
+        HEIC is not accepted: on iPhone, `accept="image/jpeg,image/png,image/webp,application/pdf"` makes Safari convert.
 
         Answers `202` right away with status `processing`; every file is read in the background.
         Poll `GET /v1/imports/{importID}` (e.g. every 2 s) until the status changes:
@@ -595,6 +598,57 @@ paths:
               schema: { $ref: "#/components/schemas/Import" }
         "404": { $ref: "#/components/responses/Error" }
 
+  /v1/imports/{importID}/pages:
+    parameters:
+      - $ref: "#/components/parameters/ImportID"
+    post:
+      tags: [Imports]
+      operationId: addImportPages
+      summary: Add forgotten photos to an import (owner, manager)
+      description: |
+        Same `files` multipart field and rules as the upload; the import's total stays at most 20 pages.
+        Does not use up another import. The import goes back to `processing`; new items are appended to the draft
+        (after the user's edits, if any).
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [files]
+              properties:
+                files: { type: array, items: { type: string, format: binary } }
+      responses:
+        "202":
+          description: Accepted, processing
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Import" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+        "415": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+
+  /v1/imports/{importID}/pages/{pageID}:
+    parameters:
+      - $ref: "#/components/parameters/ImportID"
+      - $ref: "#/components/parameters/PageID"
+    delete:
+      tags: [Imports]
+      operationId: deleteImportPage
+      summary: Remove a wrong photo and its items (owner, manager)
+      description: Not while the page is being read, and not the last page (`409 invalid_import_state`).
+      responses:
+        "200":
+          description: The import without that page
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Import" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+
   /v1/imports/{importID}/pages/{pageID}/file:
     parameters:
       - $ref: "#/components/parameters/ImportID"
@@ -616,6 +670,35 @@ paths:
             application/pdf:
               schema: { type: string, format: binary }
         "404": { $ref: "#/components/responses/Error" }
+
+    put:
+      tags: [Imports]
+      operationId: replaceImportPageFile
+      summary: Retake a photo (owner, manager)
+      description: |
+        Multipart with one `file`. Replaces the page's file and reads it again; the page's old items leave the draft,
+        the user's other edits stay and the new reading is appended. Use it for pages with `photo_quality` poor/partial
+        or a failed page with `error_code` `no_items`/`unreadable`. Not while the page is being read.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file: { type: string, format: binary }
+      responses:
+        "202":
+          description: Accepted, processing
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Import" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+        "415": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
 
   /v1/imports/{importID}/pages/{pageID}/retry:
     parameters:
@@ -1437,6 +1520,14 @@ components:
         created_at: { type: string, format: date-time }
         updated_at: { type: string, format: date-time }
         committed_at: { type: [string, "null"], format: date-time }
+        summary:
+          description: Counts for the review screen, present once there is a draft.
+          type: object
+          properties:
+            categories: { type: integer }
+            items: { type: integer }
+            items_to_check: { type: integer, description: "Items with an uncertain name or price, or a possible duplicate" }
+            missing_prices: { type: integer, description: "Items with a variant without price_minor; commit needs 0" }
         draft:
           description: Null until a page has been read. Not included in lists.
           oneOf:
@@ -1454,9 +1545,22 @@ components:
         page_count: { type: integer, description: "Pages in the file (PDF), else 1" }
         status: { type: string, enum: [queued, processing, done, failed] }
         attempts: { type: integer }
-        error: { type: string }
+        error: { type: string, description: "English detail for logs; show your own text by error_code" }
+        error_code:
+          type: string
+          enum: ["", not_configured, not_a_menu, no_items, unreadable, temporary, gave_up]
+          description: |
+            Empty unless failed or retrying. `not_a_menu` / `no_items` / `unreadable`: suggest retaking the photo
+            (`PUT .../file`). `temporary`: will be retried automatically. `gave_up`: temporary errors on every attempt, use retry.
         filename: { type: string }
         mime: { type: string, examples: [image/jpeg, application/pdf] }
+        photo_quality:
+          type: string
+          enum: ["", good, partial, poor]
+          description: The model's view of the photo, once read. Suggest a retake for partial/poor.
+        photo_issues:
+          type: array
+          items: { type: string, enum: [blurry, cut_off, glare, too_dark, too_far, skewed, not_a_menu] }
     ImportDraft:
       type: object
       description: |
@@ -1482,7 +1586,10 @@ components:
                     page_index: { type: integer }
                     uncertain:
                       type: array
-                      items: { type: string, enum: [name, price] }
+                      description: |
+                        `duplicate`: the same name appears more than once in the category with other prices
+                        (overlapping photos repeat rows; exact repeats are already dropped).
+                      items: { type: string, enum: [name, price, duplicate] }
                     variants:
                       type: array
                       items:

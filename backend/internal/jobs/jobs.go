@@ -9,6 +9,8 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"slices"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -135,8 +137,16 @@ func (w *extractWorker) Work(ctx context.Context, job *river.Job[ExtractPageArgs
 	if err != nil {
 		return w.fail(ctx, a, page.PageIndex, usage, err, job)
 	}
+	draft := ocr.ToDraft(extracted, int(page.PageIndex))
+	if ocr.Summarize(draft).Items == 0 {
+		cause := ocr.ErrNoItems
+		if slices.Contains(extracted.PhotoIssues, "not_a_menu") {
+			cause = ocr.ErrNotAMenu
+		}
+		return w.fail(ctx, a, page.PageIndex, usage, cause, job)
+	}
 	raw, _ := json.Marshal(extracted)
-	parsed, _ := json.Marshal(ocr.ToDraft(extracted, int(page.PageIndex)))
+	parsed, _ := json.Marshal(draft)
 	return w.db.Tx(ctx, scope, func(q *sqlc.Queries) error {
 		if err := q.FinishImportPage(ctx, sqlc.FinishImportPageParams{
 			TenantID: a.TenantID, ID: a.PageID, Status: "done", RawResult: raw, ParsedResult: parsed,
@@ -145,7 +155,7 @@ func (w *extractWorker) Work(ctx context.Context, job *river.Job[ExtractPageArgs
 		}); err != nil {
 			return err
 		}
-		return finalizeJob(ctx, q, a.TenantID, a.JobID)
+		return Finalize(ctx, q, a.TenantID, a.JobID)
 	})
 }
 
@@ -164,14 +174,14 @@ func (w *extractWorker) fail(ctx context.Context, a ExtractPageArgs, pageIndex i
 		"attempt", job.Attempt, "permanent", permanent, "err", cause)
 	err := w.db.Tx(ctx, db.Scope{TenantID: a.TenantID}, func(q *sqlc.Queries) error {
 		if err := q.FinishImportPage(ctx, sqlc.FinishImportPageParams{
-			TenantID: a.TenantID, ID: a.PageID, Status: status, Error: userMessage(cause),
+			TenantID: a.TenantID, ID: a.PageID, Status: status, Error: userMessage(cause), ErrorCode: errorCode(cause, status),
 			Provider: usage.Provider, Model: usage.Model,
 			InputTokens: usage.InputTokens, OutputTokens: usage.OutputTokens, CostMicros: usage.CostMicros,
 		}); err != nil {
 			return err
 		}
 		if status == "failed" {
-			return finalizeJob(ctx, q, a.TenantID, a.JobID)
+			return Finalize(ctx, q, a.TenantID, a.JobID)
 		}
 		return nil
 	})
@@ -189,18 +199,38 @@ func userMessage(err error) string {
 	case errors.Is(err, ocr.ErrNotConfigured):
 		return "OCR is not configured on this server"
 	case errors.Is(err, ocr.ErrPermanent):
-		return "could not read this file: " + err.Error()
+		return "could not read this file: " + strings.TrimPrefix(err.Error(), ocr.ErrPermanent.Error()+": ")
 	default:
-		return "temporary error, will retry: " + err.Error()
+		return "temporary error: " + err.Error()
 	}
 }
 
-// finalizeJob moves the job on once no page is pending: ready_for_review
+// errorCode is the stable reason the app maps to its own text:
+// not_configured, not_a_menu, no_items, unreadable, temporary (will be
+// retried) or gave_up (temporary errors on every attempt).
+func errorCode(err error, status string) string {
+	switch {
+	case errors.Is(err, ocr.ErrNotConfigured):
+		return "not_configured"
+	case errors.Is(err, ocr.ErrNotAMenu):
+		return "not_a_menu"
+	case errors.Is(err, ocr.ErrNoItems):
+		return "no_items"
+	case errors.Is(err, ocr.ErrPermanent):
+		return "unreadable"
+	case status == "queued":
+		return "temporary"
+	default:
+		return "gave_up"
+	}
+}
+
+// Finalize moves the job on once no page is pending: ready_for_review
 // with a merged draft if any page worked, failed otherwise. Must run in the
 // tenant scope; the job row lock serialises concurrent page workers.
 // When the user already edited the draft (and then retried a failed page),
 // only pages not yet in the draft are appended to their edits.
-func finalizeJob(ctx context.Context, q *sqlc.Queries, tenantID, jobID uuid.UUID) error {
+func Finalize(ctx context.Context, q *sqlc.Queries, tenantID, jobID uuid.UUID) error {
 	job, err := q.GetImportJobForUpdate(ctx, sqlc.GetImportJobForUpdateParams{TenantID: tenantID, ID: jobID})
 	if err != nil {
 		return err

@@ -9,6 +9,7 @@ package ocr
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -23,7 +24,18 @@ type Page struct {
 type Extracted struct {
 	CurrencyHint string              `json:"currency_hint"`
 	Categories   []ExtractedCategory `json:"categories"`
+	// PhotoQuality is the model's view of the photo: good, partial (some
+	// text unreadable) or poor. PhotoIssues says why (see PhotoIssueValues),
+	// so the app can tell the user how to retake it.
+	PhotoQuality string   `json:"photo_quality"`
+	PhotoIssues  []string `json:"photo_issues"`
 }
+
+// PhotoQualityValues and PhotoIssueValues are the allowed values.
+var (
+	PhotoQualityValues = []string{"good", "partial", "poor"}
+	PhotoIssueValues   = []string{"blurry", "cut_off", "glare", "too_dark", "too_far", "skewed", "not_a_menu"}
+)
 
 type ExtractedCategory struct {
 	Name        string          `json:"name"`
@@ -68,6 +80,12 @@ type MenuExtractor interface {
 
 // ErrPermanent marks extraction failures that should not be retried.
 var ErrPermanent = errors.New("permanent extraction failure")
+
+// Permanent failures with their own error code.
+var (
+	ErrNoItems  = fmt.Errorf("%w: no menu items found", ErrPermanent)
+	ErrNotAMenu = fmt.Errorf("%w: this does not look like a menu", ErrPermanent)
+)
 
 // ErrNotConfigured is returned when no OCR provider is set up.
 var ErrNotConfigured = errors.New("OCR provider is not configured")
@@ -173,6 +191,8 @@ func Quality(e Extracted) (ok bool, reason string) {
 		}
 	}
 	switch {
+	case e.PhotoQuality == "poor":
+		return false, "poor photo"
 	case items == 0:
 		return false, "no items found"
 	case badPrices*5 > items:
@@ -194,14 +214,13 @@ func Merge(pages []Draft) Draft {
 		}
 		for _, c := range p.Categories {
 			if c.Name == "" && len(out.Categories) > 0 {
-				last := &out.Categories[len(out.Categories)-1]
-				last.Items = append(last.Items, c.Items...)
+				appendItems(&out.Categories[len(out.Categories)-1], c.Items)
 				continue
 			}
 			merged := false
 			for i := range out.Categories {
 				if strings.EqualFold(out.Categories[i].Name, c.Name) {
-					out.Categories[i].Items = append(out.Categories[i].Items, c.Items...)
+					appendItems(&out.Categories[i], c.Items)
 					merged = true
 					break
 				}
@@ -216,6 +235,100 @@ func Merge(pages []Draft) Draft {
 
 // MaxNameLen matches the API limit for category and item names (bytes).
 const MaxNameLen = 200
+
+// appendItems adds items to a category, skipping exact repeats. Phone photos
+// of one menu usually overlap, so the rows at the edge of one photo show up
+// again at the top of the next. Same name with other prices is kept, marked
+// "duplicate" for the reviewer.
+func appendItems(c *DraftCategory, items []DraftItem) {
+	for _, it := range items {
+		dup := false
+		for i := range c.Items {
+			if !strings.EqualFold(normSpace(c.Items[i].Name), normSpace(it.Name)) {
+				continue
+			}
+			if samePrices(c.Items[i].Variants, it.Variants) {
+				dup = true
+				break
+			}
+			it.Uncertain = addFlag(it.Uncertain, "duplicate")
+			c.Items[i].Uncertain = addFlag(c.Items[i].Uncertain, "duplicate")
+		}
+		if !dup {
+			c.Items = append(c.Items, it)
+		}
+	}
+}
+
+func normSpace(s string) string { return strings.Join(strings.Fields(s), " ") }
+
+func samePrices(a, b []DraftVariant) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if (a[i].PriceMinor == nil) != (b[i].PriceMinor == nil) || (a[i].PriceMinor != nil && *a[i].PriceMinor != *b[i].PriceMinor) {
+			return false
+		}
+	}
+	return true
+}
+
+func addFlag(flags []string, f string) []string {
+	for _, x := range flags {
+		if x == f {
+			return flags
+		}
+	}
+	return append(flags, f)
+}
+
+// RemovePage drops the items that came from one page (for a retaken photo)
+// and categories left empty by that.
+func RemovePage(d Draft, pageIndex int) Draft {
+	out := Draft{Currency: d.Currency, Categories: []DraftCategory{}}
+	for _, c := range d.Categories {
+		items := []DraftItem{}
+		for _, it := range c.Items {
+			if it.PageIndex != pageIndex {
+				items = append(items, it)
+			}
+		}
+		if len(items) > 0 || len(c.Items) == 0 {
+			c.Items = items
+			out.Categories = append(out.Categories, c)
+		}
+	}
+	return out
+}
+
+// Summary counts what the review screen needs at a glance.
+type Summary struct {
+	Categories int `json:"categories"`
+	Items      int `json:"items"`
+	// ItemsToCheck have an uncertain name or price, or a possible duplicate.
+	ItemsToCheck  int `json:"items_to_check"`
+	MissingPrices int `json:"missing_prices"`
+}
+
+func Summarize(d Draft) Summary {
+	s := Summary{Categories: len(d.Categories)}
+	for _, c := range d.Categories {
+		for _, it := range c.Items {
+			s.Items++
+			if len(it.Uncertain) > 0 {
+				s.ItemsToCheck++
+			}
+			for _, v := range it.Variants {
+				if v.PriceMinor == nil {
+					s.MissingPrices++
+					break
+				}
+			}
+		}
+	}
+	return s
+}
 
 // Validate checks a (user-edited) draft before it becomes a menu and returns
 // human-readable problems, empty when it can be committed.

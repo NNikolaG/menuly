@@ -59,6 +59,7 @@ type ImportPage struct {
 	CostMicros   int64     `json:"cost_micros"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
+	ErrorCode    string    `json:"error_code"`
 }
 
 type ItemVariant struct {

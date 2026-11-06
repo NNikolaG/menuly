@@ -52,19 +52,19 @@ SELECT * FROM import_pages WHERE tenant_id = $1 AND id = $2;
 SELECT * FROM import_pages WHERE tenant_id = $1 AND id = $2 FOR UPDATE;
 
 -- name: StartImportPage :exec
-UPDATE import_pages SET status = 'processing', attempts = attempts + 1, error = ''
+UPDATE import_pages SET status = 'processing', attempts = attempts + 1, error = '', error_code = ''
 WHERE tenant_id = $1 AND id = $2;
 
 -- name: FinishImportPage :exec
 UPDATE import_pages SET
     status = sqlc.arg('status'), raw_result = sqlc.narg('raw_result'), parsed_result = sqlc.narg('parsed_result'),
-    error = sqlc.arg('error'), provider = sqlc.arg('provider'), model = sqlc.arg('model'),
+    error = sqlc.arg('error'), error_code = sqlc.arg('error_code'), provider = sqlc.arg('provider'), model = sqlc.arg('model'),
     input_tokens = input_tokens + sqlc.arg('input_tokens'), output_tokens = output_tokens + sqlc.arg('output_tokens'),
     cost_micros = cost_micros + sqlc.arg('cost_micros')
 WHERE tenant_id = sqlc.arg('tenant_id') AND id = sqlc.arg('id');
 
 -- name: RequeueImportPage :exec
-UPDATE import_pages SET status = 'queued', error = '' WHERE tenant_id = $1 AND id = $2;
+UPDATE import_pages SET status = 'queued', error = '', error_code = '' WHERE tenant_id = $1 AND id = $2;
 
 -- name: GetMenuCategoryByName :one
 SELECT * FROM categories WHERE tenant_id = $1 AND menu_id = $2 AND lower(name) = lower($3) LIMIT 1;
@@ -78,3 +78,20 @@ UPDATE import_jobs SET status = 'processing', error = '' WHERE tenant_id = $1 AN
 
 -- name: MarkImportPagesMerged :exec
 UPDATE import_pages SET merged = true WHERE tenant_id = $1 AND job_id = $2 AND status = 'done';
+
+-- name: ReplaceImportPageFile :exec
+-- A retaken photo: new file, read again from scratch.
+UPDATE import_pages SET media_file_id = $3, page_count = $4, status = 'queued', error = '', error_code = '',
+    raw_result = NULL, parsed_result = NULL, merged = false
+WHERE tenant_id = $1 AND id = $2;
+
+-- name: SetImportJobDraft :exec
+UPDATE import_jobs SET draft = $3 WHERE tenant_id = $1 AND id = $2;
+
+-- name: DeleteImportPage :exec
+DELETE FROM import_pages WHERE tenant_id = $1 AND id = $2;
+
+-- name: ImportPageStats :one
+SELECT COALESCE(max(page_index) + 1, 0)::int AS next_index, COALESCE(sum(page_count), 0)::int AS total_pages,
+       count(*)::int AS files
+FROM import_pages WHERE tenant_id = $1 AND job_id = $2;

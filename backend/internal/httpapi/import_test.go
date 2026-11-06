@@ -53,9 +53,19 @@ func (f *fakeExtractor) Extract(_ context.Context, p ocr.Page) (ocr.Extracted, o
 			{Name: "PIĆA", Items: []ocr.ExtractedItem{item("Vino", "450", 0.9)}},
 			{Name: "Hrana", Items: []ocr.ExtractedItem{item("Pljeskavica", "890", 0.9)}},
 		}}
+	case 104: // overlaps 101: Pivo again, plus a new item
+		e = ocr.Extracted{Categories: []ocr.ExtractedCategory{
+			{Name: "Pića", Items: []ocr.ExtractedItem{item("Pivo", "320,00", 0.95), item("Rakija", "200", 0.9)}},
+		}}
+	case 105:
+		e = ocr.Extracted{PhotoQuality: "poor", PhotoIssues: []string{"not_a_menu"}}
 	case 103:
 		e = ocr.Extracted{Categories: []ocr.ExtractedCategory{
 			{Name: "Deserti", Items: []ocr.ExtractedItem{item("Palačinke", "300", 0.9)}},
+		}}
+	case 106:
+		e = ocr.Extracted{PhotoQuality: "partial", PhotoIssues: []string{"blurry", "glare"}, Categories: []ocr.ExtractedCategory{
+			{Name: "Ostalo", Items: []ocr.ExtractedItem{item("Čaj", "150", 0.6)}},
 		}}
 	default:
 		e = ocr.Extracted{Categories: []ocr.ExtractedCategory{
@@ -80,14 +90,19 @@ func pngOfWidth(t *testing.T, w int) []byte {
 
 func upload(t *testing.T, token, venue string, files ...[]byte) resp {
 	t.Helper()
+	return multipartCall(t, "POST", "/v1/venues/"+venue+"/imports", token, "files", files...)
+}
+
+func multipartCall(t *testing.T, method, path, token, field string, files ...[]byte) resp {
+	t.Helper()
 	var body bytes.Buffer
 	mw := multipart.NewWriter(&body)
 	for i, f := range files {
-		fw, _ := mw.CreateFormFile("files", fmt.Sprintf("page-%d.png", i+1))
+		fw, _ := mw.CreateFormFile(field, fmt.Sprintf("page-%d.png", i+1))
 		_, _ = fw.Write(f)
 	}
 	_ = mw.Close()
-	req, _ := http.NewRequest("POST", srv.URL+"/v1/venues/"+venue+"/imports", &body)
+	req, _ := http.NewRequest(method, srv.URL+path, &body)
 	req.Header.Set("Content-Type", mw.FormDataContentType())
 	req.Header.Set("Authorization", "Bearer "+token)
 	res, err := http.DefaultClient.Do(req)
@@ -341,4 +356,87 @@ func TestImportRolesAndIsolation(t *testing.T) {
 	expect(t, r, http.StatusNotFound)
 	r = call(t, "POST", "/v1/imports/"+importID+"/commit", other.access, map[string]any{"menu_name": "X"})
 	expect(t, r, http.StatusNotFound)
+}
+
+// A phone session: overlapping photos, one that is not a menu, a blurry one
+// that gets retaken, a forgotten page added later, and a wrong one deleted.
+func TestImportPhonePhotos(t *testing.T) {
+	needDB(t)
+	a := register(t, "Import Phone")
+	venue := createVenue(t, a, "Bar")
+	tok := a.access
+	stubExtractor.failWidth.Store(0)
+
+	r := upload(t, tok, venue, pngOfWidth(t, 101), pngOfWidth(t, 104), pngOfWidth(t, 105), pngOfWidth(t, 106))
+	expect(t, r, http.StatusAccepted)
+	imp := id(r)
+	r = waitImport(t, tok, imp)
+	pages := r.body["pages"].([]any)
+	page := func(i int) map[string]any { return pages[i].(map[string]any) }
+	if page(2)["status"] != "failed" || page(2)["error_code"] != "not_a_menu" {
+		t.Fatalf("not a menu: %v", page(2))
+	}
+	if page(3)["photo_quality"] != "partial" || len(page(3)["photo_issues"].([]any)) != 2 {
+		t.Fatalf("blurry: %v", page(3))
+	}
+	d := draftOf(t, r)
+	// Pivo from the overlap is not repeated: Pivo, Sok, Rakija.
+	if len(d.Categories) != 2 || len(d.Categories[0].Items) != 3 || d.Categories[0].Items[2].Name != "Rakija" {
+		t.Fatalf("overlap not merged: %+v", d)
+	}
+	sum := r.body["summary"].(map[string]any)
+	if sum["items"].(float64) != 4 || sum["items_to_check"].(float64) != 2 || sum["missing_prices"].(float64) != 1 {
+		t.Fatalf("summary: %v", sum)
+	}
+
+	// The user edits, then retakes the blurry photo: its old item goes, the
+	// new reading is appended, the edit stays.
+	d.Categories[0].Items[0].Name = "Pivo točeno"
+	expect(t, call(t, "PUT", "/v1/imports/"+imp+"/draft", tok, d), http.StatusOK)
+	blurry := page(3)["id"].(string)
+	r = multipartCall(t, "PUT", "/v1/imports/"+imp+"/pages/"+blurry+"/file", tok, "file", pngOfWidth(t, 103))
+	expect(t, r, http.StatusAccepted)
+	r = waitImport(t, tok, imp)
+	d = draftOf(t, r)
+	names := []string{}
+	for _, c := range d.Categories {
+		names = append(names, c.Name)
+	}
+	if fmt.Sprint(names) != "[Pića Deserti]" || d.Categories[0].Items[0].Name != "Pivo točeno" {
+		t.Fatalf("after retake: %v %+v", names, d)
+	}
+
+	// A forgotten page; no new import is used.
+	r = multipartCall(t, "POST", "/v1/imports/"+imp+"/pages", tok, "files", pngOfWidth(t, 102))
+	expect(t, r, http.StatusAccepted)
+	r = waitImport(t, tok, imp)
+	if n := len(r.body["pages"].([]any)); n != 5 {
+		t.Fatalf("pages: %d", n)
+	}
+	if d = draftOf(t, r); len(d.Categories) != 3 { // Pića (+Vino), Deserti, Hrana
+		t.Fatalf("after add: %+v", d)
+	}
+
+	// Delete the not-a-menu photo; the error line goes away.
+	r = call(t, "DELETE", "/v1/imports/"+imp+"/pages/"+page(2)["id"].(string), tok, nil)
+	expect(t, r, http.StatusOK)
+	if r.body["error"] != "" || len(r.body["pages"].([]any)) != 4 {
+		t.Fatalf("after delete: %v", r.body)
+	}
+	r = call(t, "GET", "/v1/venues/"+venue+"/imports", tok, nil)
+	if r.body["imports_used"].(float64) != 1 {
+		t.Fatalf("used: %v", r.body["imports_used"])
+	}
+
+	// Page limits still hold for additions.
+	many := make([][]byte, 17)
+	for i := range many {
+		many[i] = pngOfWidth(t, 120)
+	}
+	r = multipartCall(t, "POST", "/v1/imports/"+imp+"/pages", tok, "files", many...)
+	expect(t, r, http.StatusUnprocessableEntity)
+
+	expect(t, call(t, "POST", "/v1/imports/"+imp+"/commit", tok, map[string]any{"menu_name": "Sa telefona"}), http.StatusUnprocessableEntity) // Sok has no price
+	r = multipartCall(t, "POST", "/v1/imports/"+imp+"/pages", a.access, "files", pngOfWidth(t, 120))
+	expect(t, r, http.StatusAccepted)
 }

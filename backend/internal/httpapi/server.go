@@ -120,6 +120,9 @@ func (s *Server) Handler(opts Options) http.Handler {
 			r.Route("/imports/{importID}", func(r chi.Router) {
 				r.Get("/", s.handleGetImport)
 				r.Get("/pages/{pageID}/file", s.handleGetImportFile)
+				r.With(editors).Post("/pages", s.handleAddImportPages)
+				r.With(editors).Put("/pages/{pageID}/file", s.handleReplaceImportPage)
+				r.With(editors).Delete("/pages/{pageID}", s.handleDeleteImportPage)
 				r.With(editors).Post("/pages/{pageID}/retry", s.handleRetryImportPage)
 				r.With(editors).Put("/draft", s.handleUpdateImportDraft)
 				r.With(editors).Post("/commit", s.handleCommitImport)
