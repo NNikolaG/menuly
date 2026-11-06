@@ -122,3 +122,8 @@ Why: the same venue must look the same on web, POS, print and native, so nothing
 
 Categories and items are reordered with `@angular/cdk/drag-drop` (handle button per row, keyboard-free for now), edits open in CDK dialogs (`CategoryDialog`, `ItemDialog`, shared `ConfirmDialog`). Order is saved with one `PUT …/order {ids}` per drop, after an optimistic local move.
 Why: stays in the Angular ecosystem (no extra libs), and one request per drop matches the backend's order endpoints.
+
+## #26 — Patch `sr-Latn` plural rules at startup (2026-11-06)
+
+Angular's `@angular/common/locales/sr-Latn` returns "other" for every number, so ICU plurals would read "4 stavki". `registerSerbianLatinPlurals()` re-registers `sr-Latn` with the `sr` plural function (CLDR shares the rules between scripts) before bootstrap.
+Why: keeps plurals in ICU messages (the Angular way) instead of hand-rolled count helpers; one place to drop when Angular fixes the data.
