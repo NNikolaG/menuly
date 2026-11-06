@@ -212,7 +212,7 @@ const LINE_MS = 110;
       inline-size: min(100%, 26rem);
       rotate: -1.2deg;
       filter: drop-shadow(0 18px 30px rgb(0 0 0 / 0.5));
-      transition: rotate var(--duration-slow) ease;
+      transition: rotate var(--duration-slow) var(--ease-out);
     }
 
     .bed[data-done] .photo {
@@ -263,7 +263,7 @@ const LINE_MS = 110;
       box-shadow:
         0 0 18px 6px color-mix(in srgb, var(--color-brand-orange) 45%, transparent),
         0 -48px 64px color-mix(in srgb, var(--color-brand-orange) 12%, transparent);
-      animation: sweep 3.6s ease-in-out infinite;
+      animation: sweep 3.6s var(--ease-in-out) infinite;
     }
 
     @keyframes sweep {
@@ -301,7 +301,7 @@ const LINE_MS = 110;
       border: var(--stroke-hairline) solid var(--color-border);
       border-radius: var(--radius-md);
       background: var(--color-surface);
-      transition: border-color var(--duration-base) ease;
+      transition: border-color var(--duration-base) var(--ease-out);
     }
 
     .frame[data-status='processing'] {
