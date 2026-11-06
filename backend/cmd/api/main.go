@@ -24,6 +24,7 @@ import (
 	"github.com/nnikolag/menuly/backend/internal/db"
 	"github.com/nnikolag/menuly/backend/internal/httpapi"
 	"github.com/nnikolag/menuly/backend/internal/jobs"
+	"github.com/nnikolag/menuly/backend/internal/mail"
 	"github.com/nnikolag/menuly/backend/internal/ocr"
 	"github.com/nnikolag/menuly/backend/internal/seed"
 	"github.com/nnikolag/menuly/backend/internal/storage"
@@ -120,7 +121,7 @@ func serve(ctx context.Context, cfg config.Config) error {
 		Addr: cfg.HTTPAddr,
 		Handler: httpapi.New(database, issuer).Handler(httpapi.Options{
 			CORSAllowedOrigins: cfg.CORSAllowedOrigins, DocsEnabled: cfg.DocsEnabled, PublicMenuURL: cfg.PublicMenuURL,
-			Store: store, Jobs: queue,
+			Store: store, Jobs: queue, Mailer: newMailer(cfg), AppURL: cfg.AppURL, PublicAPIURL: cfg.PublicAPIURL,
 		}),
 		ReadHeaderTimeout: 10 * time.Second,
 	}
@@ -143,6 +144,14 @@ func serve(ctx context.Context, cfg config.Config) error {
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 	return srv.Shutdown(shutdownCtx)
+}
+
+func newMailer(cfg config.Config) mail.Mailer {
+	if cfg.SMTPHost == "" {
+		slog.Warn("SMTP_HOST is not set: emails (invitations, password reset) are only logged")
+		return mail.Log{}
+	}
+	return mail.SMTP{Host: cfg.SMTPHost, Port: cfg.SMTPPort, Username: cfg.SMTPUsername, Password: cfg.SMTPPassword, From: cfg.MailFrom}
 }
 
 func openStore(ctx context.Context, cfg config.Config) (storage.Store, error) {

@@ -6,6 +6,7 @@ import (
 	"context"
 	"database/sql"
 	"embed"
+	"encoding/hex"
 	"errors"
 	"fmt"
 
@@ -133,7 +134,16 @@ func IsCheckViolation(err error) bool {
 // rest of the transaction to that tenant. fn gets the tenant row.
 // It returns pgx.ErrNoRows when no active tenant has that slug.
 func (d *DB) PublicTx(ctx context.Context, tenantSlug string, fn func(q *sqlc.Queries, t sqlc.GetPublicTenantBySlugRow) error) error {
-	tx, err := d.Pool.BeginTx(ctx, pgx.TxOptions{AccessMode: pgx.ReadOnly})
+	return d.publicTx(ctx, pgx.ReadOnly, tenantSlug, fn)
+}
+
+// PublicWriteTx is PublicTx for the few anonymous writes (view counter).
+func (d *DB) PublicWriteTx(ctx context.Context, tenantSlug string, fn func(q *sqlc.Queries, t sqlc.GetPublicTenantBySlugRow) error) error {
+	return d.publicTx(ctx, pgx.ReadWrite, tenantSlug, fn)
+}
+
+func (d *DB) publicTx(ctx context.Context, mode pgx.TxAccessMode, tenantSlug string, fn func(q *sqlc.Queries, t sqlc.GetPublicTenantBySlugRow) error) error {
+	tx, err := d.Pool.BeginTx(ctx, pgx.TxOptions{AccessMode: mode})
 	if err != nil {
 		return err
 	}
@@ -153,6 +163,49 @@ func (d *DB) PublicTx(ctx context.Context, tenantSlug string, fn func(q *sqlc.Qu
 		return fmt.Errorf("set tenant context: %w", err)
 	}
 	if err := fn(q, t); err != nil {
+		return err
+	}
+	return tx.Commit(ctx)
+}
+
+// InviteTx exposes the one invitation whose token hashes to tokenHash (and
+// its tenant) through the invite_lookup policies. userID, when set, lets the
+// caller see their own memberships as in a normal Tx.
+func (d *DB) InviteTx(ctx context.Context, tokenHash []byte, userID uuid.UUID, fn func(tx pgx.Tx, q *sqlc.Queries) error) error {
+	tx, err := d.Pool.BeginTx(ctx, pgx.TxOptions{})
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx) //nolint:errcheck // no-op after commit
+	if _, err := tx.Exec(ctx, `SELECT set_config('app.invite_token_hash', $1, true), set_config('app.user_id', $2, true)`,
+		hex.EncodeToString(tokenHash), uuidOrEmpty(userID)); err != nil {
+		return fmt.Errorf("set invite context: %w", err)
+	}
+	if err := fn(tx, sqlc.New(tx)); err != nil {
+		return err
+	}
+	return tx.Commit(ctx)
+}
+
+// SetTenant switches the RLS tenant inside a transaction (after a lookup
+// that ran without one).
+func SetTenant(ctx context.Context, tx pgx.Tx, tenantID uuid.UUID) error {
+	_, err := tx.Exec(ctx, `SELECT set_config('app.tenant_id', $1, true)`, tenantID.String())
+	return err
+}
+
+// AdminTx runs fn with the platform_admin policies on: every tenant's rows
+// are visible. Only call it after checking users.is_platform_admin.
+func (d *DB) AdminTx(ctx context.Context, fn func(q *sqlc.Queries) error) error {
+	tx, err := d.Pool.BeginTx(ctx, pgx.TxOptions{})
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx) //nolint:errcheck // no-op after commit
+	if _, err := tx.Exec(ctx, `SELECT set_config('app.platform_admin', 'on', true)`); err != nil {
+		return fmt.Errorf("set admin context: %w", err)
+	}
+	if err := fn(sqlc.New(tx)); err != nil {
 		return err
 	}
 	return tx.Commit(ctx)

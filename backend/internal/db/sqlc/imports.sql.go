@@ -135,7 +135,7 @@ func (q *Queries) CreateImportPage(ctx context.Context, arg CreateImportPagePara
 const createMediaFile = `-- name: CreateMediaFile :one
 INSERT INTO media_files (id, tenant_id, storage_key, mime, size_bytes, filename, created_by)
 VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING id, tenant_id, storage_key, mime, size_bytes, filename, created_by, created_at
+RETURNING id, tenant_id, storage_key, mime, size_bytes, filename, created_by, created_at, purpose
 `
 
 type CreateMediaFileParams struct {
@@ -168,6 +168,7 @@ func (q *Queries) CreateMediaFile(ctx context.Context, arg CreateMediaFileParams
 		&i.Filename,
 		&i.CreatedBy,
 		&i.CreatedAt,
+		&i.Purpose,
 	)
 	return i, err
 }
@@ -361,7 +362,7 @@ func (q *Queries) GetImportPageForUpdate(ctx context.Context, arg GetImportPageF
 }
 
 const getMediaFile = `-- name: GetMediaFile :one
-SELECT id, tenant_id, storage_key, mime, size_bytes, filename, created_by, created_at FROM media_files WHERE tenant_id = $1 AND id = $2
+SELECT id, tenant_id, storage_key, mime, size_bytes, filename, created_by, created_at, purpose FROM media_files WHERE tenant_id = $1 AND id = $2
 `
 
 type GetMediaFileParams struct {
@@ -381,6 +382,7 @@ func (q *Queries) GetMediaFile(ctx context.Context, arg GetMediaFileParams) (Med
 		&i.Filename,
 		&i.CreatedBy,
 		&i.CreatedAt,
+		&i.Purpose,
 	)
 	return i, err
 }

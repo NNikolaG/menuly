@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Category struct {
@@ -62,6 +63,19 @@ type ImportPage struct {
 	ErrorCode    string    `json:"error_code"`
 }
 
+type Invitation struct {
+	ID         uuid.UUID  `json:"id"`
+	TenantID   uuid.UUID  `json:"tenant_id"`
+	Email      string     `json:"email"`
+	Role       string     `json:"role"`
+	TokenHash  []byte     `json:"token_hash"`
+	InvitedBy  *uuid.UUID `json:"invited_by"`
+	ExpiresAt  time.Time  `json:"expires_at"`
+	AcceptedAt *time.Time `json:"accepted_at"`
+	RevokedAt  *time.Time `json:"revoked_at"`
+	CreatedAt  time.Time  `json:"created_at"`
+}
+
 type ItemVariant struct {
 	ID           uuid.UUID       `json:"id"`
 	TenantID     uuid.UUID       `json:"tenant_id"`
@@ -83,6 +97,7 @@ type MediaFile struct {
 	Filename   string     `json:"filename"`
 	CreatedBy  *uuid.UUID `json:"created_by"`
 	CreatedAt  time.Time  `json:"created_at"`
+	Purpose    string     `json:"purpose"`
 }
 
 type Membership struct {
@@ -136,6 +151,22 @@ type MenuTheme struct {
 	CoverUrl         string    `json:"cover_url"`
 	CreatedAt        time.Time `json:"created_at"`
 	UpdatedAt        time.Time `json:"updated_at"`
+}
+
+type MenuViewDaily struct {
+	TenantID uuid.UUID   `json:"tenant_id"`
+	VenueID  uuid.UUID   `json:"venue_id"`
+	Day      pgtype.Date `json:"day"`
+	Views    int64       `json:"views"`
+}
+
+type PasswordReset struct {
+	ID        uuid.UUID  `json:"id"`
+	UserID    uuid.UUID  `json:"user_id"`
+	TokenHash []byte     `json:"token_hash"`
+	ExpiresAt time.Time  `json:"expires_at"`
+	UsedAt    *time.Time `json:"used_at"`
+	CreatedAt time.Time  `json:"created_at"`
 }
 
 type PriceChange struct {

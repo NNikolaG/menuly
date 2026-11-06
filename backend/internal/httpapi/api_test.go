@@ -29,6 +29,7 @@ import (
 	"github.com/nnikolag/menuly/backend/internal/db/sqlc"
 	"github.com/nnikolag/menuly/backend/internal/httpapi"
 	"github.com/nnikolag/menuly/backend/internal/jobs"
+	"github.com/nnikolag/menuly/backend/internal/mail"
 	"github.com/nnikolag/menuly/backend/internal/storage"
 )
 
@@ -37,7 +38,11 @@ var (
 	srv         *httptest.Server
 	appDB       *db.DB
 	ownerURL    string
+	mailbox     = &mail.Memory{}
 )
+
+// testAPIURL prefixes uploaded image URLs in tests.
+const testAPIURL = "http://api.test"
 
 func TestMain(m *testing.M) {
 	appURL := os.Getenv("TEST_DATABASE_URL")
@@ -76,7 +81,7 @@ func TestMain(m *testing.M) {
 	if err := queue.Start(ctx); err != nil {
 		panic(err)
 	}
-	srv = httptest.NewServer(httpapi.New(appDB, issuer).Handler(httpapi.Options{Store: store, Jobs: queue}))
+	srv = httptest.NewServer(httpapi.New(appDB, issuer).Handler(httpapi.Options{Store: store, Jobs: queue, Mailer: mailbox, AppURL: "http://app.test", PublicAPIURL: testAPIURL}))
 	code := m.Run()
 	_ = queue.Stop(ctx)
 	srv.Close()
