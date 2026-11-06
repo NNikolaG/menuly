@@ -12,6 +12,7 @@ import { RouterLink } from '@angular/router';
 import {
   LucideArrowLeft,
   LucideGripVertical,
+  LucidePalette,
   LucidePencil,
   LucidePlus,
   LucideTrash2,
@@ -41,6 +42,7 @@ import { toMajor, toMinor } from './price';
     AppSwitch,
     LucideArrowLeft,
     LucideGripVertical,
+    LucidePalette,
     LucidePencil,
     LucidePlus,
     LucideTrash2,
@@ -70,30 +72,36 @@ import { toMajor, toMinor } from './price';
                 <span class="badge" data-tone="info" i18n="@@menu.status.draft">Nacrt</span>
               }
             </div>
-            @if (canEdit()) {
-              @if (tree.status === 'published') {
-                <button
-                  appButton
-                  variant="secondary"
-                  type="button"
-                  [disabled]="busy()"
-                  (click)="run(api.unpublish(tree.id))"
-                  i18n="@@menu.unpublish"
-                >
-                  Vrati u nacrt
-                </button>
-              } @else {
-                <button
-                  appButton
-                  type="button"
-                  [disabled]="busy()"
-                  (click)="run(api.publish(tree.id))"
-                  i18n="@@menu.publishMenu"
-                >
-                  Objavi meni
-                </button>
+            <div class="row" data-gap="2">
+              <a appButton variant="secondary" [routerLink]="['/meniji', tree.id, 'dizajn']">
+                <svg lucidePalette aria-hidden="true"></svg>
+                <ng-container i18n="@@menu.design">Dizajn</ng-container>
+              </a>
+              @if (canEdit()) {
+                @if (tree.status === 'published') {
+                  <button
+                    appButton
+                    variant="secondary"
+                    type="button"
+                    [disabled]="busy()"
+                    (click)="run(api.unpublish(tree.id))"
+                    i18n="@@menu.unpublish"
+                  >
+                    Vrati u nacrt
+                  </button>
+                } @else {
+                  <button
+                    appButton
+                    type="button"
+                    [disabled]="busy()"
+                    (click)="run(api.publish(tree.id))"
+                    i18n="@@menu.publishMenu"
+                  >
+                    Objavi meni
+                  </button>
+                }
               }
-            }
+            </div>
           </div>
         </div>
 
@@ -473,6 +481,9 @@ export default class MenuEditorPage {
       this.api.createItem(category.id, {
         name: result.name,
         description: result.description,
+        image_url: result.image_url,
+        tags: result.tags,
+        allergens: result.allergens,
         variants: result.variants.map((row) => ({
           label: row.label,
           price_minor: toMinor(row.price ?? 0),
@@ -488,7 +499,13 @@ export default class MenuEditorPage {
     this.busy.set(true);
     try {
       await firstValueFrom(
-        this.api.updateItem(item.id, { name: result.name, description: result.description }),
+        this.api.updateItem(item.id, {
+          name: result.name,
+          description: result.description,
+          image_url: result.image_url,
+          tags: result.tags,
+          allergens: result.allergens,
+        }),
       );
       for (const row of result.variants) {
         const price_minor = toMinor(row.price ?? 0);

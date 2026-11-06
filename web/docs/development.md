@@ -27,7 +27,7 @@ src/
         ├── design/         # /design
         ├── venues/         # /objekti list, /objekti/novi, /objekti/:venueId (+ menus), /objekti/:venueId/izmena
         ├── menus/          # /meniji/:menuId editor: categories, items, prices, availability
-        └── public-menu/    # guest menu on the tenant subdomain (GET /v1/public/menus/{tenant}/{venue})
+        └── public-menu/    # guest menu page on the tenant subdomain; the themed view itself is core/public-menu/ (the theme editor previews it)
 ```
 
 ## Layers

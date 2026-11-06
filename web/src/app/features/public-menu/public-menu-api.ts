@@ -1,6 +1,6 @@
 import { inject, Injectable, LOCALE_ID } from '@angular/core';
 import { ApiClient } from '../../core/api/api-client';
-import type { PublicMenu } from './public-menu';
+import type { PublicMenu } from '../../core/public-menu/public-menu';
 
 @Injectable({ providedIn: 'root' })
 export class PublicMenuApi {

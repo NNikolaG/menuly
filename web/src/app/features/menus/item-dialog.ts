@@ -1,16 +1,18 @@
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import {
   applyEach,
   form,
   FormField,
   maxLength,
   min,
+  pattern,
   required,
   submit,
 } from '@angular/forms/signals';
 import { LucidePlus, LucideX } from '@lucide/angular';
 import type { ItemWithVariants } from '../../core/menus/menu';
+import { ALLERGENS, DIET_TAGS, HIGHLIGHT_TAGS, labelOf } from '../../core/menus/menu-labels';
 import { AppButton, AppDialog, AppField, AppInput } from '../../shared/ui';
 import { toMajor } from './price';
 
@@ -29,6 +31,9 @@ export interface VariantRow {
 export interface ItemDialogResult {
   name: string;
   description: string;
+  image_url: string;
+  tags: string[];
+  allergens: string[];
   variants: VariantRow[];
 }
 
@@ -60,6 +65,17 @@ export interface ItemDialogResult {
               rows="2"
               [formField]="form.description"
             ></textarea>
+          </app-field>
+
+          <app-field
+            i18n-label="@@item.field.image"
+            label="Slika (URL, opciono)"
+            controlId="item-image"
+            i18n-hint="@@item.field.imageHint"
+            hint="Gost je vidi u detalju stavke i u šablonu Galerija."
+            [field]="form.image_url"
+          >
+            <input appInput id="item-image" type="url" [formField]="form.image_url" />
           </app-field>
 
           @for (row of model().variants; track $index; let i = $index) {
@@ -118,6 +134,39 @@ export interface ItemDialogResult {
               <ng-container i18n="@@item.addVariant">Dodaj veličinu</ng-container>
             </button>
           </div>
+
+          <fieldset class="stack" data-gap="2">
+            <legend class="label" i18n="@@item.field.tags">Oznake</legend>
+            <div class="row" data-gap="2">
+              @for (option of tagOptions(); track option.key) {
+                <button
+                  type="button"
+                  class="chip"
+                  data-size="sm"
+                  [attr.aria-pressed]="model().tags.includes(option.key)"
+                  (click)="toggle('tags', option.key)"
+                >
+                  {{ option.label }}
+                </button>
+              }
+            </div>
+          </fieldset>
+          <fieldset class="stack" data-gap="2">
+            <legend class="label" i18n="@@item.field.allergens">Alergeni</legend>
+            <div class="row" data-gap="2">
+              @for (option of allergenOptions(); track option.key) {
+                <button
+                  type="button"
+                  class="chip"
+                  data-size="sm"
+                  [attr.aria-pressed]="model().allergens.includes(option.key)"
+                  (click)="toggle('allergens', option.key)"
+                >
+                  {{ option.label }}
+                </button>
+              }
+            </div>
+          </fieldset>
         </div>
         <button
           dialog-actions
@@ -134,6 +183,25 @@ export interface ItemDialogResult {
     </form>
   `,
   styles: `
+    fieldset {
+      min-inline-size: 0;
+      margin: 0;
+      padding: 0;
+      border: 0;
+    }
+
+    .label {
+      padding: 0 0 var(--space-2);
+      font: var(--type-label);
+      color: var(--color-text);
+    }
+
+    .chip[data-size='sm'] {
+      block-size: var(--control-sm);
+      padding-inline: var(--space-3);
+      font: var(--type-label);
+    }
+
     /* Subgrid lines up label, control and message rows across the fields, errors or not. */
     .variant {
       display: grid;
@@ -169,6 +237,9 @@ export class ItemDialog {
   protected readonly model = signal<ItemDialogResult>({
     name: this.data.item?.name ?? '',
     description: this.data.item?.description ?? '',
+    image_url: this.data.item?.image_url ?? '',
+    tags: this.data.item?.tags ?? [],
+    allergens: this.data.item?.allergens ?? [],
     variants: this.data.item?.variants.map((variant) => ({
       id: variant.id,
       label: variant.label,
@@ -178,6 +249,9 @@ export class ItemDialog {
   protected readonly form = form(this.model, (path) => {
     required(path.name);
     maxLength(path.name, 200);
+    pattern(path.image_url, /^(https?:\/\/\S+)?$/, {
+      message: $localize`:@@menuDesign.urlInvalid:Unesi link koji počinje sa https://`,
+    });
     applyEach(path.variants, (variant) => {
       maxLength(variant.label, 100);
       required(variant.price, {
@@ -186,6 +260,23 @@ export class ItemDialog {
       min(variant.price, 0);
     });
   });
+
+  /** Known labels first; ones typed elsewhere (OCR, API) stay selectable so they aren't lost. */
+  protected readonly tagOptions = computed(() =>
+    withExtra([...DIET_TAGS, ...HIGHLIGHT_TAGS], this.data.item?.tags ?? []),
+  );
+  protected readonly allergenOptions = computed(() =>
+    withExtra(ALLERGENS, this.data.item?.allergens ?? []),
+  );
+
+  protected toggle(key: 'tags' | 'allergens', value: string): void {
+    this.model.update((model) => ({
+      ...model,
+      [key]: model[key].includes(value)
+        ? model[key].filter((v) => v !== value)
+        : [...model[key], value],
+    }));
+  }
 
   protected addVariant(): void {
     this.model.update((value) => ({
@@ -208,4 +299,14 @@ export class ItemDialog {
       return undefined;
     });
   }
+}
+
+function withExtra(
+  known: readonly { key: string; label: string }[],
+  current: string[],
+): { key: string; label: string }[] {
+  const extra = current
+    .filter((value) => !known.some((option) => option.key === value))
+    .map((value) => ({ key: value, label: labelOf(value) }));
+  return [...known, ...extra];
 }

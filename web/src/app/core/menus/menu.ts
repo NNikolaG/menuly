@@ -72,6 +72,8 @@ export interface VariantInput {
 export interface ItemInput {
   name?: string;
   description?: string;
+  /** Empty or an http(s) URL. */
+  image_url?: string;
   tags?: string[];
   allergens?: string[];
   is_available?: boolean;

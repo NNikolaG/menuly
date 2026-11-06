@@ -5,7 +5,8 @@ import { Title } from '@angular/platform-browser';
 import { APP_HOST } from '../../core/host/app-host';
 import { registerSerbianLatinPlurals } from '../../core/i18n/sr-latn-plurals';
 import PublicMenuPage from './public-menu-page';
-import { publicMenuFixture } from './public-menu.testing';
+import { publicMenuFixture } from '../../core/public-menu/public-menu.testing';
+import { DEFAULT_MENU_THEME } from '../../core/menus/menu-theme';
 
 describe('PublicMenuPage', () => {
   // main.ts does this for the app.
@@ -39,12 +40,11 @@ describe('PublicMenuPage', () => {
     const fixture = await render((url) => http.expectOne(url).flush(publicMenuFixture()));
     const root: HTMLElement = fixture.nativeElement;
     expect(root.querySelector('h1')!.textContent).toContain('Kafana Zora');
-    expect([...root.querySelectorAll('.chip')].map((chip) => chip.textContent!.trim())).toEqual([
-      'Topli napici',
-      'Pivo',
-    ]);
+    expect([...root.querySelectorAll('nav .chip')].map((chip) => chip.textContent!.trim())).toEqual(
+      ['Topli napici', 'Pivo'],
+    );
     const names = [...root.querySelectorAll('section')[0].querySelectorAll('.menu-item__name')];
-    expect(names.map((name) => name.textContent)).toEqual([
+    expect(names.map((name) => name.textContent!.trim())).toEqual([
       'Espreso',
       'Kapućino',
       'Topla čokolada',
@@ -65,6 +65,46 @@ describe('PublicMenuPage', () => {
       (count: Element) => count.textContent!.trim(),
     );
     expect(counts).toEqual(['3 stavke', '1 stavka']);
+  });
+
+  it('applies the theme and filters with search', async () => {
+    const menu = publicMenuFixture();
+    menu.theme = { ...DEFAULT_MENU_THEME, template: 'tabla', accent: 'bordo', color_mode: 'dark' };
+    const fixture = await render((url) => http.expectOne(url).flush(menu));
+    const root: HTMLElement = fixture.nativeElement;
+    const view = root.querySelector('app-public-menu-view')!;
+    expect(view.getAttribute('data-template')).toBe('tabla');
+    expect(view.getAttribute('data-tenant')).toBe('bordo');
+    expect(view.getAttribute('data-theme')).toBe('dark');
+
+    const search: HTMLInputElement = root.querySelector('input[type="search"]')!;
+    search.value = 'kapucino';
+    search.dispatchEvent(new Event('input'));
+    await fixture.whenStable();
+    expect(
+      [...root.querySelectorAll('.menu-item__name')].map((n) => n.textContent!.trim()),
+    ).toEqual(['Kapućino']);
+    expect(root.querySelector('nav')).toBeNull();
+
+    // Guest switches to light.
+    (root.querySelector('button[aria-pressed]') as HTMLButtonElement).click();
+    await fixture.whenStable();
+    expect(view.getAttribute('data-theme')).toBe('light');
+  });
+
+  it('filters out sold-out items and allergens', async () => {
+    const fixture = await render((url) => http.expectOne(url).flush(publicMenuFixture()));
+    const root: HTMLElement = fixture.nativeElement;
+    (root.querySelector('button[aria-controls="menu-filters"]') as HTMLButtonElement).click();
+    await fixture.whenStable();
+    const chips = [...root.querySelectorAll<HTMLButtonElement>('#menu-filters .chip')];
+    chips.find((chip) => chip.textContent!.includes('A7'))!.click();
+    chips.find((chip) => chip.textContent!.includes('Samo dostupno'))!.click();
+    await fixture.whenStable();
+    expect(
+      [...root.querySelectorAll('.menu-item__name')].map((n) => n.textContent!.trim()),
+    ).toEqual(['Kapućino', 'Jelen']);
+    expect(root.textContent).toContain('2 stavke');
   });
 
   it('says the menu is not available on 404', async () => {
