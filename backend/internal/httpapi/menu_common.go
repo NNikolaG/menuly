@@ -118,13 +118,16 @@ func requireName(p *string, field string) *APIError {
 }
 
 // checkImageURL trims the URL and accepts empty or an absolute http(s) URL.
-func checkImageURL(p *string) *APIError {
+func checkImageURL(p *string) *APIError { return checkURL(p, "image_url") }
+
+// checkURL is checkImageURL for any field name.
+func checkURL(p *string, field string) *APIError {
 	trimPtr(p)
 	if p == nil || *p == "" {
 		return nil
 	}
 	if u, err := url.Parse(*p); err != nil || (u.Scheme != "https" && u.Scheme != "http") || u.Host == "" || len(*p) > 2000 {
-		return errValidation("image_url must be an http(s) URL")
+		return errValidation(field + " must be an http(s) URL")
 	}
 	return nil
 }
