@@ -17,6 +17,7 @@ import {
   LucideGripVertical,
   LucidePencil,
   LucidePlus,
+  LucideTicket,
   LucideTrash2,
 } from '@lucide/angular';
 import { firstValueFrom } from 'rxjs';
@@ -40,6 +41,7 @@ import { STATUS } from './promotion-labels';
 @Component({
   selector: 'app-promotions-page',
   imports: [
+    LucideTicket,
     CurrencyPipe,
     RouterLink,
     CdkDropList,
@@ -80,7 +82,7 @@ import { STATUS } from './promotion-labels';
       </div>
 
       @if (error()) {
-        <p role="alert" class="error">{{ error() }}</p>
+        <p class="alert" role="alert">{{ error() }}</p>
       }
       <p id="promo-move-hint" class="visually-hidden" i18n="@@menu.moveHint">
         Alt + strelica gore ili dole pomera stavku.
@@ -234,9 +236,10 @@ import { STATUS } from './promotion-labels';
             </tbody>
           </table>
         } @else {
-          <div class="card stack" data-gap="2">
-            <p class="card__title" i18n="@@promo.empty">Još nema kombo ponuda.</p>
-            <p class="card__body" i18n="@@promo.emptyBody">
+          <div class="empty-state">
+            <svg lucideTicket aria-hidden="true"></svg>
+            <p class="empty-state__title" i18n="@@promo.empty">Još nema kombo ponuda.</p>
+            <p class="empty-state__body" i18n="@@promo.emptyBody">
               Napravi ponudu od stavki iz menija: fiksne stavke ili izbor (npr. bilo koje piće), uz
               jednu cenu.
             </p>
@@ -245,17 +248,13 @@ import { STATUS } from './promotion-labels';
       } @else if (promotions.error()) {
         <p role="alert" i18n="@@promo.loadError">Ponude nisu učitane.</p>
       } @else {
-        <p class="meta" i18n="@@common.loading">Učitavanje…</p>
+        <p class="loading" role="status" i18n="@@common.loading">Učitavanje…</p>
       }
     </div>
   `,
   styles: `
     .back {
       align-self: flex-start;
-    }
-
-    .error {
-      color: var(--color-danger);
     }
 
     .name {

@@ -85,6 +85,7 @@ import { AuthLayout } from './auth-layout';
           size="lg"
           type="submit"
           [disabled]="form().submitting()"
+          [loading]="form().submitting()"
           i18n="@@auth.register.submit"
         >
           Napravi nalog
@@ -97,14 +98,6 @@ import { AuthLayout } from './auth-layout';
     </app-auth-layout>
   `,
   styles: `
-    .alert {
-      padding: var(--space-3);
-      border-radius: var(--radius-sm);
-      background: var(--color-danger-subtle);
-      color: var(--color-danger);
-      font: var(--type-body-sm);
-    }
-
     .switch-link {
       display: flex;
       flex-wrap: wrap;

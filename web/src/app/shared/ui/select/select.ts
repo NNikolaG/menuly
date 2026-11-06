@@ -52,6 +52,7 @@ export interface AppSelectOption {
         [cdkConnectedOverlay]="{ origin, usePopover: 'inline' }"
         [cdkConnectedOverlayOpen]="true"
         [cdkConnectedOverlayPositions]="positions"
+        cdkConnectedOverlayTransformOriginOn=".popover"
         [cdkConnectedOverlayMinWidth]="width()"
         (attach)="width.set(origin.getBoundingClientRect().width)"
       >
@@ -59,7 +60,7 @@ export interface AppSelectOption {
           ngComboboxWidget
           ngListbox
           #listbox="ngListbox"
-          class="panel"
+          class="panel popover"
           focusMode="activedescendant"
           selectionMode="explicit"
           [activeDescendant]="listbox.activeDescendant()"
@@ -129,7 +130,7 @@ export interface AppSelectOption {
       inline-size: var(--size-icon-sm);
       block-size: var(--size-icon-sm);
       color: var(--color-text-muted);
-      transition: rotate var(--duration-base);
+      transition: rotate var(--duration-base) var(--ease-out);
     }
 
     .trigger[aria-expanded='true'] .chevron {
@@ -143,11 +144,6 @@ export interface AppSelectOption {
       max-block-size: 18rem;
       overflow-y: auto;
       padding: var(--space-1);
-      background: var(--color-surface-raised);
-      color: var(--color-text);
-      border: var(--stroke-hairline) solid var(--color-border);
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-lg);
     }
 
     .option {

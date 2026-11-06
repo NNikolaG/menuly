@@ -128,7 +128,7 @@ const POLL_MS = 2000;
         </div>
 
         @if (problem()) {
-          <p role="alert" class="error">{{ problem() }}</p>
+          <p class="alert" role="alert">{{ problem() }}</p>
         }
 
         @if (reading()) {
@@ -265,7 +265,7 @@ const POLL_MS = 2000;
                   </p>
                 }
                 @if (commitProblem()) {
-                  <p role="alert" class="error">{{ commitProblem() }}</p>
+                  <p class="alert" role="alert">{{ commitProblem() }}</p>
                 }
                 <button appButton type="submit" [disabled]="busy()" i18n="@@import.commit">
                   Uvezi
@@ -544,7 +544,7 @@ const POLL_MS = 2000;
       } @else if (importRes.error()) {
         <p role="alert" i18n="@@import.notFound">Uvoz nije pronađen.</p>
       } @else {
-        <p class="meta" i18n="@@common.loading">Učitavanje…</p>
+        <p class="loading" role="status" i18n="@@common.loading">Učitavanje…</p>
       }
     </div>
   `,
@@ -598,31 +598,7 @@ const POLL_MS = 2000;
     }
 
     .tabs {
-      display: flex;
       flex-wrap: wrap;
-      gap: var(--space-1);
-      border-block-end: var(--stroke-hairline) solid var(--color-border);
-    }
-
-    .tab {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-2);
-      padding: var(--space-2) var(--space-3);
-      border-block-end: 2px solid transparent;
-      color: var(--color-text-muted);
-      font: var(--type-label);
-      cursor: pointer;
-    }
-
-    .tab[aria-selected='true'] {
-      border-color: var(--color-text);
-      color: var(--color-text);
-    }
-
-    .tab:focus-visible {
-      outline: var(--stroke-focus) solid var(--color-focus);
-      outline-offset: calc(-1 * var(--stroke-focus));
     }
 
     .dot {

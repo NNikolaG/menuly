@@ -580,6 +580,14 @@
   letter-spacing: var(--tracking-eyebrow);
   text-decoration: none;
   cursor: pointer;
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out),
+    scale var(--duration-fast) var(--ease-out);
+}
+
+.pill-btn:active:not([aria-disabled='true']) {
+  scale: var(--press-scale);
 }
 
 .pill-btn[aria-disabled='true'] {
@@ -612,6 +620,19 @@
   font: var(--type-chip);
   text-decoration: none;
   cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out),
+    scale var(--duration-fast) var(--ease-out);
+}
+.chip:active {
+  scale: var(--press-scale);
+}
+@media (hover: hover) and (pointer: fine) {
+  .chip:not([aria-current='true'], [aria-pressed='true']):hover {
+    background: var(--color-surface-hover);
+  }
 }
 .chip:is([aria-current='true'], [aria-pressed='true']) {
   background: var(--color-accent);
@@ -678,14 +699,20 @@
   color: var(--color-text-muted);
   font: var(--type-nav);
   text-decoration: none;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
 }
 .nav-item > svg {
+  flex: none;
   inline-size: var(--size-icon);
   block-size: var(--size-icon);
 }
-.nav-item:hover {
-  background: var(--color-surface-hover);
-  color: var(--color-text);
+@media (hover: hover) and (pointer: fine) {
+  .nav-item:hover {
+    background: var(--color-surface-hover);
+    color: var(--color-text);
+  }
 }
 .nav-item[aria-current='page'] {
   background: var(--color-surface);
@@ -726,8 +753,13 @@
 .table tr:last-child td {
   border-block-end: 0;
 }
-.table tbody tr:hover td {
-  background: var(--color-surface-hover);
+.table td {
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .table tbody tr:hover td {
+    background: var(--color-surface-hover);
+  }
 }
 .table :is(th, td)[data-num] {
   text-align: end;
@@ -917,6 +949,12 @@
   font: var(--type-pos-cat);
   text-align: start;
   cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    scale var(--duration-fast) var(--ease-out);
+}
+.pos-cat:active {
+  scale: var(--press-scale);
 }
 .pos-cat__swatch {
   flex: none;
@@ -952,8 +990,9 @@
   color: var(--cat-text, var(--color-on-brand-tile));
   text-align: start;
   cursor: pointer;
+  transition: scale var(--duration-fast) var(--ease-out);
 }
-.pos-tile:active {
+.pos-tile:active:not(:disabled) {
   scale: var(--press-scale);
 }
 .pos-tile__name {
@@ -1126,4 +1165,188 @@
   background: var(--color-brand-paper);
   color: var(--color-paper-text);
   border-color: var(--color-paper-control-border);
+}
+
+/* ======================================================================
+   Feedback and states: alert, loading, empty, tabs, popover, toast.
+   ====================================================================== */
+
+/* ---------- Alert: message about a page or form (role=alert for errors, role=status otherwise). Default tone: danger ---------- */
+.alert {
+  padding: var(--space-3) var(--space-4);
+  border: var(--stroke-hairline) solid color-mix(in oklab, var(--color-danger) 24%, transparent);
+  border-radius: var(--radius-sm);
+  background: var(--color-danger-subtle);
+  color: var(--color-danger);
+  font: var(--type-body-sm);
+  text-wrap: pretty;
+  animation: fade-in var(--duration-base) var(--ease-out);
+}
+.alert[data-tone='success'] {
+  border-color: color-mix(in oklab, var(--color-success) 24%, transparent);
+  background: var(--color-success-subtle);
+  color: var(--color-success);
+}
+.alert[data-tone='warning'] {
+  border-color: color-mix(in oklab, var(--color-warning) 24%, transparent);
+  background: var(--color-warning-subtle);
+  color: var(--color-warning);
+}
+.alert[data-tone='info'] {
+  border-color: color-mix(in oklab, var(--color-info) 24%, transparent);
+  background: var(--color-info-subtle);
+  color: var(--color-info);
+}
+
+/* ---------- Loading: shows only when loading takes a moment, so fast loads never flash ---------- */
+.loading {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font: var(--type-meta);
+  letter-spacing: var(--tracking-meta);
+  color: var(--color-text-muted);
+  animation: fade-in var(--duration-base) var(--ease-out) var(--loading-delay) both;
+}
+.loading::before,
+.spinner {
+  content: '';
+  flex: none;
+  inline-size: var(--size-spinner);
+  block-size: var(--size-spinner);
+  border: var(--stroke-focus) solid currentColor;
+  border-inline-end-color: transparent;
+  border-radius: var(--radius-pill);
+  animation: spin var(--duration-spin) linear infinite;
+}
+.spinner {
+  display: inline-block;
+}
+
+/* ---------- Empty: a list with nothing in it yet ---------- */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-12) var(--space-6);
+  border: var(--stroke-hairline) dashed var(--color-border);
+  border-radius: var(--radius-md);
+  text-align: center;
+  color: var(--color-text-muted);
+}
+.empty-state > svg {
+  inline-size: var(--size-empty-icon);
+  block-size: var(--size-empty-icon);
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-sunken);
+  color: var(--color-text-subtle);
+}
+.empty-state__title {
+  font: var(--type-h4);
+  color: var(--color-text);
+}
+.empty-state__body {
+  max-inline-size: var(--text-measure);
+  font: var(--type-body-sm);
+}
+
+/* ---------- Tabs: on @angular/aria/tabs (ngTabList.tabs > ngTab.tab); the underline grows in ---------- */
+.tabs {
+  display: flex;
+  gap: var(--space-1);
+  overflow-x: auto;
+  border-block-end: var(--stroke-hairline) solid var(--color-border);
+  scrollbar-width: none;
+}
+.tab {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  color: var(--color-text-muted);
+  font: var(--type-label);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+.tab::after {
+  content: '';
+  position: absolute;
+  inset-inline: var(--space-3);
+  inset-block-end: 0;
+  block-size: var(--stroke-rule);
+  border-radius: var(--radius-pill);
+  background: var(--color-text);
+  scale: 0 1;
+  transition: scale var(--duration-base) var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .tab:hover {
+    color: var(--color-text);
+  }
+}
+.tab[aria-selected='true'] {
+  color: var(--color-text);
+}
+.tab[aria-selected='true']::after {
+  scale: 1 1;
+}
+.tab:focus-visible {
+  outline: var(--stroke-focus) solid var(--color-focus);
+  outline-offset: calc(-1 * var(--stroke-focus));
+  border-radius: var(--radius-xs);
+}
+
+/* ---------- Popover: floating panel of a menu, select or picker. Grows out of its trigger
+   (the CDK sets transform-origin via cdkConnectedOverlayTransformOriginOn). ---------- */
+.popover {
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  border: var(--stroke-hairline) solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  transition:
+    opacity var(--duration-fast) var(--ease-out),
+    scale var(--duration-base) var(--ease-out);
+}
+@starting-style {
+  .popover {
+    opacity: 0;
+    scale: var(--enter-scale);
+  }
+}
+
+/* ---------- Toast (AppToaster): short confirmation in the corner ---------- */
+.toast {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  inline-size: var(--size-toast);
+  max-inline-size: 100%;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-inverse);
+  color: var(--color-text-inverse);
+  font: var(--type-body-sm);
+  box-shadow: var(--shadow-lg);
+}
+.toast > svg {
+  flex: none;
+  inline-size: var(--size-icon);
+  block-size: var(--size-icon);
+}
+
+@keyframes spin {
+  to {
+    rotate: 1turn;
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
 }

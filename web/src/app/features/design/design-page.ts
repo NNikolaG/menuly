@@ -5,6 +5,7 @@ import { form, FormField, minLength, required } from '@angular/forms/signals';
 import {
   LucideArrowLeftRight,
   LucideChartColumn,
+  LucideInbox,
   LucideLayoutGrid,
   LucideLogOut,
   LucideQrCode,
@@ -21,6 +22,7 @@ import {
   AppPattern,
   AppSegmented,
   AppSwitch,
+  Toaster,
   type AppMenuItem,
   type AppSegmentedOption,
 } from '../../shared/ui';
@@ -104,6 +106,7 @@ const RADII = ['xs', 'sm', 'md', 'lg', 'pill'];
     AppSegmented,
     AppSwitch,
     LucideChartColumn,
+    LucideInbox,
     LucideLayoutGrid,
     LucideQrCode,
     LucideSettings,
@@ -262,6 +265,8 @@ const RADII = ['xs', 'sm', 'md', 'lg', 'pill'];
           <button appButton type="button" disabled>Disabled</button>
           <a appButton variant="secondary" href="#">Link</a>
           <button appButton type="button"><svg lucideUtensils></svg> Dodaj stavku</button>
+          <button appButton type="button" loading disabled>Sačuvaj</button>
+          <button appButton variant="secondary" type="button" loading disabled>Sačuvaj</button>
         </div>
       </section>
 
@@ -341,6 +346,36 @@ const RADII = ['xs', 'sm', 'md', 'lg', 'pill'];
             </button>
           </app-dialog>
         </ng-template>
+      </section>
+
+      <section class="stack">
+        <h2>Toast (Toaster)</h2>
+        <div class="row">
+          <button appButton variant="secondary" type="button" (click)="toast('success')">
+            Uspeh
+          </button>
+          <button appButton variant="secondary" type="button" (click)="toast('danger')">
+            Greška
+          </button>
+        </div>
+      </section>
+
+      <section class="stack">
+        <h2>Alert, Loading, Empty state, Tabs</h2>
+        <p class="alert" role="alert">Čuvanje nije uspelo. Pokušaj ponovo.</p>
+        <p class="alert" data-tone="success" role="status">Poziv je poslat.</p>
+        <p class="alert" data-tone="warning">Uvoz je skoro na limitu.</p>
+        <p class="alert" data-tone="info">Cene se menjaju odmah na javnom meniju.</p>
+        <p class="loading" role="status">Učitavanje…</p>
+        <div class="empty-state">
+          <svg lucideInbox aria-hidden="true"></svg>
+          <p class="empty-state__title">Još nema menija</p>
+          <p class="empty-state__body">Napravi prvi meni ili uvezi postojeći sa fotografije.</p>
+        </div>
+        <div class="tabs" role="presentation">
+          <span class="tab" aria-selected="true">Firme</span>
+          <span class="tab" aria-selected="false">OCR potrošnja</span>
+        </div>
       </section>
 
       <section class="stack">
@@ -755,6 +790,7 @@ const RADII = ['xs', 'sm', 'md', 'lg', 'pill'];
 export default class DesignPage {
   protected readonly theme = inject(ThemeStore);
   private readonly dialog = inject(Dialog);
+  private readonly toaster = inject(Toaster);
 
   protected readonly modes = ['light', 'dark'] as const;
   protected readonly semanticColors = SEMANTIC_COLORS;
@@ -813,6 +849,13 @@ export default class DesignPage {
 
   protected setTheme(value: string): void {
     this.theme.preference.set(value as ThemePreference);
+  }
+
+  protected toast(tone: 'success' | 'danger'): void {
+    this.toaster.show(
+      tone === 'success' ? 'Objekat je sačuvan.' : 'Veza sa serverom je prekinuta.',
+      tone,
+    );
   }
 
   protected openDialog(template: TemplateRef<unknown>): void {

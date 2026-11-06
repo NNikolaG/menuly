@@ -45,8 +45,9 @@ export interface AppMenuItem {
       [cdkConnectedOverlay]="{ origin, usePopover: 'inline' }"
       [cdkConnectedOverlayOpen]="trigger.expanded()"
       [cdkConnectedOverlayPositions]="above() ? positionsAbove : positions"
+      cdkConnectedOverlayTransformOriginOn=".popover"
     >
-      <div ngMenu class="panel" (itemSelected)="onSelected($event)">
+      <div ngMenu class="panel popover" (itemSelected)="onSelected($event)">
         <ng-template ngMenuContent>
           @for (item of items(); track item.value) {
             <div ngMenuItem class="item" [value]="item.value">
@@ -79,7 +80,7 @@ export interface AppMenuItem {
       color: var(--color-text);
       font: var(--type-body-strong);
       cursor: pointer;
-      transition: background-color var(--duration-fast);
+      transition: background-color var(--duration-fast) var(--ease-out);
     }
 
     /* Same box as a sidebar .nav-item, so it lines up with the navigation above it. */
@@ -126,7 +127,7 @@ export interface AppMenuItem {
       inline-size: var(--size-icon-sm);
       block-size: var(--size-icon-sm);
       color: var(--color-text-muted);
-      transition: rotate var(--duration-base);
+      transition: rotate var(--duration-base) var(--ease-out);
     }
 
     .trigger[aria-expanded='true'] .chevron {
@@ -139,11 +140,6 @@ export interface AppMenuItem {
       gap: var(--space-half);
       min-inline-size: var(--menu-min-width);
       padding: var(--space-1);
-      background: var(--color-surface-raised);
-      color: var(--color-text);
-      border: var(--stroke-hairline) solid var(--color-border);
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-lg);
     }
 
     .item {

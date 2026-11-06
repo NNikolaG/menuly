@@ -65,7 +65,7 @@ import { AppButton } from '../../shared/ui';
     </div>
     <p class="meta" i18n="@@venue.qr.hint">SVG je oštar u svakoj veličini, za štampu na stolu.</p>
     @if (error()) {
-      <p role="alert" class="error" i18n="@@venue.qr.downloadError">Preuzimanje nije uspelo.</p>
+      <p class="alert" role="alert" i18n="@@venue.qr.downloadError">Preuzimanje nije uspelo.</p>
     }
   `,
   styles: `
@@ -96,10 +96,6 @@ import { AppButton } from '../../shared/ui';
       gap: var(--space-1);
       font: var(--type-meta);
       overflow-wrap: anywhere;
-    }
-
-    .error {
-      color: var(--color-danger);
     }
   `,
 })

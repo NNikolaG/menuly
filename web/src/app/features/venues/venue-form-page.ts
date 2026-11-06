@@ -14,7 +14,14 @@ import { LucideArrowLeft } from '@lucide/angular';
 import { firstValueFrom } from 'rxjs';
 import { toApiError } from '../../core/api/api-error';
 import { AuthStore } from '../../core/auth/auth-store';
-import { AppButton, AppField, AppInput, AppSelect, type AppSelectOption } from '../../shared/ui';
+import {
+  AppButton,
+  AppField,
+  AppInput,
+  AppSelect,
+  type AppSelectOption,
+  Toaster,
+} from '../../shared/ui';
 import type { Venue, VenueInput } from '../../core/venues/venue';
 import { venuePublicUrl } from '../../core/venues/venue-public-url';
 import { VenuesApi } from '../../core/venues/venues-api';
@@ -60,7 +67,7 @@ function toModel(venue: Venue | undefined): VenueModel {
       @if (venue.error()) {
         <p role="alert" i18n="@@venues.notFound">Objekat nije pronađen.</p>
       } @else if (isEdit() && !venue.hasValue()) {
-        <p class="meta" i18n="@@common.loading">Učitavanje…</p>
+        <p class="loading" role="status" i18n="@@common.loading">Učitavanje…</p>
       } @else {
         <form class="card stack" data-gap="5" novalidate (submit)="onSubmit($event)">
           <app-field
@@ -122,10 +129,15 @@ function toModel(venue: Venue | undefined): VenueModel {
             </app-field>
           </div>
           @if (error()) {
-            <p role="alert" class="error">{{ error() }}</p>
+            <p class="alert" role="alert">{{ error() }}</p>
           }
           <div class="row">
-            <button appButton type="submit" [disabled]="form().submitting()">
+            <button
+              appButton
+              type="submit"
+              [disabled]="form().submitting()"
+              [loading]="form().submitting()"
+            >
               {{ submitLabel() }}
             </button>
             <a appButton variant="ghost" routerLink="/objekti" i18n="@@common.cancel">Otkaži</a>
@@ -143,10 +155,6 @@ function toModel(venue: Venue | undefined): VenueModel {
     form {
       max-inline-size: 48rem;
     }
-
-    .error {
-      color: var(--color-danger);
-    }
   `,
 })
 export default class VenueFormPage {
@@ -154,6 +162,7 @@ export default class VenueFormPage {
   private readonly injector = inject(Injector);
   private readonly auth = inject(AuthStore);
   private readonly router = inject(Router);
+  private readonly toaster = inject(Toaster);
 
   /** Route param; absent on `/objekti/novi`. */
   readonly venueId = input<string>();
@@ -213,6 +222,11 @@ export default class VenueFormPage {
         // Lazily: the form itself doesn't need the list, only the pages after it.
         this.injector.get(VenuesStore).list.reload();
         await this.router.navigate(['/objekti', saved.id]);
+        this.toaster.show(
+          id
+            ? $localize`:@@venues.toast.saved:Objekat je sačuvan.`
+            : $localize`:@@venues.toast.created:Objekat je napravljen.`,
+        );
       } catch (error) {
         this.error.set(errorMessage(toApiError(error).code));
       }

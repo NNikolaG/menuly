@@ -45,6 +45,16 @@ export interface AppSegmentedOption {
       font: var(--type-segment);
       cursor: pointer;
       user-select: none;
+      transition:
+        background-color var(--duration-fast) var(--ease-out),
+        color var(--duration-fast) var(--ease-out),
+        box-shadow var(--duration-fast) var(--ease-out);
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      [ngOption]:not([aria-selected='true']):hover {
+        color: var(--color-text);
+      }
     }
 
     [ngOption][aria-selected='true'] {

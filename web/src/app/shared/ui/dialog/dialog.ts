@@ -28,6 +28,16 @@ let nextId = 0;
       border: var(--stroke-hairline) solid var(--color-border);
       border-radius: var(--radius-md);
       box-shadow: var(--shadow-lg);
+      animation: dialog-in var(--duration-base) var(--ease-out);
+    }
+
+    /* From slightly smaller and lower, never from nothing: the dialog feels placed, not popped. */
+    @keyframes dialog-in {
+      from {
+        opacity: 0;
+        scale: var(--enter-scale);
+        translate: 0 var(--enter-shift);
+      }
     }
 
     .title {

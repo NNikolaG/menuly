@@ -1,4 +1,7 @@
 [appButton] {
+  /* Text color of the variant; the loading spinner draws with it while the label is hidden. */
+  --button-ink: var(--color-on-accent);
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -8,49 +11,63 @@
   border: var(--stroke-hairline) solid transparent;
   border-radius: var(--radius-sm);
   background: var(--color-accent);
-  color: var(--color-on-accent);
+  color: var(--button-ink);
   font: var(--type-control);
   letter-spacing: var(--tracking-control);
   white-space: nowrap;
   text-decoration: none;
   cursor: pointer;
+  user-select: none;
   transition:
-    background-color var(--duration-fast),
-    border-color var(--duration-fast),
-    color var(--duration-fast);
+    background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out),
+    opacity var(--duration-fast) var(--ease-out),
+    scale var(--duration-fast) var(--ease-out);
 }
 
-[appButton]:hover {
-  background: var(--color-accent-hover);
+/* Pressing answers right away; hover only where a real pointer can hover (no sticky hover on touch). */
+[appButton]:active:not(:disabled, [aria-disabled='true'], [data-loading]) {
+  scale: var(--press-scale);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  [appButton]:hover {
+    background: var(--color-accent-hover);
+  }
+
+  [appButton]:is([data-variant='secondary'], [data-variant='ghost']):hover {
+    background: var(--color-surface-hover);
+  }
+
+  [appButton][data-variant='secondary']:hover {
+    border-color: var(--color-text-muted);
+  }
+
+  [appButton]:is([data-variant='inverse'], [data-variant='danger']):hover {
+    opacity: 0.9;
+  }
 }
 
 [appButton][data-variant='secondary'] {
+  --button-ink: var(--color-text);
   background: var(--color-surface);
-  color: var(--color-text);
   border-color: var(--color-border-strong);
 }
 
 [appButton][data-variant='ghost'] {
+  --button-ink: var(--color-text);
   background: transparent;
-  color: var(--color-text);
-}
-
-[appButton]:is([data-variant='secondary'], [data-variant='ghost']):hover {
-  background: var(--color-surface-hover);
 }
 
 [appButton][data-variant='inverse'] {
+  --button-ink: var(--color-text-inverse);
   background: var(--color-surface-inverse);
-  color: var(--color-text-inverse);
 }
 
 [appButton][data-variant='danger'] {
+  --button-ink: var(--color-on-danger);
   background: var(--color-danger);
-  color: var(--color-on-danger);
-}
-
-[appButton]:is([data-variant='inverse'], [data-variant='danger']):hover {
-  opacity: 0.9;
 }
 
 [appButton][data-size='sm'] {
@@ -65,12 +82,32 @@
   font: var(--type-control-lg);
 }
 
-[appButton]:is(:disabled, [aria-disabled='true']) {
+[appButton]:is(:disabled, [aria-disabled='true']):not([data-loading]) {
   background: var(--color-surface-sunken);
   color: var(--color-text-disabled);
   border-color: var(--color-border);
   opacity: 1;
   cursor: not-allowed;
+}
+
+/* Loading: the label stays in place (no width jump) but turns invisible under a spinner. */
+[appButton][data-loading] {
+  color: transparent;
+  cursor: progress;
+  pointer-events: none;
+}
+
+[appButton][data-loading]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  inline-size: var(--size-spinner);
+  block-size: var(--size-spinner);
+  border: var(--stroke-focus) solid var(--button-ink);
+  border-inline-end-color: transparent;
+  border-radius: var(--radius-pill);
+  animation: spin var(--duration-spin) linear infinite;
 }
 
 [appButton] > svg {

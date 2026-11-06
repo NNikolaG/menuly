@@ -30,6 +30,24 @@ h4 {
   font: var(--type-h4);
 }
 
+:is(h1, h2, h3, h4) {
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+/* Touch: no grey flash and no double-tap zoom delay on controls. */
+:is(a, button, label, summary, [role='button'], [role='tab'], [role='option']) {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+::selection {
+  background: var(--color-selection);
+}
+
 a {
   color: var(--color-accent-text);
   text-underline-offset: 0.2em;

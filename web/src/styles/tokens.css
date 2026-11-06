@@ -65,6 +65,11 @@
   --color-danger: light-dark(var(--red-600), var(--red-300));
   --color-danger-subtle: light-dark(var(--red-100), var(--red-900));
   --color-on-danger: light-dark(var(--n-0), var(--n-900));
+  /* Tone colors on --color-surface-inverse (toast): the other theme's value. */
+  --color-success-on-inverse: light-dark(var(--green-300), var(--green-700));
+  --color-danger-on-inverse: light-dark(var(--red-300), var(--red-600));
+  --color-selection: light-dark(var(--blue-100), var(--blue-900));
+  --color-backdrop: light-dark(rgb(20 20 20 / 0.32), rgb(0 0 0 / 0.6));
   --color-shadow-soft: light-dark(rgb(20 20 20 / 0.06), rgb(0 0 0 / 0.5));
   --color-shadow-near: light-dark(rgb(20 20 20 / 0.06), rgb(0 0 0 / 0.4));
   --color-shadow-far: light-dark(rgb(20 20 20 / 0.12), rgb(0 0 0 / 0.6));
@@ -214,6 +219,9 @@
   --size-switch-knob: 16px;
   --size-icon: 18px;
   --size-icon-sm: 16px;
+  --size-spinner: 16px;
+  --size-toast: 360px;
+  --size-empty-icon: 40px;
   --size-ticket: 320px;
   --size-ticket-art: 160px;
   --size-pattern-cell: 48px;
@@ -246,18 +254,38 @@
 
   /* ---------- Shadow, motion, layers ---------- */
   --shadow-sm: 0 1px 2px var(--color-shadow-soft);
+  --shadow-md: 0 6px 20px var(--color-shadow-far), 0 1px 3px var(--color-shadow-near);
   --shadow-lg: 0 12px 32px var(--color-shadow-far), 0 2px 6px var(--color-shadow-near);
 
+  /* Motion. Ease-out for anything entering or answering the user (fast start feels responsive),
+     ease-in-out for things moving on screen, never ease-in. UI motion stays under 300ms. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
   --duration-fast: 120ms;
   --duration-base: 200ms;
-  --duration-slow: 320ms;
-  --press-scale: 0.98;
+  --duration-slow: 280ms;
+  --duration-spin: 700ms;
+  /* Press feedback, popover/dialog entrance (never from scale 0), reveal delay for loading text. */
+  --press-scale: 0.97;
+  --enter-scale: 0.96;
+  --enter-shift: 8px;
+  --loading-delay: 400ms;
 
   --z-sticky: 10;
   --z-sidebar: 20;
   --z-overlay: 40;
   --z-dialog: 50;
   --z-toast: 60;
+}
+
+/* Reduced motion keeps fades (they help comprehension) and drops movement and scale. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --press-scale: 1;
+    --enter-scale: 1;
+    --enter-shift: 0px;
+  }
 }
 
 [data-theme='light'] {

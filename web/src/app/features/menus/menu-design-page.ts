@@ -73,6 +73,7 @@ const URL_PATTERN = /^(https?:\/\/\S+)?$/;
                   type="submit"
                   form="design-form"
                   [disabled]="!dirty() || themeForm().submitting()"
+                  [loading]="themeForm().submitting()"
                   i18n="@@common.save"
                 >
                   Sačuvaj
@@ -81,7 +82,7 @@ const URL_PATTERN = /^(https?:\/\/\S+)?$/;
             }
           </div>
           @if (error()) {
-            <p role="alert" class="error">{{ error() }}</p>
+            <p class="alert" role="alert">{{ error() }}</p>
           }
         </div>
 
@@ -222,16 +223,12 @@ const URL_PATTERN = /^(https?:\/\/\S+)?$/;
     } @else if (menu.error()) {
       <p role="alert" i18n="@@menu.notFound">Meni nije pronađen.</p>
     } @else {
-      <p class="meta" i18n="@@common.loading">Učitavanje…</p>
+      <p class="loading" role="status" i18n="@@common.loading">Učitavanje…</p>
     }
   `,
   styles: `
     .back {
       align-self: flex-start;
-    }
-
-    .error {
-      color: var(--color-danger);
     }
 
     .saved {

@@ -17,7 +17,9 @@ label:has(> [appSwitch]) {
   border-radius: var(--radius-pill);
   background: var(--color-surface-sunken);
   cursor: pointer;
-  transition: background-color var(--duration-fast);
+  transition:
+    background-color var(--duration-base) var(--ease-out),
+    border-color var(--duration-base) var(--ease-out);
 }
 
 [appSwitch]::after {
@@ -30,8 +32,14 @@ label:has(> [appSwitch]) {
   border-radius: var(--radius-pill);
   background: var(--color-text-muted);
   transition:
-    translate var(--duration-fast),
-    background-color var(--duration-fast);
+    translate var(--duration-base) var(--ease-out),
+    inline-size var(--duration-fast) var(--ease-out),
+    background-color var(--duration-base) var(--ease-out);
+}
+
+/* Pressing stretches the knob toward where it will go, like a physical toggle. */
+[appSwitch]:active:not(:disabled)::after {
+  inline-size: calc(var(--size-switch-knob) + var(--space-1));
 }
 
 [appSwitch]:checked {
@@ -42,6 +50,10 @@ label:has(> [appSwitch]) {
 [appSwitch]:checked::after {
   translate: var(--size-switch-knob) 0;
   background: var(--color-surface);
+}
+
+[appSwitch]:checked:active:not(:disabled)::after {
+  translate: calc(var(--size-switch-knob) - var(--space-1)) 0;
 }
 
 [appSwitch]:disabled {

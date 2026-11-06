@@ -7,6 +7,15 @@
   border: var(--stroke-control) solid var(--color-border-strong);
   border-radius: var(--radius-sm);
   font: var(--type-body);
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    background-color var(--duration-fast) var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  [appInput]:hover:not(:disabled, :focus-visible, [aria-invalid='true']) {
+    border-color: var(--color-text-muted);
+  }
 }
 
 [appInput]:focus-visible {

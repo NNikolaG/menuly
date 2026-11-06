@@ -133,7 +133,7 @@ import { VenueQr } from './venue-qr';
             <h2 id="menus-heading" i18n="@@venue.menus">Meniji</h2>
 
             @if (error()) {
-              <p role="alert" class="error">{{ error() }}</p>
+              <p class="alert" role="alert">{{ error() }}</p>
             }
 
             @if (menus.value()?.items; as items) {
@@ -272,7 +272,12 @@ import { VenueQr } from './venue-qr';
                     [formField]="newMenu.name"
                   />
                 </app-field>
-                <button appButton type="submit" [disabled]="newMenu().submitting()">
+                <button
+                  appButton
+                  type="submit"
+                  [disabled]="newMenu().submitting()"
+                  [loading]="newMenu().submitting()"
+                >
                   <svg lucidePlus aria-hidden="true"></svg>
                   <ng-container i18n="@@venue.addMenu">Dodaj meni</ng-container>
                 </button>
@@ -286,10 +291,6 @@ import { VenueQr } from './venue-qr';
   styles: `
     .back {
       align-self: flex-start;
-    }
-
-    .error {
-      color: var(--color-danger);
     }
 
     .menu-link {

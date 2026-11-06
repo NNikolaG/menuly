@@ -25,6 +25,7 @@ import {
   LucidePercent,
   LucidePlus,
   LucideTrash2,
+  LucideUtensils,
 } from '@lucide/angular';
 import { Toolbar, ToolbarWidget } from '@angular/aria/toolbar';
 import { firstValueFrom, type Observable } from 'rxjs';
@@ -56,6 +57,7 @@ import { toMajor, toMinor } from './price';
 @Component({
   selector: 'app-menu-editor-page',
   imports: [
+    LucideUtensils,
     Toolbar,
     ToolbarWidget,
     CurrencyPipe,
@@ -141,10 +143,10 @@ import { toMajor, toMinor } from './price';
         </div>
 
         @if (error()) {
-          <p role="alert" class="error">{{ error() }}</p>
+          <p class="alert" role="alert">{{ error() }}</p>
         }
         @if (updated() !== null) {
-          <p role="status" class="notice">
+          <p class="alert" data-tone="success" role="status">
             <span i18n="@@prices.done">{updated(), plural,
               one {Promenjena je {{ updated() }} cena.}
               few {Promenjene su {{ updated() }} cene.}
@@ -395,9 +397,10 @@ import { toMajor, toMinor } from './price';
                 </button>
               </div>
             } @else {
-              <div class="card stack" data-gap="2">
-                <p class="card__title" i18n="@@menu.empty">Meni još nema kategorija.</p>
-                <p class="card__body" i18n="@@menu.emptyBody">
+              <div class="empty-state">
+                <svg lucideUtensils aria-hidden="true"></svg>
+                <p class="empty-state__title" i18n="@@menu.empty">Meni još nema kategorija.</p>
+                <p class="empty-state__body" i18n="@@menu.emptyBody">
                   Dodaj prvu kategoriju, npr. „Topli napici“, pa u nju stavke sa cenama.
                 </p>
               </div>
@@ -426,21 +429,13 @@ import { toMajor, toMinor } from './price';
       } @else if (menu.error()) {
         <p role="alert" i18n="@@menu.notFound">Meni nije pronađen.</p>
       } @else {
-        <p class="meta" i18n="@@common.loading">Učitavanje…</p>
+        <p class="loading" role="status" i18n="@@common.loading">Učitavanje…</p>
       }
     </div>
   `,
   styles: `
     .back {
       align-self: flex-start;
-    }
-
-    .error {
-      color: var(--color-danger);
-    }
-
-    .notice {
-      color: var(--color-success);
     }
 
     .category {

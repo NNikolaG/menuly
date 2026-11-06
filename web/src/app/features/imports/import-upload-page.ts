@@ -119,7 +119,7 @@ interface Picked {
           </div>
 
           @if (problem()) {
-            <p role="alert" class="error">{{ problem() }}</p>
+            <p class="alert" role="alert">{{ problem() }}</p>
           }
 
           @if (files().length) {
@@ -272,10 +272,6 @@ interface Picked {
   styles: `
     .back {
       align-self: flex-start;
-    }
-
-    .error {
-      color: var(--color-danger);
     }
 
     .layout {

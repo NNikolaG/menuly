@@ -29,7 +29,7 @@ import { PublicMenuView } from '../../core/public-menu/public-menu-view';
             }
           </div>
         } @else {
-          <p class="meta" i18n="@@common.loading">Učitavanje…</p>
+          <p class="loading" role="status" i18n="@@common.loading">Učitavanje…</p>
         }
       </main>
     }
