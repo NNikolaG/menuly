@@ -22,10 +22,18 @@ import {
 import { firstValueFrom } from 'rxjs';
 import { toApiError } from '../../core/api/api-error';
 import { AuthStore } from '../../core/auth/auth-store';
-import type { Promotion } from '../../core/promotions/promotion';
+import type { Promotion, PromotionStatus } from '../../core/promotions/promotion';
 import { PromotionsApi } from '../../core/promotions/promotions-api';
 import { VenuesApi } from '../../core/venues/venues-api';
-import { AppButton, AppSwitch, ConfirmDialog, type ConfirmDialogData } from '../../shared/ui';
+import {
+  AppButton,
+  AppSearch,
+  AppSegmented,
+  AppSwitch,
+  ConfirmDialog,
+  type ConfirmDialogData,
+} from '../../shared/ui';
+import { matchesQuery } from '../../shared/text/fold';
 import { STATUS } from './promotion-labels';
 
 /** `/objekti/:venueId/kombo`: the venue's combo offers, in the order guests see them. */
@@ -40,6 +48,8 @@ import { STATUS } from './promotion-labels';
     Toolbar,
     ToolbarWidget,
     AppButton,
+    AppSearch,
+    AppSegmented,
     AppSwitch,
     LucideArrowLeft,
     LucideGripVertical,
@@ -78,6 +88,30 @@ import { STATUS } from './promotion-labels';
 
       @if (list(); as items) {
         @if (items.length) {
+          <div class="filters">
+            <app-search [label]="searchLabel" [(value)]="query" />
+            <app-segmented
+              [label]="statusLabel"
+              [options]="statusOptions"
+              [(value)]="statusFilter"
+            />
+          </div>
+        }
+        @if (items.length && !shown().length) {
+          <div class="row" data-gap="3">
+            <p class="meta" i18n="@@common.noFilterMatches">Ništa ne odgovara filterima.</p>
+            <button
+              appButton
+              variant="ghost"
+              size="sm"
+              type="button"
+              (click)="clearFilters()"
+              i18n="@@common.clearFilters"
+            >
+              Poništi filtere
+            </button>
+          </div>
+        } @else if (items.length) {
           <table class="table">
             <thead>
               <tr>
@@ -95,10 +129,10 @@ import { STATUS } from './promotion-labels';
             </thead>
             <tbody
               cdkDropList
-              [cdkDropListDisabled]="!canEdit()"
+              [cdkDropListDisabled]="!canEdit() || filtering()"
               (cdkDropListDropped)="move($event.previousIndex, $event.currentIndex)"
             >
-              @for (promo of items; track promo.id) {
+              @for (promo of shown(); track promo.id) {
                 <tr cdkDrag>
                   @if (canEdit()) {
                     <td class="handle-cell">
@@ -106,6 +140,7 @@ import { STATUS } from './promotion-labels';
                         type="button"
                         class="handle"
                         cdkDragHandle
+                        [disabled]="filtering()"
                         [id]="'move-' + promo.id"
                         [attr.aria-label]="moveLabel(promo.name)"
                         aria-describedby="promo-move-hint"
@@ -299,6 +334,42 @@ export default class PromotionsPage {
   protected readonly currency = computed(() => this.venue.value()?.currency ?? 'RSD');
   protected readonly error = signal('');
   protected readonly status = STATUS;
+
+  protected readonly searchLabel = $localize`:@@promo.search:Traži ponudu ili stavku`;
+  protected readonly statusLabel = $localize`:@@venue.col.status:Status`;
+  protected readonly statusOptions = [
+    { value: 'all', label: $localize`:@@common.filter.allItems:Sve` },
+    ...(Object.keys(STATUS) as PromotionStatus[]).map((key) => ({
+      value: key,
+      label: STATUS[key].label,
+    })),
+  ];
+  protected readonly query = signal('');
+  protected readonly statusFilter = signal('all');
+  /** While filtering, reordering is off: the rows on screen are not the whole list. */
+  protected readonly filtering = computed(
+    () => this.query().trim() !== '' || this.statusFilter() !== 'all',
+  );
+  protected readonly shown = computed(() =>
+    (this.list() ?? []).filter(
+      (promo) =>
+        (this.statusFilter() === 'all' || promo.status === this.statusFilter()) &&
+        matchesQuery(
+          this.query(),
+          promo.name,
+          promo.description,
+          ...promo.slots.flatMap((slot) => [
+            slot.label,
+            ...slot.options.map((option) => option.item_name),
+          ]),
+        ),
+    ),
+  );
+
+  protected clearFilters(): void {
+    this.query.set('');
+    this.statusFilter.set('all');
+  }
 
   protected readonly canEdit = computed(() => {
     const role = this.auth.role();

@@ -1,4 +1,7 @@
+import { fold } from '../../shared/text/fold';
 import type { PublicCategory, PublicItem } from './public-menu';
+
+export { fold };
 
 export interface MenuFilter {
   /** Free text; matches name, description, tags and allergens, without diacritics. */
@@ -29,19 +32,6 @@ export function isFiltering(filter: MenuFilter): boolean {
 /** How many filters (besides the query) are on, for the filter button's badge. */
 export function activeFilterCount(filter: MenuFilter): number {
   return filter.diets.length + filter.withoutAllergens.length + (filter.availableOnly ? 1 : 0);
-}
-
-/**
- * Lowercase, no diacritics, so guests can type without them:
- * "cevapi" finds "Ćevapi", "dorde" and "djordje" find "Đorđe".
- */
-export function fold(text: string): string {
-  return text
-    .toLowerCase()
-    .replaceAll('đ', 'dj')
-    .normalize('NFD')
-    .replace(/\p{M}/gu, '')
-    .replaceAll('dj', 'd');
 }
 
 function matches(item: PublicItem, words: string[], filter: MenuFilter): boolean {

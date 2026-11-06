@@ -175,7 +175,6 @@ const NEXT_THEME: Record<ThemePreference, ThemePreference> = {
 
     main {
       inline-size: 100%;
-      max-inline-size: var(--content-max-width);
       padding: var(--space-8) var(--space-6);
     }
 

@@ -94,6 +94,9 @@ export class AuthApi {
 
   /** Loads while `tenantId()` is set and reloads when it changes (tenant switch). */
   meResource(tenantId: () => string | null) {
-    return this.api.resource<Me>(() => (tenantId() ? '/v1/me' : undefined));
+    return this.api.resource<Me>(() => {
+      const tenant = tenantId();
+      return tenant ? { path: '/v1/me', key: tenant } : undefined;
+    });
   }
 }

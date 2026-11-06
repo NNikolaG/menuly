@@ -86,4 +86,20 @@ describe('ApiClient', () => {
     TestBed.tick();
     http.expectNone(() => true);
   });
+
+  it('resource refetches the same URL when its key changes', async () => {
+    const tenant = signal('t1');
+    runInInjectionContext(TestBed.inject(Injector), () =>
+      api.resource(() => ({ path: '/v1/me', key: tenant() })),
+    );
+    TestBed.tick();
+    const first = http.expectOne('https://api.test/v1/me');
+    expect(first.request.params.keys()).toEqual([]);
+    first.flush({});
+    await TestBed.inject(ApplicationRef).whenStable();
+
+    tenant.set('t2');
+    TestBed.tick();
+    http.expectOne('https://api.test/v1/me').flush({});
+  });
 });

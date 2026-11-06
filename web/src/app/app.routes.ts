@@ -8,6 +8,7 @@ export const routes: Routes = [
   {
     path: '',
     canMatch: [tenantHostGuard],
+    data: { preload: false },
     loadChildren: () => import('./features/public-menu/public-menu.routes'),
   },
   {
@@ -41,6 +42,7 @@ export const routes: Routes = [
   },
   {
     path: 'design',
+    data: { preload: false },
     loadChildren: () => import('./features/design/design.routes'),
   },
   {

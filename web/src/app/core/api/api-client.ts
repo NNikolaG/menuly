@@ -14,6 +14,8 @@ export type Query = Record<string, QueryValue | readonly QueryValue[] | null | u
 export interface ApiRequest {
   path: string;
   query?: Query;
+  /** Not sent; a change refetches the same URL (e.g. the tenant, which lives in the token). */
+  key?: string | null;
 }
 
 /**
@@ -32,19 +34,23 @@ export class ApiClient {
   /**
    * Signal resource that loads `request()` and reloads whenever the signals it reads change.
    * Returning `undefined` keeps it idle. Call it in an injection context (a field initializer).
-   * It refetches only when the URL or query actually change, not on every run of `request`.
+   * It refetches only when the URL, query or `key` actually change, not on every run of `request`.
    */
   resource<T>(request: () => string | ApiRequest | undefined): HttpResourceRef<T | undefined> {
-    const next = computed(
+    const keyed = computed(
       () => {
         const value = request();
         if (value === undefined) return undefined;
-        const { path, query } =
-          typeof value === 'string' ? { path: value, query: undefined } : value;
-        return { url: this.url(path), params: clean(query) };
+        const { path, query, key } =
+          typeof value === 'string' ? { path: value, query: undefined, key: undefined } : value;
+        return { url: this.url(path), params: clean(query), key };
       },
       { equal: (a, b) => JSON.stringify(a) === JSON.stringify(b) },
     );
+    const next = computed(() => {
+      const value = keyed();
+      return value && { url: value.url, params: value.params };
+    });
     return httpResource<T>(next);
   }
 
