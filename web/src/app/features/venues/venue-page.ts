@@ -101,10 +101,10 @@ import { VenueQr } from './venue-qr';
         <div class="layout">
           <!-- Venue profile: the brand Ticket card, art seeded by the venue name (decision #24). -->
           <aside class="brand profile">
-            <div class="ticket">
+            <!-- Light subtree: the paper card keeps dark text and controls in the dark theme too. -->
+            <div class="ticket" data-theme="light">
               <div class="ticket__art">
                 <app-pattern [seed]="v.name" [cols]="4" [rows]="2" [fluid]="true" />
-                <span class="ticket__punch"></span>
               </div>
               <div class="ticket__body">
                 <div class="ticket__top">

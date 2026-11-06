@@ -139,6 +139,11 @@ function toModel(venue: Venue | undefined): VenueModel {
       align-self: flex-start;
     }
 
+    /* Full-width pages, but a form stays at a readable line length. */
+    form {
+      max-inline-size: 48rem;
+    }
+
     .error {
       color: var(--color-danger);
     }

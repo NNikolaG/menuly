@@ -104,7 +104,6 @@ import { VenuesStore } from '../../core/venues/venues-store';
                 <li class="ticket venue-card" data-theme="light">
                   <div class="ticket__art">
                     <app-pattern [seed]="venue.name" [cols]="4" [rows]="2" [fluid]="true" />
-                    <span class="ticket__punch"></span>
                   </div>
                   <div class="ticket__body">
                     <div class="ticket__top">
