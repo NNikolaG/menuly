@@ -5,6 +5,7 @@ import { LucideArrowRight, LucidePlus } from '@lucide/angular';
 import { AuthStore } from '../../core/auth/auth-store';
 import { venuePublicUrl } from '../../core/venues/venue-public-url';
 import { VenuesApi } from '../../core/venues/venues-api';
+import { VenuesStore } from '../../core/venues/venues-store';
 import { AppButton, AppSelect } from '../../shared/ui';
 import { ViewsChart } from './views-chart';
 
@@ -53,10 +54,17 @@ import { ViewsChart } from './views-chart';
             <p class="card__title">{{ venue.name }}</p>
             <p class="meta">{{ venueUrl() }}</p>
             <div>
-              <a appButton variant="secondary" routerLink="/objekti">
-                <ng-container i18n="@@dashboard.allVenues">Svi objekti</ng-container>
-                <svg lucideArrowRight aria-hidden="true"></svg>
-              </a>
+              @if (venueCount() === 1) {
+                <a appButton variant="secondary" [routerLink]="['/objekti', venue.id]">
+                  <ng-container i18n="@@dashboard.openVenue">Otvori objekat</ng-container>
+                  <svg lucideArrowRight aria-hidden="true"></svg>
+                </a>
+              } @else {
+                <a appButton variant="secondary" routerLink="/objekti">
+                  <ng-container i18n="@@dashboard.allVenues">Svi objekti</ng-container>
+                  <svg lucideArrowRight aria-hidden="true"></svg>
+                </a>
+              }
             </div>
           </div>
         }
@@ -112,7 +120,7 @@ import { ViewsChart } from './views-chart';
 export default class DashboardPage {
   protected readonly auth = inject(AuthStore);
   private readonly venuesApi = inject(VenuesApi);
-  private readonly venues = this.venuesApi.listResource();
+  private readonly venues = inject(VenuesStore).list;
 
   protected readonly venueLabel = $localize`:@@dashboard.viewsVenue:Objekat`;
   protected readonly pickedVenue = signal<string | null>(null);

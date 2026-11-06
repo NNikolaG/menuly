@@ -65,6 +65,7 @@ Every API call goes through `ApiClient` (`core/api/api-client.ts`); nothing else
 - **Base URL:** `environment.apiBaseUrl` (`src/environments/`), provided as `API_BASE_URL` in `app.config.ts`. It is `/api` in both builds: `/api/v1/x` reaches the API's `/v1/x` through `proxy.conf.json` in dev and nginx (`API_UPSTREAM`) in Docker. An absolute URL works too, but then the API's CORS must allow the web origin.
 - **Paths** are API paths (`/v1/venues`), never with the base URL.
 - **One API class per resource**, next to its feature, or in `core/` once two features need it (`core/venues/venues-api.ts`, `core/menus/menus-api.ts`, `core/auth/auth-api.ts`). Response types next to it; shared ones in `core/api/api-types.ts`. Test fixtures go in `*.testing.ts` next to the types (`venue.testing.ts`, `menu.testing.ts`).
+- **Shared lists:** `VenuesStore` (`core/venues/`) holds the tenant's venue list once for every page and guard; pages `reload()` it in the background and after writes. A resource whose URL is the same for every tenant passes `key: tenantId()` so a tenant switch refetches it.
 - **Resources refetch only when the request changes.** `ApiClient.resource` compares URL and query, so a resource keyed on another resource's value (the venue of a menu) does not reload when that value changes for other reasons.
 - **Prices** are integer minor units in the API (`price_minor`); forms work in major units and convert with `toMinor`/`toMajor` (`features/menus/price.ts`). Show them with `CurrencyPipe`.
 - **Optimistic edits** (availability switch, drag reorder) update the resource with `.update()`, then call the API; on failure they roll back or reload.
@@ -116,7 +117,7 @@ One app serves two hosts (`core/host/app-host.ts`):
 | role-limited pages                 | listed roles only              | `roleGuard('owner', …)` on the route                          |
 
 - Protected pages are children of the `AdminShell` route; add a feature there as `{ path: '<sr-slug>', loadChildren: … }`.
-- Every feature is lazy and every route has a Serbian `title` (`$localize`); `AppTitleStrategy` appends ` · Menuly`.
+- Every feature is lazy and every route has a Serbian `title` (`$localize`); `AppTitleStrategy` appends ` · Menuly`. `AppPreloading` (`core/host/`) loads all lazy pages in the background after the first one (not on a tenant host); `data: { preload: false }` opts a route out.
 - Route paths are Serbian (`/prijava`, `/pregled`), code names English.
 - An empty-path parent whose children don't match still matches an empty URL and renders nothing; give guest routes their own path instead of an empty-path wrapper.
 

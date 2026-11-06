@@ -155,6 +155,19 @@
   }
 }
 
+/* ---------- Filter bar above a list: search, segmented filters, result count ---------- */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+.filters__count {
+  margin-inline-start: auto;
+  font: var(--type-meta);
+  color: var(--color-text-subtle);
+}
+
 /* ---------- Ticket: the receipt card, the system's signature ---------- */
 .ticket {
   position: relative;

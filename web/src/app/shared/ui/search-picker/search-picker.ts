@@ -3,6 +3,7 @@ import { Listbox, Option } from '@angular/aria/listbox';
 import { CdkConnectedOverlay, type ConnectedPosition } from '@angular/cdk/overlay';
 import { Component, computed, input, output, signal } from '@angular/core';
 import { LucideSearch } from '@lucide/angular';
+import { matchesQuery } from '../../text/fold';
 import type { AppSelectOption } from '../select/select';
 
 /** Shows at most this many matches; typing narrows the list. */
@@ -177,14 +178,8 @@ export class AppSearchPicker {
 
   /** Case- and diacritic-insensitive match on every word ("cev" finds "Ćevapi"). */
   protected readonly matches = computed(() => {
-    const words = fold(this.query()).split(/\s+/).filter(Boolean);
-    const options = this.options();
-    const found = words.length
-      ? options.filter((option) => {
-          const text = fold(`${option.label} ${option.hint ?? ''}`);
-          return words.every((word) => text.includes(word));
-        })
-      : options;
+    const query = this.query();
+    const found = this.options().filter((option) => matchesQuery(query, option.label, option.hint));
     return found.slice(0, LIMIT);
   });
 
@@ -194,12 +189,4 @@ export class AppSearchPicker {
     this.query.set('');
     this.open.set(false);
   }
-}
-
-function fold(text: string): string {
-  return text
-    .toLocaleLowerCase()
-    .normalize('NFD')
-    .replace(/\p{Diacritic}/gu, '')
-    .replace(/đ/g, 'dj');
 }

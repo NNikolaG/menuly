@@ -17,10 +17,13 @@ import {
   AppButton,
   AppField,
   AppInput,
+  AppSearch,
+  AppSegmented,
   AppSelect,
   ConfirmDialog,
   type ConfirmDialogData,
 } from '../../shared/ui';
+import { matchesQuery } from '../../shared/text/fold';
 
 /** `/tim`: who works in the business, with what role, and email invitations for new people. */
 @Component({
@@ -31,6 +34,8 @@ import {
     AppButton,
     AppField,
     AppInput,
+    AppSearch,
+    AppSegmented,
     AppSelect,
     LucideSend,
     LucideTrash2,
@@ -53,64 +58,88 @@ import {
       <section class="stack" data-gap="3" aria-labelledby="members-heading">
         <h2 id="members-heading" i18n="@@team.members">Članovi</h2>
         @if (members(); as items) {
-          <table class="table">
-            <thead>
-              <tr>
-                <th i18n="@@team.col.person">Osoba</th>
-                <th i18n="@@team.col.role">Uloga</th>
-                <th class="wide-only" i18n="@@team.col.joined">Od</th>
-                @if (isOwner()) {
-                  <th><span class="visually-hidden" i18n="@@common.actions">Akcije</span></th>
-                }
-              </tr>
-            </thead>
-            <tbody>
-              @for (member of items; track member.user_id) {
+          <div class="filters">
+            <app-search [label]="searchLabel" [(value)]="query" />
+            <app-segmented
+              [label]="roleFilterLabel"
+              [options]="roleFilters"
+              [(value)]="roleFilter"
+            />
+          </div>
+          @if (!shownMembers().length) {
+            <div class="row" data-gap="3">
+              <p class="meta" i18n="@@common.noFilterMatches">Ništa ne odgovara filterima.</p>
+              <button
+                appButton
+                variant="ghost"
+                size="sm"
+                type="button"
+                (click)="clearFilters()"
+                i18n="@@common.clearFilters"
+              >
+                Poništi filtere
+              </button>
+            </div>
+          } @else {
+            <table class="table">
+              <thead>
                 <tr>
-                  <td>
-                    <strong>{{ member.name }}</strong>
-                    <span class="table__sub">{{ member.email }}</span>
-                  </td>
-                  <td>
-                    @if (isOwner() && member.role !== 'owner') {
-                      <app-select
-                        class="role"
-                        [label]="roleOf(member)"
-                        [options]="roleOptions()"
-                        [value]="member.role"
-                        [disabled]="busy() === member.user_id"
-                        (valueChange)="setRole(member, $event)"
-                      />
-                    } @else {
-                      <span
-                        class="badge"
-                        [attr.data-tone]="member.role === 'owner' ? 'accent' : 'info'"
-                        >{{ roleLabel[member.role] }}</span
-                      >
-                    }
-                  </td>
-                  <td class="wide-only">{{ member.created_at | date: 'dd.MM.y.' }}</td>
+                  <th i18n="@@team.col.person">Osoba</th>
+                  <th i18n="@@team.col.role">Uloga</th>
+                  <th class="wide-only" i18n="@@team.col.joined">Od</th>
                   @if (isOwner()) {
-                    <td data-num>
-                      @if (member.role !== 'owner') {
-                        <button
-                          appButton
-                          variant="ghost"
-                          size="sm"
-                          type="button"
-                          [attr.aria-label]="removeLabel(member.name)"
-                          [disabled]="busy() === member.user_id"
-                          (click)="remove(member)"
-                        >
-                          <svg lucideTrash2 aria-hidden="true"></svg>
-                        </button>
-                      }
-                    </td>
+                    <th><span class="visually-hidden" i18n="@@common.actions">Akcije</span></th>
                   }
                 </tr>
-              }
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                @for (member of shownMembers(); track member.user_id) {
+                  <tr>
+                    <td>
+                      <strong>{{ member.name }}</strong>
+                      <span class="table__sub">{{ member.email }}</span>
+                    </td>
+                    <td>
+                      @if (isOwner() && member.role !== 'owner') {
+                        <app-select
+                          class="role"
+                          [label]="roleOf(member)"
+                          [options]="roleOptions()"
+                          [value]="member.role"
+                          [disabled]="busy() === member.user_id"
+                          (valueChange)="setRole(member, $event)"
+                        />
+                      } @else {
+                        <span
+                          class="badge"
+                          [attr.data-tone]="member.role === 'owner' ? 'accent' : 'info'"
+                          >{{ roleLabel[member.role] }}</span
+                        >
+                      }
+                    </td>
+                    <td class="wide-only">{{ member.created_at | date: 'dd.MM.y.' }}</td>
+                    @if (isOwner()) {
+                      <td data-num>
+                        @if (member.role !== 'owner') {
+                          <button
+                            appButton
+                            variant="ghost"
+                            size="sm"
+                            type="button"
+                            [attr.aria-label]="removeLabel(member.name)"
+                            [disabled]="busy() === member.user_id"
+                            (click)="remove(member)"
+                          >
+                            <svg lucideTrash2 aria-hidden="true"></svg>
+                          </button>
+                        }
+                      </td>
+                    }
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
         } @else if (membersRes.error()) {
           <p role="alert" i18n="@@team.loadError">Tim nije učitan.</p>
         } @else {
@@ -248,6 +277,31 @@ export default class TeamPage {
     this.invitationsRes.hasValue() ? this.invitationsRes.value()?.items : undefined,
   );
   protected readonly isOwner = computed(() => this.auth.role() === 'owner');
+
+  protected readonly searchLabel = $localize`:@@team.search:Traži po imenu ili emailu`;
+  protected readonly roleFilterLabel = $localize`:@@team.col.role:Uloga`;
+  protected readonly roleFilters = [
+    { value: 'all', label: $localize`:@@common.filter.all:Svi` },
+    ...(['owner', 'manager', 'staff'] as const).map((role) => ({
+      value: role,
+      label: ROLE_LABEL[role],
+    })),
+  ];
+  protected readonly query = signal('');
+  protected readonly roleFilter = signal('all');
+  protected readonly shownMembers = computed(() =>
+    (this.members() ?? []).filter(
+      (member) =>
+        (this.roleFilter() === 'all' || member.role === this.roleFilter()) &&
+        matchesQuery(this.query(), member.name, member.email),
+    ),
+  );
+
+  protected clearFilters(): void {
+    this.query.set('');
+    this.roleFilter.set('all');
+  }
+
   /** Managers may only invite staff. */
   protected readonly roleOptions = computed(() => [
     ...(this.isOwner() ? [{ value: 'manager', label: ROLE_LABEL.manager }] : []),

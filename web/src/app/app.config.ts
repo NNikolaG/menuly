@@ -6,11 +6,13 @@ import {
   TitleStrategy,
   withComponentInputBinding,
   withInMemoryScrolling,
+  withPreloading,
 } from '@angular/router';
 import { environment } from '../environments/environment';
 import { routes } from './app.routes';
 import { API_BASE_URL } from './core/api/api-client';
 import { authInterceptor } from './core/auth/auth.interceptor';
+import { AppPreloading } from './core/host/app-preloading';
 import { AppTitleStrategy } from './core/layout/title-strategy';
 
 export const appConfig: ApplicationConfig = {
@@ -20,6 +22,7 @@ export const appConfig: ApplicationConfig = {
       routes,
       withComponentInputBinding(),
       withInMemoryScrolling({ scrollPositionRestoration: 'enabled', anchorScrolling: 'enabled' }),
+      withPreloading(AppPreloading),
     ),
     provideHttpClient(withInterceptors([authInterceptor])),
     { provide: TitleStrategy, useClass: AppTitleStrategy },

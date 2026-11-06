@@ -55,16 +55,23 @@ import {
         <div ngTabPanel value="tenants">
           <ng-template ngTabContent>
             <div class="stack" data-gap="4">
-              <form class="search" role="search" (submit)="search($event)">
-                <svg lucideSearch aria-hidden="true"></svg>
-                <input
-                  appInput
-                  type="search"
-                  [attr.aria-label]="searchLabel"
-                  [placeholder]="searchLabel"
-                  [formField]="searchForm.q"
+              <div class="filters">
+                <form class="search" role="search" (submit)="search($event)">
+                  <svg lucideSearch aria-hidden="true"></svg>
+                  <input
+                    appInput
+                    type="search"
+                    [attr.aria-label]="searchLabel"
+                    [placeholder]="searchLabel"
+                    [formField]="searchForm.q"
+                  />
+                </form>
+                <app-segmented
+                  [label]="statusFilterLabel"
+                  [options]="statusFilters"
+                  [(value)]="statusFilter"
                 />
-              </form>
+              </div>
 
               @if (tenants(); as items) {
                 <table class="table">
@@ -80,7 +87,7 @@ import {
                     </tr>
                   </thead>
                   <tbody>
-                    @for (t of items; track t.id) {
+                    @for (t of shownTenants(items); track t.id) {
                       <tr [attr.data-selected]="selected() === t.id ? '' : null">
                         <td>
                           <button
@@ -305,6 +312,7 @@ import {
 
     .search {
       position: relative;
+      flex: 1 1 14rem;
       max-inline-size: 24rem;
     }
 
@@ -397,6 +405,14 @@ export default class AdminPage {
     { value: '90', label: $localize`:@@admin.days90:90 dana` },
   ];
 
+  protected readonly statusFilterLabel = $localize`:@@venue.col.status:Status`;
+  protected readonly statusFilters = [
+    { value: 'all', label: $localize`:@@common.filter.allItems:Sve` },
+    { value: 'active', label: $localize`:@@admin.filter.active:Aktivne` },
+    { value: 'suspended', label: $localize`:@@admin.filter.suspended:Suspendovane` },
+  ];
+  protected readonly statusFilter = signal('all');
+
   protected readonly tab = signal<string | undefined>('tenants');
   protected readonly searchForm = form(signal({ q: '' }));
   private readonly query = signal('');
@@ -423,6 +439,11 @@ export default class AdminPage {
     return status === 'active'
       ? $localize`:@@admin.status.active:Aktivna`
       : $localize`:@@admin.status.suspended:Suspendovana`;
+  }
+
+  protected shownTenants(items: AdminTenantSummary[]): AdminTenantSummary[] {
+    const status = this.statusFilter();
+    return status === 'all' ? items : items.filter((tenant) => tenant.status === status);
   }
 
   protected search(event: Event): void {

@@ -19,14 +19,18 @@ import type { Menu } from '../../core/menus/menu';
 import { MenusApi } from '../../core/menus/menus-api';
 import { venuePublicUrl } from '../../core/venues/venue-public-url';
 import { VenuesApi } from '../../core/venues/venues-api';
+import { VenuesStore } from '../../core/venues/venues-store';
 import {
   AppButton,
   AppField,
   AppInput,
+  AppSearch,
+  AppSegmented,
   ConfirmDialog,
   type ConfirmDialogData,
   AppPattern,
 } from '../../shared/ui';
+import { matchesQuery } from '../../shared/text/fold';
 import { VenueQr } from './venue-qr';
 
 /** `/objekti/:venueId`: the venue's public link and its menus. */
@@ -42,6 +46,8 @@ import { VenueQr } from './venue-qr';
     AppButton,
     AppField,
     AppInput,
+    AppSearch,
+    AppSegmented,
     LucideArrowLeft,
     LucideCamera,
     LucideLayers,
@@ -53,10 +59,12 @@ import { VenueQr } from './venue-qr';
   template: `
     <div class="stack" data-gap="6">
       <div class="stack" data-gap="2">
-        <a appButton variant="ghost" size="sm" routerLink="/objekti" class="back">
-          <svg lucideArrowLeft aria-hidden="true"></svg>
-          <ng-container i18n="@@venues.backToList">Objekti</ng-container>
-        </a>
+        @if (!onlyVenue()) {
+          <a appButton variant="ghost" size="sm" routerLink="/objekti" class="back">
+            <svg lucideArrowLeft aria-hidden="true"></svg>
+            <ng-container i18n="@@venues.backToList">Objekti</ng-container>
+          </a>
+        }
         @if (venue.value(); as v) {
           <div class="row" data-justify="between">
             <h1>{{ v.name }}</h1>
@@ -73,6 +81,13 @@ import { VenueQr } from './venue-qr';
                 <a appButton variant="secondary" routerLink="izmena">
                   <svg lucidePencil aria-hidden="true"></svg>
                   <ng-container i18n="@@venue.edit">Izmeni objekat</ng-container>
+                </a>
+              }
+              <!-- With one venue the list is skipped, so adding the next one starts here. -->
+              @if (onlyVenue() && isOwner()) {
+                <a appButton variant="secondary" routerLink="/objekti/novi">
+                  <svg lucidePlus aria-hidden="true"></svg>
+                  <ng-container i18n="@@venues.add">Dodaj objekat</ng-container>
                 </a>
               }
             </div>
@@ -123,6 +138,30 @@ import { VenueQr } from './venue-qr';
 
             @if (menus.value()?.items; as items) {
               @if (items.length) {
+                <div class="filters">
+                  <app-search [label]="menuSearchLabel" [(value)]="menuQuery" />
+                  <app-segmented
+                    [label]="statusLabel"
+                    [options]="statusOptions"
+                    [(value)]="menuStatus"
+                  />
+                </div>
+              }
+              @if (items.length && !shownMenus().length) {
+                <div class="row" data-gap="3">
+                  <p class="meta" i18n="@@common.noFilterMatches">Ništa ne odgovara filterima.</p>
+                  <button
+                    appButton
+                    variant="ghost"
+                    size="sm"
+                    type="button"
+                    (click)="clearMenuFilters()"
+                    i18n="@@common.clearFilters"
+                  >
+                    Poništi filtere
+                  </button>
+                </div>
+              } @else if (items.length) {
                 <table class="table">
                   <thead>
                     <tr>
@@ -132,7 +171,7 @@ import { VenueQr } from './venue-qr';
                     </tr>
                   </thead>
                   <tbody>
-                    @for (menu of items; track menu.id) {
+                    @for (menu of shownMenus(); track menu.id) {
                       <tr>
                         <td>
                           <a class="menu-link" [routerLink]="['/meniji', menu.id]">
@@ -340,6 +379,35 @@ export default class VenuePage {
     const role = this.auth.role();
     return role === 'owner' || role === 'manager';
   });
+  protected readonly isOwner = computed(() => this.auth.role() === 'owner');
+  private readonly allVenues = inject(VenuesStore).list;
+  /** The tenant has just this venue: no way back to a list, which would only open it again. */
+  protected readonly onlyVenue = computed(() => {
+    const items = this.allVenues.hasValue() ? this.allVenues.value()?.items : undefined;
+    return items?.length === 1 && items[0].id === this.venueId();
+  });
+
+  protected readonly menuSearchLabel = $localize`:@@venue.menuSearch:Traži meni`;
+  protected readonly statusLabel = $localize`:@@venue.col.status:Status`;
+  protected readonly statusOptions = [
+    { value: 'all', label: $localize`:@@common.filter.all:Svi` },
+    { value: 'published', label: $localize`:@@venue.filter.published:Objavljeni` },
+    { value: 'draft', label: $localize`:@@venue.filter.draft:Nacrti` },
+  ];
+  protected readonly menuQuery = signal('');
+  protected readonly menuStatus = signal('all');
+  protected readonly shownMenus = computed(() =>
+    (this.menus.value()?.items ?? []).filter(
+      (menu) =>
+        (this.menuStatus() === 'all' || menu.status === this.menuStatus()) &&
+        matchesQuery(this.menuQuery(), menu.name),
+    ),
+  );
+
+  protected clearMenuFilters(): void {
+    this.menuQuery.set('');
+    this.menuStatus.set('all');
+  }
   /** The server's link when loaded, else built locally (same shape). */
   protected readonly publicUrl = computed(() => {
     const link = this.publicLink.hasValue() ? this.publicLink.value()?.url : undefined;

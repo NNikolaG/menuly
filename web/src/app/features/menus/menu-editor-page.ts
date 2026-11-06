@@ -38,7 +38,15 @@ import type {
 } from '../../core/menus/menu';
 import { MenusApi } from '../../core/menus/menus-api';
 import { VenuesApi } from '../../core/venues/venues-api';
-import { AppButton, AppSwitch, ConfirmDialog, type ConfirmDialogData } from '../../shared/ui';
+import {
+  AppButton,
+  AppSearch,
+  AppSegmented,
+  AppSwitch,
+  ConfirmDialog,
+  type ConfirmDialogData,
+} from '../../shared/ui';
+import { matchesQuery } from '../../shared/text/fold';
 import { CategoryDialog, type CategoryDialogResult } from './category-dialog';
 import { ItemDialog, type ItemDialogData, type ItemDialogResult } from './item-dialog';
 import { PriceAdjustDialog, type PriceAdjustDialogData } from './price-adjust-dialog';
@@ -57,6 +65,8 @@ import { toMajor, toMinor } from './price';
     CdkDrag,
     CdkDragHandle,
     AppButton,
+    AppSearch,
+    AppSegmented,
     AppSwitch,
     LucideArrowLeft,
     LucideGripVertical,
@@ -143,6 +153,22 @@ import { toMajor, toMinor } from './price';
           </p>
         }
 
+        @if (itemCount() > 0) {
+          <div class="filters">
+            <app-search [label]="searchLabel" [(value)]="query" />
+            <app-segmented
+              [label]="availabilityLabel"
+              [options]="availabilityOptions"
+              [(value)]="availability"
+            />
+            @if (filtering()) {
+              <span class="filters__count" i18n="@@common.filterCount"
+                >{{ shownItemCount() }} od {{ itemCount() }}</span
+              >
+            }
+          </div>
+        }
+
         <p id="move-hint" class="visually-hidden" i18n="@@menu.moveHint">
           Alt + strelica gore ili dole pomera stavku.
         </p>
@@ -151,10 +177,10 @@ import { toMajor, toMinor } from './price';
           class="stack"
           data-gap="8"
           cdkDropList
-          [cdkDropListDisabled]="!canEdit()"
+          [cdkDropListDisabled]="!canEdit() || filtering()"
           (cdkDropListDropped)="moveCategory(tree, $event)"
         >
-          @for (category of tree.categories; track category.id) {
+          @for (category of shownCategories(); track category.id) {
             <section
               class="stack category"
               data-gap="3"
@@ -168,6 +194,7 @@ import { toMajor, toMinor } from './price';
                       type="button"
                       class="handle"
                       cdkDragHandle
+                      [disabled]="filtering()"
                       [id]="'move-' + category.id"
                       [attr.aria-label]="moveLabel(category.name)"
                       aria-describedby="move-hint"
@@ -248,7 +275,7 @@ import { toMajor, toMinor } from './price';
                   </thead>
                   <tbody
                     cdkDropList
-                    [cdkDropListDisabled]="!canEdit()"
+                    [cdkDropListDisabled]="!canEdit() || filtering()"
                     (cdkDropListDropped)="moveItem(category, $event)"
                   >
                     @for (item of category.items; track item.id) {
@@ -259,6 +286,7 @@ import { toMajor, toMinor } from './price';
                               type="button"
                               class="handle"
                               cdkDragHandle
+                              [disabled]="filtering()"
                               [id]="'move-' + item.id"
                               [attr.aria-label]="moveLabel(item.name)"
                               aria-describedby="move-hint"
@@ -352,12 +380,28 @@ import { toMajor, toMinor } from './price';
               }
             </section>
           } @empty {
-            <div class="card stack" data-gap="2">
-              <p class="card__title" i18n="@@menu.empty">Meni još nema kategorija.</p>
-              <p class="card__body" i18n="@@menu.emptyBody">
-                Dodaj prvu kategoriju, npr. „Topli napici“, pa u nju stavke sa cenama.
-              </p>
-            </div>
+            @if (filtering()) {
+              <div class="row" data-gap="3">
+                <p class="meta" i18n="@@common.noFilterMatches">Ništa ne odgovara filterima.</p>
+                <button
+                  appButton
+                  variant="ghost"
+                  size="sm"
+                  type="button"
+                  (click)="clearFilters()"
+                  i18n="@@common.clearFilters"
+                >
+                  Poništi filtere
+                </button>
+              </div>
+            } @else {
+              <div class="card stack" data-gap="2">
+                <p class="card__title" i18n="@@menu.empty">Meni još nema kategorija.</p>
+                <p class="card__body" i18n="@@menu.emptyBody">
+                  Dodaj prvu kategoriju, npr. „Topli napici“, pa u nju stavke sa cenama.
+                </p>
+              </div>
+            }
           }
         </div>
 
@@ -506,6 +550,55 @@ export default class MenuEditorPage {
     const role = this.auth.role();
     return role === 'owner' || role === 'manager';
   });
+
+  protected readonly searchLabel = $localize`:@@menu.search:Traži stavku`;
+  protected readonly availabilityLabel = $localize`:@@menu.col.available:Dostupno`;
+  protected readonly availabilityOptions = [
+    { value: 'all', label: $localize`:@@common.filter.allItems:Sve` },
+    { value: 'available', label: $localize`:@@menu.filter.available:Dostupne` },
+    { value: 'unavailable', label: $localize`:@@menu.filter.unavailable:Nedostupne` },
+  ];
+  protected readonly query = signal('');
+  protected readonly availability = signal('all');
+  /** While filtering, drag and drop is off: the rows on screen are not the whole category. */
+  protected readonly filtering = computed(
+    () => this.query().trim() !== '' || this.availability() !== 'all',
+  );
+  protected readonly itemCount = computed(() =>
+    (this.menu.value()?.categories ?? []).reduce((sum, c) => sum + c.items.length, 0),
+  );
+  /** Categories with the items that pass; a query naming a category keeps all of its items. */
+  protected readonly shownCategories = computed(() => {
+    const categories = this.menu.value()?.categories ?? [];
+    if (!this.filtering()) return categories;
+    const query = this.query();
+    const availability = this.availability();
+    return categories
+      .map((category) => {
+        const categoryHit = query.trim() !== '' && matchesQuery(query, category.name);
+        const items = category.items.filter(
+          (item) =>
+            (availability === 'all' || item.is_available === (availability === 'available')) &&
+            (categoryHit ||
+              matchesQuery(
+                query,
+                item.name,
+                item.description,
+                ...item.variants.map((variant) => variant.label),
+              )),
+        );
+        return { ...category, items };
+      })
+      .filter((category) => category.items.length > 0);
+  });
+  protected readonly shownItemCount = computed(() =>
+    this.shownCategories().reduce((sum, c) => sum + c.items.length, 0),
+  );
+
+  protected clearFilters(): void {
+    this.query.set('');
+    this.availability.set('all');
+  }
 
   protected moveLabel(name: string): string {
     return $localize`:@@menu.moveLabel:Premesti ${name}:name:`;
