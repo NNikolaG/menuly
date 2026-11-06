@@ -631,6 +631,9 @@ const RADII = ['xs', 'sm', 'md', 'lg', 'pill'];
               <button appButton type="button" data-action="pay">Naplati</button>
               <button appButton type="button" data-action="send">Pošalji</button>
             </div>
+            <div class="receipt__stamp">
+              <app-pattern seed="0412" [cols]="8" [rows]="1" [big]="false" />
+            </div>
           </div>
         </div>
       </section>

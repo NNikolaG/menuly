@@ -199,7 +199,7 @@
   --textarea-min-height: 88px;
   --text-measure: 52ch;
   --size-dot: 6px;
-  --size-swatch: 12px;
+  --size-swatch: 24px;
   --size-mark: 32px;
   --size-badge: 24px;
   --size-tag: 22px;
@@ -228,6 +228,7 @@
   --stroke-hairline: 1px;
   --stroke-control: 1px;
   --stroke-focus: 2px;
+  --stroke-punch-ring: 3px;
   --focus-offset: 2px;
 
   /* ---------- Shadow, motion, layers ---------- */

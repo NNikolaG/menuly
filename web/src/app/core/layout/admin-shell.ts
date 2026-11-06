@@ -12,6 +12,7 @@ import {
   type LucideIcon,
 } from '@lucide/angular';
 import { AppMenu, type AppMenuItem } from '../../shared/ui/menu/menu';
+import { AppPattern } from '../../shared/ui/pattern/pattern';
 import { AuthStore } from '../auth/auth-store';
 import { ThemeStore, type ThemePreference } from '../theme/theme-store';
 
@@ -46,11 +47,15 @@ const NEXT_THEME: Record<ThemePreference, ThemePreference> = {
 /** Frame of every signed-in page: sidebar with venue and navigation, top bar with theme and account menu. */
 @Component({
   selector: 'app-admin-shell',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, AppMenu, LucideDynamicIcon],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, AppMenu, AppPattern, LucideDynamicIcon],
   template: `
     <nav class="sidebar" i18n-aria-label="@@shell.nav" aria-label="Glavna navigacija">
       <a class="sidebar__venue" routerLink="/">
-        <span class="sidebar__mark" aria-hidden="true">{{ initial() }}</span>
+        @if (auth.me.value()?.tenant?.name; as venue) {
+          <app-pattern class="sidebar__mark" [seed]="venue" [cols]="2" [rows]="2" [big]="false" />
+        } @else {
+          <span class="sidebar__mark" aria-hidden="true">{{ initial() }}</span>
+        }
         <span>
           <span class="sidebar__venue-name">{{ auth.me.value()?.tenant?.name ?? brand }}</span>
           <span class="sidebar__venue-plan">{{ auth.me.value()?.tenant?.plan }}</span>
@@ -161,6 +166,7 @@ const NEXT_THEME: Record<ThemePreference, ThemePreference> = {
     @media (max-width: 720px) {
       :host {
         grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto 1fr;
       }
 
       .sidebar {
