@@ -1,5 +1,5 @@
 import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router, withComponentInputBinding } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
@@ -24,7 +24,7 @@ describe('app routes', () => {
     const harness = await RouterTestingHarness.create();
     await harness.navigateByUrl('/centar');
     expect(TestBed.inject(Router).url).toBe('/centar');
-    expect(harness.routeNativeElement?.textContent).toContain('Meni: centar');
+    TestBed.inject(HttpTestingController).expectOne('/api/v1/public/menus/zora/centar');
   });
 
   it('keeps admin pages behind sign-in on the app host', async () => {
