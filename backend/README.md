@@ -108,6 +108,10 @@ Hijerarhija: objekat → meni → kategorija → stavka → varijanta (cena). St
 
 Gost nema tenant kontekst. Zato se tenant prvo nađe po slugu kroz usku RLS politiku `public_lookup` (samo red tog tenanta), a ostatak transakcije ide kroz obične tenant politike, samo za čitanje.
 
+## QR kod
+
+`GET /v1/venues/{id}/qr?format=png|svg&size=512&download=1` pravi QR za javni link objekta (`GET /v1/venues/{id}/public-link`). Šablon linka je `PUBLIC_MENU_URL` (podrazumevano `https://{tenant}.menuly.app/{venue}`), pa lokalno može npr. `http://localhost:4200/m/{tenant}/{venue}`.
+
 ## Struktura
 
 ```
@@ -129,6 +133,6 @@ backend/
 - Pozivnice za članove tima i reset lozinke (treba slanje emaila).
 - Ograničenje `manager`/`staff` na određene objekte (`memberships.venue_ids` postoji u šemi, provera još ne).
 - `platform_admin` rute (kolona `users.is_platform_admin` postoji).
-- QR kod za javni link objekta, brojač otvaranja menija (`menu_view_daily`).
+- Brojač otvaranja menija (`menu_view_daily`).
 - Promocije / kombo, tema menija, upload slika (MinIO), OCR uvoz.
 - Rate limiting za login/register.

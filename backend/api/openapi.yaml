@@ -367,6 +367,49 @@ paths:
         "404": { $ref: "#/components/responses/Error" }
         "422": { $ref: "#/components/responses/Error" }
 
+  /v1/venues/{venueID}/public-link:
+    parameters:
+      - $ref: "#/components/parameters/VenueID"
+    get:
+      tags: [Venues]
+      operationId: getVenuePublicLink
+      summary: The guest URL of the venue's menu ({tenant}.menuly.app/{venue})
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url: { type: string, format: uri, example: "https://kafana-djordje.menuly.app/centar" }
+        "404": { $ref: "#/components/responses/Error" }
+  /v1/venues/{venueID}/qr:
+    parameters:
+      - $ref: "#/components/parameters/VenueID"
+    get:
+      tags: [Venues]
+      operationId: getVenueQr
+      summary: QR code for the venue's public menu URL (PNG or SVG)
+      description: |
+        Encodes the URL from `/public-link`. SVG prints sharp at any size; PNG is `size`×`size` pixels.
+        `download=1` adds `Content-Disposition: attachment; filename="menuly-{venue}.png"`.
+        Use it in an `<img>` via a blob URL, since the request needs the `Authorization` header.
+      parameters:
+        - { name: format, in: query, schema: { type: string, enum: [png, svg], default: png } }
+        - { name: size, in: query, schema: { type: integer, minimum: 128, maximum: 2048, default: 512 } }
+        - { name: download, in: query, schema: { type: string, enum: ["1"] } }
+      responses:
+        "200":
+          description: The image
+          content:
+            image/png:
+              schema: { type: string, format: binary }
+            image/svg+xml:
+              schema: { type: string }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+
   /v1/menus/{menuID}:
     parameters:
       - $ref: "#/components/parameters/MenuID"

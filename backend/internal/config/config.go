@@ -28,6 +28,9 @@ type Config struct {
 
 	DocsEnabled bool `env:"DOCS_ENABLED" envDefault:"true"`
 
+	// PublicMenuURL is the guest URL of a venue, used for QR codes.
+	PublicMenuURL string `env:"PUBLIC_MENU_URL" envDefault:"https://{tenant}.menuly.app/{venue}"`
+
 	CORSAllowedOrigins []string `env:"CORS_ALLOWED_ORIGINS" envSeparator:"," envDefault:"http://localhost:4200"`
 }
 

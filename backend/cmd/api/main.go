@@ -78,7 +78,7 @@ func serve(ctx context.Context, cfg config.Config) error {
 	issuer := auth.NewIssuer(cfg.JWTSecret, cfg.JWTIssuer, cfg.AccessTokenTTL, cfg.RefreshTokenTTL)
 	srv := &http.Server{
 		Addr:              cfg.HTTPAddr,
-		Handler:           httpapi.New(database, issuer).Handler(httpapi.Options{CORSAllowedOrigins: cfg.CORSAllowedOrigins, DocsEnabled: cfg.DocsEnabled}),
+		Handler:           httpapi.New(database, issuer).Handler(httpapi.Options{CORSAllowedOrigins: cfg.CORSAllowedOrigins, DocsEnabled: cfg.DocsEnabled, PublicMenuURL: cfg.PublicMenuURL}),
 		ReadHeaderTimeout: 10 * time.Second,
 	}
 

@@ -19,12 +19,17 @@ import (
 type Server struct {
 	db     *db.DB
 	issuer *auth.Issuer
+	// publicURLTemplate builds a venue's public menu URL, e.g.
+	// "https://{tenant}.menuly.app/{venue}".
+	publicURLTemplate string
 }
 
 type Options struct {
 	CORSAllowedOrigins []string
 	// DocsEnabled serves Swagger UI at /docs and the spec at /openapi.yaml.
 	DocsEnabled bool
+	// PublicMenuURL is the template for QR codes and public links.
+	PublicMenuURL string
 }
 
 func New(database *db.DB, issuer *auth.Issuer) *Server {
@@ -32,6 +37,7 @@ func New(database *db.DB, issuer *auth.Issuer) *Server {
 }
 
 func (s *Server) Handler(opts Options) http.Handler {
+	s.publicURLTemplate = opts.PublicMenuURL
 	r := chi.NewRouter()
 	editors := requireRole(auth.RoleOwner, auth.RoleManager)
 	r.Use(middleware.RequestID)
@@ -84,6 +90,8 @@ func (s *Server) Handler(opts Options) http.Handler {
 					r.With(editors).Patch("/", s.handleUpdateVenue)
 					r.With(requireRole(auth.RoleOwner)).Delete("/", s.handleDeleteVenue)
 					r.Get("/menus", s.handleListMenus)
+					r.Get("/public-link", s.handleVenuePublicLink)
+					r.Get("/qr", s.handleVenueQR)
 					r.With(editors).Post("/menus", s.handleCreateMenu)
 				})
 			})
