@@ -4814,6 +4814,14 @@
         <source>Lista</source>
         <target>List</target>
       </trans-unit>
+      <trans-unit id="shell.sidebar.collapse" datatype="html">
+        <source>Skupi meni</source>
+        <target>Collapse menu</target>
+      </trans-unit>
+      <trans-unit id="shell.sidebar.expand" datatype="html">
+        <source>Proširi meni</source>
+        <target>Expand menu</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -25,7 +25,7 @@ import { ViewsChart } from './views-chart';
       </div>
 
       <div class="bento">
-        <div class="card" data-rows="2">
+        <div class="card count-card" data-rows="2">
           <div class="stat">
             <span class="stat__label" i18n="@@dashboard.venuesStat">Objekti</span>
             <span class="stat__value">{{ venueCount() ?? '—' }}</span>
@@ -111,6 +111,11 @@ import { ViewsChart } from './views-chart';
     @media (max-width: 720px) {
       .link-card {
         grid-column: 1 / -1;
+      }
+
+      .count-card {
+        grid-column: 1 / -1;
+        grid-row: auto;
       }
     }
 

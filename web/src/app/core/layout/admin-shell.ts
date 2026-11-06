@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import {
   LucideArrowLeftRight,
@@ -7,9 +7,12 @@ import {
   LucideLogOut,
   LucideMonitor,
   LucideMoon,
+  LucidePanelLeftClose,
+  LucidePanelLeftOpen,
   LucideShieldCheck,
   LucideStore,
   LucideSun,
+  LucideUserRound,
   LucideUsers,
   type LucideIcon,
 } from '@lucide/angular';
@@ -19,6 +22,7 @@ import { AuthStore } from '../auth/auth-store';
 import { ThemeStore, type ThemePreference } from '../theme/theme-store';
 
 const LOGOUT = 'logout';
+const SIDEBAR_KEY = 'menuly.sidebar';
 
 interface NavItem {
   path: string;
@@ -60,53 +64,79 @@ const NEXT_THEME: Record<ThemePreference, ThemePreference> = {
   dark: 'system',
 };
 
-/** Frame of every signed-in page: sidebar with venue and navigation, top bar with theme and account menu. */
+/** Frame of every signed-in page: collapsible sidebar with venue, navigation, theme and account menu. */
 @Component({
   selector: 'app-admin-shell',
   imports: [RouterOutlet, RouterLink, RouterLinkActive, AppMenu, AppPattern, LucideDynamicIcon],
   template: `
-    <nav class="sidebar" i18n-aria-label="@@shell.nav" aria-label="Glavna navigacija">
-      <a class="sidebar__venue" routerLink="/">
-        @if (auth.me.value()?.tenant?.name; as venue) {
-          <app-pattern class="sidebar__mark" [seed]="venue" [cols]="2" [rows]="2" [big]="false" />
-        } @else {
-          <span class="sidebar__mark" aria-hidden="true">{{ initial() }}</span>
-        }
-        <span>
-          <span class="sidebar__venue-name">{{ auth.me.value()?.tenant?.name ?? brand }}</span>
-          <span class="sidebar__venue-plan">{{ auth.me.value()?.tenant?.plan }}</span>
-        </span>
-      </a>
-      @for (item of nav(); track item.path) {
-        <a class="nav-item" [routerLink]="item.path" routerLinkActive ariaCurrentWhenActive="page">
-          <svg [lucideIcon]="item.icon"></svg>
-          {{ item.label }}
+    <nav
+      class="sidebar"
+      [attr.data-collapsed]="collapsed() ? '' : null"
+      i18n-aria-label="@@shell.nav"
+      aria-label="Glavna navigacija"
+    >
+      <div class="sidebar__head">
+        <a class="sidebar__venue" routerLink="/" [attr.title]="collapsed() ? tenantName() : null">
+          @if (auth.me.value()?.tenant?.name; as venue) {
+            <app-pattern class="sidebar__mark" [seed]="venue" [cols]="2" [rows]="2" [big]="false" />
+          } @else {
+            <span class="sidebar__mark" aria-hidden="true">{{ initial() }}</span>
+          }
+          <span class="expanded-only">
+            <span class="sidebar__venue-name">{{ tenantName() }}</span>
+            <span class="sidebar__venue-plan">{{ auth.me.value()?.tenant?.plan }}</span>
+          </span>
         </a>
-      }
-    </nav>
-    <div class="content">
-      <header class="topbar">
         <button
           type="button"
-          class="icon-button"
+          class="icon-button toggle"
+          [attr.aria-label]="toggleLabel()"
+          [attr.aria-expanded]="!collapsed()"
+          [title]="toggleLabel()"
+          (click)="toggleSidebar()"
+        >
+          <svg [lucideIcon]="collapsed() ? openIcon : closeIcon"></svg>
+        </button>
+      </div>
+      @for (item of nav(); track item.path) {
+        <a
+          class="nav-item"
+          [routerLink]="item.path"
+          routerLinkActive
+          ariaCurrentWhenActive="page"
+          [attr.title]="collapsed() ? item.label : null"
+        >
+          <svg [lucideIcon]="item.icon" aria-hidden="true"></svg>
+          <span class="expanded-only">{{ item.label }}</span>
+        </a>
+      }
+      <div class="sidebar__foot">
+        <button
+          type="button"
+          class="nav-item theme"
           [attr.aria-label]="themeLabel()"
           [title]="themeLabel()"
           (click)="cycleTheme()"
         >
-          <svg [lucideIcon]="themeIcon()"></svg>
+          <svg [lucideIcon]="themeIcon()" aria-hidden="true"></svg>
+          <span class="expanded-only" aria-hidden="true">{{ themeLabel() }}</span>
         </button>
         @if (auth.me.value(); as me) {
           <app-menu
+            class="account"
             [label]="me.user.name"
+            [icon]="userIcon"
+            [compact]="collapsed()"
+            [above]="true"
             [items]="accountItems()"
             (selected)="onAccountAction($event)"
           />
         }
-      </header>
-      <main>
-        <router-outlet />
-      </main>
-    </div>
+      </div>
+    </nav>
+    <main>
+      <router-outlet />
+    </main>
   `,
   styles: `
     :host {
@@ -115,49 +145,66 @@ const NEXT_THEME: Record<ThemePreference, ThemePreference> = {
       min-block-size: 100dvh;
     }
 
+    :host:has(.sidebar[data-collapsed]) {
+      grid-template-columns: var(--sidebar-collapsed-width) minmax(0, 1fr);
+    }
+
     .sidebar {
       position: sticky;
       inset-block-start: 0;
+      inline-size: auto;
       block-size: 100dvh;
       overflow-y: auto;
     }
 
+    .sidebar__head {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-1);
+    }
+
     .sidebar__venue {
+      flex: 1;
+      min-inline-size: 0;
       color: inherit;
       text-decoration: none;
+    }
+
+    .sidebar__venue > span:not(.sidebar__mark) {
+      min-inline-size: 0;
     }
 
     .sidebar__venue-name,
     .sidebar__venue-plan {
       display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .sidebar__venue-plan {
       text-transform: uppercase;
     }
 
-    .content {
+    .sidebar__foot {
       display: flex;
       flex-direction: column;
-      min-inline-size: 0;
+      gap: var(--space-1);
+      margin-block-start: auto;
+      padding-block-start: var(--space-4);
     }
 
-    .topbar {
-      position: sticky;
-      inset-block-start: 0;
-      z-index: var(--z-sticky);
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: var(--space-2);
-      block-size: var(--topbar-height);
-      padding-inline: var(--space-6);
-      background: var(--color-bg);
-      border-block-end: var(--stroke-hairline) solid var(--color-border);
+    .theme {
+      inline-size: 100%;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+      text-align: start;
     }
 
     .icon-button {
       display: grid;
+      flex: none;
       place-items: center;
       inline-size: var(--control-md);
       block-size: var(--control-md);
@@ -173,24 +220,57 @@ const NEXT_THEME: Record<ThemePreference, ThemePreference> = {
       color: var(--color-text);
     }
 
+    /* Collapsed: icons only, names stay as accessible names and tooltips. */
+    .sidebar[data-collapsed] {
+      align-items: center;
+      padding-inline: var(--space-2);
+    }
+
+    .sidebar[data-collapsed] .expanded-only {
+      display: none;
+    }
+
+    .sidebar[data-collapsed] .sidebar__head {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .sidebar[data-collapsed] .sidebar__venue {
+      padding-block-end: var(--space-2);
+    }
+
+    .sidebar[data-collapsed] .nav-item {
+      justify-content: center;
+      inline-size: var(--control-md);
+      padding-inline: 0;
+    }
+
+    .sidebar[data-collapsed] .sidebar__foot {
+      align-items: center;
+    }
+
     main {
       inline-size: 100%;
+      min-inline-size: 0;
       padding: var(--space-8) var(--space-6);
     }
 
     @media (max-width: 720px) {
-      :host {
+      :host,
+      :host:has(.sidebar[data-collapsed]) {
         grid-template-columns: minmax(0, 1fr);
         grid-template-rows: auto 1fr;
       }
 
-      .sidebar {
+      .sidebar,
+      .sidebar[data-collapsed] {
         position: static;
         flex-direction: row;
         align-items: center;
         inline-size: auto;
         block-size: auto;
         min-block-size: 0;
+        padding: var(--space-2) var(--space-3);
         overflow-x: auto;
         border-inline-end: 0;
         border-block-end: var(--stroke-hairline) solid var(--color-border);
@@ -200,12 +280,22 @@ const NEXT_THEME: Record<ThemePreference, ThemePreference> = {
         padding-block-end: var(--space-2);
       }
 
-      .sidebar__venue > span:not(.sidebar__mark) {
+      .sidebar__venue > span:not(.sidebar__mark),
+      .sidebar .theme .expanded-only,
+      .toggle {
         display: none;
       }
 
-      .topbar {
-        padding-inline: var(--space-4);
+      .sidebar__foot {
+        flex-direction: row;
+        align-items: center;
+        margin-block-start: 0;
+        margin-inline-start: auto;
+        padding-block-start: 0;
+      }
+
+      .theme {
+        inline-size: auto;
       }
 
       main {
@@ -222,6 +312,28 @@ export class AdminShell {
     NAV.filter((item) => !item.visible || item.visible(this.auth)),
   );
   protected readonly brand = 'Menuly';
+  protected readonly openIcon = LucidePanelLeftOpen;
+  protected readonly closeIcon = LucidePanelLeftClose;
+  protected readonly userIcon = LucideUserRound;
+
+  /** Remembered per browser. */
+  protected readonly collapsed = signal(readCollapsed());
+  protected readonly toggleLabel = computed(() =>
+    this.collapsed()
+      ? $localize`:@@shell.sidebar.expand:Proširi meni`
+      : $localize`:@@shell.sidebar.collapse:Skupi meni`,
+  );
+  protected readonly tenantName = computed(() => this.auth.me.value()?.tenant?.name ?? this.brand);
+
+  protected toggleSidebar(): void {
+    this.collapsed.update((value) => !value);
+    try {
+      if (this.collapsed()) localStorage.setItem(SIDEBAR_KEY, 'collapsed');
+      else localStorage.removeItem(SIDEBAR_KEY);
+    } catch {
+      // Storage can be unavailable (private mode); the choice then lasts only for this page.
+    }
+  }
 
   protected readonly initial = computed(() =>
     (this.auth.me.value()?.tenant.name ?? this.brand).charAt(0).toUpperCase(),
@@ -263,5 +375,13 @@ export class AdminShell {
 
   protected onAccountAction(value: string): void {
     void (value === LOGOUT ? this.auth.logout() : this.auth.switchTenant(value));
+  }
+}
+
+function readCollapsed(): boolean {
+  try {
+    return localStorage.getItem(SIDEBAR_KEY) === 'collapsed';
+  } catch {
+    return false;
   }
 }
