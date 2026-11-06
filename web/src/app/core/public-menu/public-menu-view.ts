@@ -26,7 +26,7 @@ import {
 } from '@lucide/angular';
 import { ALLERGENS, DIET_TAGS, isHighlight, labelOf } from '../menus/menu-labels';
 import { DEFAULT_MENU_THEME, MENU_FONTS, type MenuTheme } from '../menus/menu-theme';
-import { AppButton, AppPattern } from '../../shared/ui';
+import { AppButton, AppChipGroup, AppPattern } from '../../shared/ui';
 import {
   activeFilterCount,
   filterMenu,
@@ -51,6 +51,7 @@ type Mode = 'light' | 'dark';
     CurrencyPipe,
     NgTemplateOutlet,
     AppButton,
+    AppChipGroup,
     AppPattern,
     LucideMapPin,
     LucideMoon,
@@ -182,35 +183,25 @@ type Mode = 'light' | 'dark';
             @if (dietOptions().length) {
               <div class="stack" data-gap="2">
                 <p class="eyebrow" i18n="@@publicMenu.filter.diet">Ishrana</p>
-                <div class="row" data-gap="2">
-                  @for (option of dietOptions(); track option.key) {
-                    <button
-                      type="button"
-                      class="chip"
-                      [attr.aria-pressed]="filter().diets.includes(option.key)"
-                      (click)="toggle('diets', option.key)"
-                    >
-                      {{ option.label }}
-                    </button>
-                  }
-                </div>
+                <app-chip-group
+                  size="lg"
+                  [label]="dietLabel"
+                  [options]="dietOptions()"
+                  [value]="filter().diets"
+                  (valueChange)="setList('diets', $event)"
+                />
               </div>
             }
             @if (allergenOptions().length) {
               <div class="stack" data-gap="2">
                 <p class="eyebrow" i18n="@@publicMenu.filter.without">Bez alergena</p>
-                <div class="row" data-gap="2">
-                  @for (option of allergenOptions(); track option.key) {
-                    <button
-                      type="button"
-                      class="chip"
-                      [attr.aria-pressed]="filter().withoutAllergens.includes(option.key)"
-                      (click)="toggle('withoutAllergens', option.key)"
-                    >
-                      {{ option.label }}
-                    </button>
-                  }
-                </div>
+                <app-chip-group
+                  size="lg"
+                  [label]="withoutLabel"
+                  [options]="allergenOptions()"
+                  [value]="filter().withoutAllergens"
+                  (valueChange)="setList('withoutAllergens', $event)"
+                />
               </div>
             }
             @if (hasSoldOut()) {
@@ -624,14 +615,11 @@ export class PublicMenuView {
     this.filter.update((filter) => ({ ...filter, ...patch }));
   }
 
-  protected toggle(key: 'diets' | 'withoutAllergens', value: string): void {
-    this.filter.update((filter) => {
-      const list = filter[key];
-      return {
-        ...filter,
-        [key]: list.includes(value) ? list.filter((v) => v !== value) : [...list, value],
-      };
-    });
+  protected readonly dietLabel = $localize`:@@publicMenu.filter.diet:Ishrana`;
+  protected readonly withoutLabel = $localize`:@@publicMenu.filter.without:Bez alergena`;
+
+  protected setList(key: 'diets' | 'withoutAllergens', values: readonly string[]): void {
+    this.setFilter({ [key]: [...values] });
   }
 
   protected clearFilters(): void {

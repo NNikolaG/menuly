@@ -52,6 +52,14 @@ export class ApiClient {
     return this.http.get<T>(this.url(path), { params: clean(query) }).pipe(catchError(rethrow));
   }
 
+  /** A file (image, PDF) as a Blob, e.g. for an `<img>` via `URL.createObjectURL`, since it needs auth. */
+  blob(path: string, query?: Query): Observable<Blob> {
+    return this.http
+      .get(this.url(path), { params: clean(query), responseType: 'blob' })
+      .pipe(catchError(rethrow));
+  }
+
+  /** `body` may be `FormData` for multipart uploads. */
   post<T>(path: string, body: unknown = null): Observable<T> {
     return this.http.post<T>(this.url(path), body).pipe(catchError(rethrow));
   }
@@ -60,12 +68,18 @@ export class ApiClient {
     return this.http.patch<T>(this.url(path), body).pipe(catchError(rethrow));
   }
 
+  /** `body` may be `FormData` for multipart uploads. */
   put<T>(path: string, body: unknown): Observable<T> {
     return this.http.put<T>(this.url(path), body).pipe(catchError(rethrow));
   }
 
   delete(path: string): Observable<void> {
     return this.http.delete<void>(this.url(path)).pipe(catchError(rethrow));
+  }
+
+  /** A delete that answers with a body (e.g. the parent without the removed part). */
+  deleteWith<T>(path: string): Observable<T> {
+    return this.http.delete<T>(this.url(path)).pipe(catchError(rethrow));
   }
 }
 

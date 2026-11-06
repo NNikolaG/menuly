@@ -23,9 +23,15 @@ describe('PublicMenuPage', () => {
       ],
     });
     http = TestBed.inject(HttpTestingController);
+    sessionStorage.clear();
   });
 
-  afterEach(() => http.verify());
+  afterEach(() => {
+    // Menu opens are counted once per tab session; tests that care check it themselves.
+    http.match((req) => req.url.endsWith('/views')).forEach((req) => req.flush(null));
+    http.verify();
+    sessionStorage.clear();
+  });
 
   async function render(respond: (url: string) => void) {
     const fixture = TestBed.createComponent(PublicMenuPage);
@@ -119,5 +125,18 @@ describe('PublicMenuPage', () => {
     expect(fixture.nativeElement.querySelector('[role="alert"]').textContent).toContain(
       'Meni nije dostupan',
     );
+  });
+
+  it('counts one menu open per tab session', async () => {
+    const first = await render((url) => http.expectOne(url).flush(publicMenuFixture()));
+    first.detectChanges();
+    const count = http.expectOne('/api/v1/public/menus/zora/centar/views');
+    expect(count.request.method).toBe('POST');
+    count.flush(null);
+    first.destroy();
+
+    const again = await render((url) => http.expectOne(url).flush(publicMenuFixture()));
+    again.detectChanges();
+    http.expectNone('/api/v1/public/menus/zora/centar/views');
   });
 });

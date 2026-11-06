@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import type { Observable } from 'rxjs';
+import { forkJoin, map, of, switchMap, type Observable } from 'rxjs';
 import { ApiClient } from '../api/api-client';
 import type {
   Category,
@@ -10,6 +10,7 @@ import type {
   ItemWithVariants,
   Menu,
   MenuTree,
+  PriceAdjustment,
   Variant,
   VariantInput,
 } from './menu';
@@ -46,6 +47,18 @@ export class MenusApi {
     });
   }
 
+  /** Every menu of a venue with its content, e.g. to pick items for a combo. */
+  venueTrees(venueId: string): Observable<MenuTree[]> {
+    return this.api.get<{ items: Menu[] }>(`/v1/venues/${id(venueId)}/menus`).pipe(
+      map((list) => list.items),
+      switchMap((menus) =>
+        menus.length
+          ? forkJoin(menus.map((menu) => this.api.get<MenuTree>(`/v1/menus/${id(menu.id)}`)))
+          : of([]),
+      ),
+    );
+  }
+
   /** Owner, manager. Fields left out keep their value. */
   saveTheme(menuId: string, theme: Partial<MenuTheme>): Observable<MenuTheme> {
     return this.api.put(`/v1/menus/${id(menuId)}/theme`, theme);
@@ -69,6 +82,11 @@ export class MenusApi {
 
   unpublish(menuId: string): Observable<Menu> {
     return this.api.post(`/v1/menus/${id(menuId)}/unpublish`);
+  }
+
+  /** Bulk price change; exactly one of `percent` / `amount_minor`. Answers how many prices changed. */
+  adjustPrices(menuId: string, input: PriceAdjustment): Observable<{ updated: number }> {
+    return this.api.post(`/v1/menus/${id(menuId)}/price-adjustments`, input);
   }
 
   createCategory(menuId: string, input: CategoryInput & { name: string }): Observable<Category> {

@@ -13,7 +13,8 @@ import {
 import { LucidePlus, LucideX } from '@lucide/angular';
 import type { ItemWithVariants } from '../../core/menus/menu';
 import { ALLERGENS, DIET_TAGS, HIGHLIGHT_TAGS, labelOf } from '../../core/menus/menu-labels';
-import { AppButton, AppDialog, AppField, AppInput } from '../../shared/ui';
+import { AppImageField } from '../../core/media/image-field';
+import { AppButton, AppChipGroup, AppDialog, AppField, AppInput } from '../../shared/ui';
 import { toMajor } from './price';
 
 export interface ItemDialogData {
@@ -40,7 +41,17 @@ export interface ItemDialogResult {
 /** Add or edit an item: name, description and one price, or several sizes with their prices. */
 @Component({
   selector: 'app-item-dialog',
-  imports: [FormField, AppDialog, AppButton, AppField, AppInput, LucidePlus, LucideX],
+  imports: [
+    FormField,
+    AppDialog,
+    AppButton,
+    AppChipGroup,
+    AppField,
+    AppImageField,
+    AppInput,
+    LucidePlus,
+    LucideX,
+  ],
   template: `
     <form novalidate (submit)="onSubmit($event)">
       <app-dialog [title]="title">
@@ -68,14 +79,14 @@ export interface ItemDialogResult {
           </app-field>
 
           <app-field
-            i18n-label="@@item.field.image"
-            label="Slika (URL, opciono)"
+            i18n-label="@@item.field.photo"
+            label="Slika (opciono)"
             controlId="item-image"
             i18n-hint="@@item.field.imageHint"
             hint="Gost je vidi u detalju stavke i u šablonu Galerija."
             [field]="form.image_url"
           >
-            <input appInput id="item-image" type="url" [formField]="form.image_url" />
+            <app-image-field controlId="item-image" purpose="item" [formField]="form.image_url" />
           </app-field>
 
           @for (row of model().variants; track $index; let i = $index) {
@@ -137,35 +148,23 @@ export interface ItemDialogResult {
 
           <fieldset class="stack" data-gap="2">
             <legend class="label" i18n="@@item.field.tags">Oznake</legend>
-            <div class="row" data-gap="2">
-              @for (option of tagOptions(); track option.key) {
-                <button
-                  type="button"
-                  class="chip"
-                  data-size="sm"
-                  [attr.aria-pressed]="model().tags.includes(option.key)"
-                  (click)="toggle('tags', option.key)"
-                >
-                  {{ option.label }}
-                </button>
-              }
-            </div>
+            <app-chip-group
+              size="sm"
+              [label]="tagsLabel"
+              [options]="tagOptions()"
+              [value]="model().tags"
+              (valueChange)="setList('tags', $event)"
+            />
           </fieldset>
           <fieldset class="stack" data-gap="2">
             <legend class="label" i18n="@@item.field.allergens">Alergeni</legend>
-            <div class="row" data-gap="2">
-              @for (option of allergenOptions(); track option.key) {
-                <button
-                  type="button"
-                  class="chip"
-                  data-size="sm"
-                  [attr.aria-pressed]="model().allergens.includes(option.key)"
-                  (click)="toggle('allergens', option.key)"
-                >
-                  {{ option.label }}
-                </button>
-              }
-            </div>
+            <app-chip-group
+              size="sm"
+              [label]="allergensLabel"
+              [options]="allergenOptions()"
+              [value]="model().allergens"
+              (valueChange)="setList('allergens', $event)"
+            />
           </fieldset>
         </div>
         <button
@@ -194,12 +193,6 @@ export interface ItemDialogResult {
       padding: 0 0 var(--space-2);
       font: var(--type-label);
       color: var(--color-text);
-    }
-
-    .chip[data-size='sm'] {
-      block-size: var(--control-sm);
-      padding-inline: var(--space-3);
-      font: var(--type-label);
     }
 
     /* Subgrid lines up label, control and message rows across the fields, errors or not. */
@@ -269,14 +262,12 @@ export class ItemDialog {
     withExtra(ALLERGENS, this.data.item?.allergens ?? []),
   );
 
-  protected toggle(key: 'tags' | 'allergens', value: string): void {
-    this.model.update((model) => ({
-      ...model,
-      [key]: model[key].includes(value)
-        ? model[key].filter((v) => v !== value)
-        : [...model[key], value],
-    }));
+  protected setList(key: 'tags' | 'allergens', values: readonly string[]): void {
+    this.model.update((model) => ({ ...model, [key]: [...values] }));
   }
+
+  protected readonly tagsLabel = $localize`:@@item.field.tags:Oznake`;
+  protected readonly allergensLabel = $localize`:@@item.field.allergens:Alergeni`;
 
   protected addVariant(): void {
     this.model.update((value) => ({

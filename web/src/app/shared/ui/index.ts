@@ -1,9 +1,12 @@
 export { AppButton, type AppButtonSize, type AppButtonVariant } from './button/button';
+export { AppChipGroup, type AppChipOption } from './chip-group/chip-group';
 export { ConfirmDialog, type ConfirmDialogData } from './confirm-dialog/confirm-dialog';
 export { AppDialog } from './dialog/dialog';
 export { AppField } from './field/field';
 export { AppInput, type AppInputVariant } from './input/input';
 export { AppMenu, type AppMenuItem } from './menu/menu';
 export { AppPattern } from './pattern/pattern';
+export { AppSearchPicker } from './search-picker/search-picker';
+export { AppSelect, type AppSelectOption } from './select/select';
 export { AppSegmented, type AppSegmentedOption } from './segmented/segmented';
 export { AppSwitch } from './switch/switch';

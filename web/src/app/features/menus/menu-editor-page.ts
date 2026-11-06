@@ -6,32 +6,50 @@ import {
   type CdkDragDrop,
 } from '@angular/cdk/drag-drop';
 import { Dialog } from '@angular/cdk/dialog';
-import { CurrencyPipe, NgTemplateOutlet } from '@angular/common';
-import { Component, computed, inject, input, signal } from '@angular/core';
+import { CurrencyPipe, DOCUMENT, NgTemplateOutlet } from '@angular/common';
+import {
+  afterNextRender,
+  Component,
+  computed,
+  inject,
+  Injector,
+  input,
+  signal,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   LucideArrowLeft,
   LucideGripVertical,
   LucidePalette,
   LucidePencil,
+  LucidePercent,
   LucidePlus,
   LucideTrash2,
 } from '@lucide/angular';
+import { Toolbar, ToolbarWidget } from '@angular/aria/toolbar';
 import { firstValueFrom, type Observable } from 'rxjs';
 import { toApiError } from '../../core/api/api-error';
 import { AuthStore } from '../../core/auth/auth-store';
-import type { CategoryWithItems, ItemWithVariants, MenuTree } from '../../core/menus/menu';
+import type {
+  CategoryWithItems,
+  ItemWithVariants,
+  MenuTree,
+  PriceAdjustment,
+} from '../../core/menus/menu';
 import { MenusApi } from '../../core/menus/menus-api';
 import { VenuesApi } from '../../core/venues/venues-api';
 import { AppButton, AppSwitch, ConfirmDialog, type ConfirmDialogData } from '../../shared/ui';
 import { CategoryDialog, type CategoryDialogResult } from './category-dialog';
 import { ItemDialog, type ItemDialogData, type ItemDialogResult } from './item-dialog';
+import { PriceAdjustDialog, type PriceAdjustDialogData } from './price-adjust-dialog';
 import { toMajor, toMinor } from './price';
 
 /** `/meniji/:menuId`: categories, items, prices and availability of one menu. */
 @Component({
   selector: 'app-menu-editor-page',
   imports: [
+    Toolbar,
+    ToolbarWidget,
     CurrencyPipe,
     NgTemplateOutlet,
     RouterLink,
@@ -44,6 +62,7 @@ import { toMajor, toMinor } from './price';
     LucideGripVertical,
     LucidePalette,
     LucidePencil,
+    LucidePercent,
     LucidePlus,
     LucideTrash2,
   ],
@@ -78,6 +97,12 @@ import { toMajor, toMinor } from './price';
                 <ng-container i18n="@@menu.design">Dizajn</ng-container>
               </a>
               @if (canEdit()) {
+                @if (tree.categories.length) {
+                  <button appButton variant="secondary" type="button" (click)="adjustPrices(tree)">
+                    <svg lucidePercent aria-hidden="true"></svg>
+                    <ng-container i18n="@@prices.open">Promeni cene</ng-container>
+                  </button>
+                }
                 @if (tree.status === 'published') {
                   <button
                     appButton
@@ -108,6 +133,19 @@ import { toMajor, toMinor } from './price';
         @if (error()) {
           <p role="alert" class="error">{{ error() }}</p>
         }
+        @if (updated() !== null) {
+          <p role="status" class="notice">
+            <span i18n="@@prices.done">{updated(), plural,
+              one {Promenjena je {{ updated() }} cena.}
+              few {Promenjene su {{ updated() }} cene.}
+              other {Promenjeno je {{ updated() }} cena.}
+            }</span>
+          </p>
+        }
+
+        <p id="move-hint" class="visually-hidden" i18n="@@menu.moveHint">
+          Alt + strelica gore ili dole pomera stavku.
+        </p>
 
         <div
           class="stack"
@@ -130,7 +168,12 @@ import { toMajor, toMinor } from './price';
                       type="button"
                       class="handle"
                       cdkDragHandle
+                      [id]="'move-' + category.id"
                       [attr.aria-label]="moveLabel(category.name)"
+                      aria-describedby="move-hint"
+                      aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"
+                      (keydown.alt.arrowup)="nudgeCategory(tree, $index, -1, $event)"
+                      (keydown.alt.arrowdown)="nudgeCategory(tree, $index, 1, $event)"
                     >
                       <svg lucideGripVertical aria-hidden="true"></svg>
                     </button>
@@ -139,9 +182,16 @@ import { toMajor, toMinor } from './price';
                   <span class="meta">{{ category.items.length }}</span>
                 </div>
                 @if (canEdit()) {
-                  <div class="row" data-gap="1">
+                  <div
+                    class="row"
+                    data-gap="1"
+                    ngToolbar
+                    [softDisabled]="false"
+                    [attr.aria-label]="actionsLabel(category.name)"
+                  >
                     <button
                       appButton
+                      ngToolbarWidget
                       variant="secondary"
                       size="sm"
                       type="button"
@@ -152,6 +202,7 @@ import { toMajor, toMinor } from './price';
                     </button>
                     <button
                       appButton
+                      ngToolbarWidget
                       variant="ghost"
                       size="sm"
                       type="button"
@@ -162,6 +213,7 @@ import { toMajor, toMinor } from './price';
                     </button>
                     <button
                       appButton
+                      ngToolbarWidget
                       variant="ghost"
                       size="sm"
                       type="button"
@@ -207,7 +259,12 @@ import { toMajor, toMinor } from './price';
                               type="button"
                               class="handle"
                               cdkDragHandle
+                              [id]="'move-' + item.id"
                               [attr.aria-label]="moveLabel(item.name)"
+                              aria-describedby="move-hint"
+                              aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"
+                              (keydown.alt.arrowup)="nudgeItem(category, $index, -1, $event)"
+                              (keydown.alt.arrowdown)="nudgeItem(category, $index, 1, $event)"
                             >
                               <svg lucideGripVertical aria-hidden="true"></svg>
                             </button>
@@ -254,9 +311,16 @@ import { toMajor, toMinor } from './price';
                         </td>
                         @if (canEdit()) {
                           <td data-num>
-                            <div class="row actions" data-gap="1">
+                            <div
+                              class="row actions"
+                              data-gap="1"
+                              ngToolbar
+                              [softDisabled]="false"
+                              [attr.aria-label]="actionsLabel(item.name)"
+                            >
                               <button
                                 appButton
+                                ngToolbarWidget
                                 variant="ghost"
                                 size="sm"
                                 type="button"
@@ -267,6 +331,7 @@ import { toMajor, toMinor } from './price';
                               </button>
                               <button
                                 appButton
+                                ngToolbarWidget
                                 variant="ghost"
                                 size="sm"
                                 type="button"
@@ -328,6 +393,10 @@ import { toMajor, toMinor } from './price';
 
     .error {
       color: var(--color-danger);
+    }
+
+    .notice {
+      color: var(--color-success);
     }
 
     .category {
@@ -411,9 +480,16 @@ import { toMajor, toMinor } from './price';
   `,
 })
 export default class MenuEditorPage {
+  /** Accessible name of a row's action toolbar (arrow keys move between its buttons). */
+  protected actionsLabel(name: string): string {
+    return $localize`:@@common.actionsFor:Akcije: ${name}:name:`;
+  }
+
   protected readonly api = inject(MenusApi);
   private readonly auth = inject(AuthStore);
   private readonly dialog = inject(Dialog);
+  private readonly document = inject(DOCUMENT);
+  private readonly injector = inject(Injector);
 
   readonly menuId = input.required<string>();
 
@@ -422,6 +498,8 @@ export default class MenuEditorPage {
   protected readonly currency = computed(() => this.venue.value()?.currency ?? 'RSD');
   protected readonly busy = signal(false);
   protected readonly error = signal('');
+  /** Prices changed by the last bulk change, for the status line. */
+  protected readonly updated = signal<number | null>(null);
   protected readonly toMajor = toMajor;
 
   protected readonly canEdit = computed(() => {
@@ -447,6 +525,27 @@ export default class MenuEditorPage {
     this.busy.set(true);
     try {
       await firstValueFrom(action);
+    } catch (error) {
+      this.error.set(actionError(error));
+    } finally {
+      this.busy.set(false);
+      this.menu.reload();
+    }
+  }
+
+  protected async adjustPrices(tree: MenuTree): Promise<void> {
+    const input = await firstValueFrom(
+      this.dialog.open<PriceAdjustment, PriceAdjustDialogData>(PriceAdjustDialog, {
+        data: { menu: tree, currency: this.currency() },
+      }).closed,
+    );
+    if (!input) return;
+    this.updated.set(null);
+    this.error.set('');
+    this.busy.set(true);
+    try {
+      const { updated } = await firstValueFrom(this.api.adjustPrices(tree.id, input));
+      this.updated.set(updated);
     } catch (error) {
       this.error.set(actionError(error));
     } finally {
@@ -585,6 +684,41 @@ export default class MenuEditorPage {
         items.map((item) => item.id),
       ),
     );
+  }
+
+  /** Keyboard alternative to dragging: Alt+ArrowUp/Down on a handle moves one place. */
+  protected nudgeCategory(tree: MenuTree, index: number, step: -1 | 1, event: Event): void {
+    const target = index + step;
+    if (target < 0 || target >= tree.categories.length) return;
+    event.preventDefault();
+    void this.moveCategory(tree, {
+      previousIndex: index,
+      currentIndex: target,
+    } as CdkDragDrop<unknown>);
+    this.refocus(`move-${tree.categories[index].id}`);
+  }
+
+  protected nudgeItem(
+    category: CategoryWithItems,
+    index: number,
+    step: -1 | 1,
+    event: Event,
+  ): void {
+    const target = index + step;
+    if (target < 0 || target >= category.items.length) return;
+    event.preventDefault();
+    void this.moveItem(category, {
+      previousIndex: index,
+      currentIndex: target,
+    } as CdkDragDrop<unknown>);
+    this.refocus(`move-${category.items[index].id}`);
+  }
+
+  /** The moved row is re-inserted in the DOM, which drops focus; put it back on its handle. */
+  private refocus(id: string): void {
+    afterNextRender(() => this.document.getElementById(id)?.focus({ preventScroll: false }), {
+      injector: this.injector,
+    });
   }
 
   private patchItem(itemId: string, patch: Partial<ItemWithVariants>): void {

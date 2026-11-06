@@ -48,6 +48,14 @@ describe('VenuePage', () => {
     await tick();
     http.expectOne('/api/v1/venues/v1').flush(venueFixture());
     http.expectOne('/api/v1/venues/v1/menus').flush({ items: menus });
+    http
+      .expectOne('/api/v1/venues/v1/public-link')
+      .flush({ url: 'https://zora.menuly.app/centar' });
+    await tick();
+    fixture.detectChanges();
+    http
+      .expectOne('/api/v1/venues/v1/qr?format=svg')
+      .flush(new Blob(['<svg/>'], { type: 'image/svg+xml' }));
     await fixture.whenStable();
     return fixture;
   }
@@ -60,6 +68,25 @@ describe('VenuePage', () => {
     expect(text).toContain('zora.menuly.app/centar');
     expect(text).toContain('Glavni meni');
     expect(text).toContain('Nacrt');
+    expect(fixture.nativeElement.querySelector('app-venue-qr img')?.getAttribute('src')).toMatch(
+      /^blob:/,
+    );
+  });
+
+  it('downloads the QR code as a print-size PNG', async () => {
+    await signInAsOwner();
+    const fixture = await render([]);
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+    const png = [...fixture.nativeElement.querySelectorAll('app-venue-qr button')].find(
+      (button: HTMLButtonElement) => button.textContent?.trim() === 'PNG',
+    ) as HTMLButtonElement;
+    png.click();
+    http
+      .expectOne('/api/v1/venues/v1/qr?format=png&size=1024')
+      .flush(new Blob(['png'], { type: 'image/png' }));
+    await tick();
+    expect(click).toHaveBeenCalled();
+    expect((click.mock.contexts[0] as HTMLAnchorElement).download).toBe('menuly-centar.png');
   });
 
   it('creates a menu and opens it in the editor', async () => {

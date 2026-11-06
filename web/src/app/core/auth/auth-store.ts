@@ -3,7 +3,12 @@ import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { toApiError } from '../api/api-error';
 import type { Role, TokenPair } from '../api/api-types';
-import { AuthApi, type LoginRequest, type RegisterRequest } from './auth-api';
+import {
+  AuthApi,
+  type AcceptInviteRequest,
+  type LoginRequest,
+  type RegisterRequest,
+} from './auth-api';
 
 interface Session {
   accessToken: string;
@@ -31,6 +36,7 @@ export class AuthStore {
 
   /** Current user, tenant and memberships; reloads when the tenant changes. */
   readonly me = this.authApi.meResource(this.tenantId);
+  readonly isPlatformAdmin = computed(() => this.me.value()?.user.is_platform_admin === true);
 
   async login(request: LoginRequest): Promise<void> {
     this.setSession(await firstValueFrom(this.authApi.login(request)));
@@ -38,6 +44,16 @@ export class AuthStore {
 
   async register(request: RegisterRequest): Promise<void> {
     this.setSession(await firstValueFrom(this.authApi.register(request)));
+  }
+
+  /** Joins the inviting tenant and switches the session to it. */
+  async acceptInvite(request: AcceptInviteRequest): Promise<void> {
+    this.setSession(await firstValueFrom(this.authApi.acceptInvite(request)));
+  }
+
+  /** Drops the session locally without a request, e.g. after a password reset revoked every token. */
+  forget(): void {
+    this.setSession(null);
   }
 
   async switchTenant(tenantId: string): Promise<void> {

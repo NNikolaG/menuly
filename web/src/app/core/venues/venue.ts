@@ -23,3 +23,9 @@ export type VenueInput = Partial<
 export interface VenueList {
   items: Venue[];
 }
+
+/** `GET /v1/venues/{id}/stats`: guest menu opens per day; days without opens are 0. */
+export interface VenueStats {
+  days: { date: string; views: number }[];
+  total: number;
+}

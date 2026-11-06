@@ -2,6 +2,7 @@ import { Dialog } from '@angular/cdk/dialog';
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LucidePencil, LucidePlus, LucideTrash2 } from '@lucide/angular';
+import { Toolbar, ToolbarWidget } from '@angular/aria/toolbar';
 import { firstValueFrom } from 'rxjs';
 import { toApiError } from '../../core/api/api-error';
 import { AuthStore } from '../../core/auth/auth-store';
@@ -12,7 +13,7 @@ import { VenuesApi } from '../../core/venues/venues-api';
 
 @Component({
   selector: 'app-venues-page',
-  imports: [RouterLink, AppButton, LucidePlus, LucidePencil, LucideTrash2],
+  imports: [Toolbar, ToolbarWidget, RouterLink, AppButton, LucidePlus, LucidePencil, LucideTrash2],
   template: `
     <div class="stack" data-gap="6">
       <div class="row" data-justify="between">
@@ -72,9 +73,16 @@ import { VenuesApi } from '../../core/venues/venues-api';
                   <td class="meta wide-only">{{ publicUrl(venue) }}</td>
                   <td class="meta wide-only">{{ venue.currency }}</td>
                   <td data-num>
-                    <div class="row" data-gap="1">
+                    <div
+                      class="row"
+                      data-gap="1"
+                      ngToolbar
+                      [softDisabled]="false"
+                      [attr.aria-label]="actionsLabel(venue.name)"
+                    >
                       <a
                         appButton
+                        ngToolbarWidget
                         variant="ghost"
                         size="sm"
                         [routerLink]="[venue.id, 'izmena']"
@@ -85,6 +93,7 @@ import { VenuesApi } from '../../core/venues/venues-api';
                       @if (canDelete()) {
                         <button
                           appButton
+                          ngToolbarWidget
                           variant="ghost"
                           size="sm"
                           type="button"
@@ -151,6 +160,11 @@ import { VenuesApi } from '../../core/venues/venues-api';
   `,
 })
 export default class VenuesPage {
+  /** Accessible name of a row's action toolbar (arrow keys move between its buttons). */
+  protected actionsLabel(name: string): string {
+    return $localize`:@@common.actionsFor:Akcije: ${name}:name:`;
+  }
+
   private readonly api = inject(VenuesApi);
   private readonly auth = inject(AuthStore);
   private readonly dialog = inject(Dialog);

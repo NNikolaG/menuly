@@ -12,6 +12,11 @@ import { AuthLayout } from './auth-layout';
   template: `
     <app-auth-layout i18n-heading="@@auth.login.heading" heading="Prijava">
       <form class="stack" novalidate (submit)="onSubmit($event)">
+        @if (lozinka() === 'promenjena') {
+          <p class="notice" role="status" i18n="@@auth.reset.done">
+            Lozinka je promenjena. Prijavite se novom lozinkom.
+          </p>
+        }
         <app-field
           i18n-label="@@auth.email"
           label="Email"
@@ -40,6 +45,9 @@ import { AuthLayout } from './auth-layout';
             [formField]="form.password"
           />
         </app-field>
+        <a class="forgot" routerLink="/zaboravljena-lozinka" i18n="@@auth.login.forgot"
+          >Zaboravili ste lozinku?</a
+        >
         @if (error()) {
           <p class="alert" role="alert">{{ error() }}</p>
         }
@@ -68,6 +76,19 @@ import { AuthLayout } from './auth-layout';
       font: var(--type-body-sm);
     }
 
+    .notice {
+      padding: var(--space-3);
+      border-radius: var(--radius-sm);
+      background: var(--color-success-subtle);
+      color: var(--color-success);
+      font: var(--type-body-sm);
+    }
+
+    .forgot {
+      align-self: flex-start;
+      font: var(--type-body-sm);
+    }
+
     .switch-link {
       display: flex;
       flex-wrap: wrap;
@@ -81,6 +102,8 @@ export default class LoginPage {
   private readonly router = inject(Router);
 
   readonly returnUrl = input<string>();
+  /** `promenjena` after a password reset. */
+  readonly lozinka = input<string>();
 
   protected readonly form = form(signal({ email: '', password: '' }), (path) => {
     required(path.email);

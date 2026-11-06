@@ -3,7 +3,15 @@ import { DatePipe } from '@angular/common';
 import { Component, computed, inject, input, signal } from '@angular/core';
 import { form, FormField, maxLength, required, submit } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
-import { LucideArrowLeft, LucidePencil, LucidePlus, LucideTrash2 } from '@lucide/angular';
+import {
+  LucideArrowLeft,
+  LucideCamera,
+  LucideLayers,
+  LucidePencil,
+  LucidePlus,
+  LucideTrash2,
+} from '@lucide/angular';
+import { Toolbar, ToolbarWidget } from '@angular/aria/toolbar';
 import { firstValueFrom, type Observable } from 'rxjs';
 import { toApiError } from '../../core/api/api-error';
 import { AuthStore } from '../../core/auth/auth-store';
@@ -19,11 +27,14 @@ import {
   type ConfirmDialogData,
   AppPattern,
 } from '../../shared/ui';
+import { VenueQr } from './venue-qr';
 
 /** `/objekti/:venueId`: the venue's public link and its menus. */
 @Component({
   selector: 'app-venue-page',
   imports: [
+    Toolbar,
+    ToolbarWidget,
     AppPattern,
     DatePipe,
     FormField,
@@ -32,9 +43,12 @@ import {
     AppField,
     AppInput,
     LucideArrowLeft,
+    LucideCamera,
+    LucideLayers,
     LucidePencil,
     LucidePlus,
     LucideTrash2,
+    VenueQr,
   ],
   template: `
     <div class="stack" data-gap="6">
@@ -46,12 +60,22 @@ import {
         @if (venue.value(); as v) {
           <div class="row" data-justify="between">
             <h1>{{ v.name }}</h1>
-            @if (canEdit()) {
-              <a appButton variant="secondary" routerLink="izmena">
-                <svg lucidePencil aria-hidden="true"></svg>
-                <ng-container i18n="@@venue.edit">Izmeni objekat</ng-container>
+            <div class="row" data-gap="2">
+              <a appButton variant="secondary" routerLink="kombo">
+                <svg lucideLayers aria-hidden="true"></svg>
+                <ng-container i18n="@@venue.promotions">Kombo ponude</ng-container>
               </a>
-            }
+              @if (canEdit()) {
+                <a appButton variant="secondary" routerLink="uvoz">
+                  <svg lucideCamera aria-hidden="true"></svg>
+                  <ng-container i18n="@@venue.import">Uvezi sa slike</ng-container>
+                </a>
+                <a appButton variant="secondary" routerLink="izmena">
+                  <svg lucidePencil aria-hidden="true"></svg>
+                  <ng-container i18n="@@venue.edit">Izmeni objekat</ng-container>
+                </a>
+              }
+            </div>
           </div>
         } @else if (venue.error()) {
           <p role="alert" i18n="@@venues.notFound">Objekat nije pronađen.</p>
@@ -85,7 +109,7 @@ import {
                 <div class="ticket__meta">
                   <span i18n="@@venues.col.link">Javni link</span>
                 </div>
-                <p class="link">{{ publicUrl() }}</p>
+                <app-venue-qr [venueId]="v.id" [venueSlug]="v.slug" [url]="publicUrl()" />
               </div>
             </div>
           </aside>
@@ -133,10 +157,17 @@ import {
                         </td>
                         <td data-num>
                           @if (canEdit()) {
-                            <div class="row actions" data-gap="1">
+                            <div
+                              class="row actions"
+                              data-gap="1"
+                              ngToolbar
+                              [softDisabled]="false"
+                              [attr.aria-label]="actionsLabel(menu.name)"
+                            >
                               @if (menu.status === 'published') {
                                 <button
                                   appButton
+                                  ngToolbarWidget
                                   variant="ghost"
                                   size="sm"
                                   type="button"
@@ -149,6 +180,7 @@ import {
                               } @else {
                                 <button
                                   appButton
+                                  ngToolbarWidget
                                   variant="secondary"
                                   size="sm"
                                   type="button"
@@ -161,6 +193,7 @@ import {
                               }
                               <button
                                 appButton
+                                ngToolbarWidget
                                 variant="ghost"
                                 size="sm"
                                 type="button"
@@ -255,11 +288,6 @@ import {
       text-transform: none;
     }
 
-    .link {
-      font: var(--type-meta);
-      overflow-wrap: anywhere;
-    }
-
     @media (max-width: 960px) {
       .layout {
         grid-template-columns: minmax(0, 1fr);
@@ -289,6 +317,11 @@ import {
   `,
 })
 export default class VenuePage {
+  /** Accessible name of a row's action toolbar (arrow keys move between its buttons). */
+  protected actionsLabel(name: string): string {
+    return $localize`:@@common.actionsFor:Akcije: ${name}:name:`;
+  }
+
   private readonly menusApi = inject(MenusApi);
   private readonly auth = inject(AuthStore);
   private readonly dialog = inject(Dialog);
@@ -296,7 +329,9 @@ export default class VenuePage {
 
   readonly venueId = input.required<string>();
 
-  protected readonly venue = inject(VenuesApi).venueResource(this.venueId);
+  private readonly venuesApi = inject(VenuesApi);
+  protected readonly venue = this.venuesApi.venueResource(this.venueId);
+  private readonly publicLink = this.venuesApi.publicLinkResource(this.venueId);
   protected readonly menus = this.menusApi.venueMenusResource(this.venueId);
   protected readonly busy = signal<string | null>(null);
   protected readonly error = signal('');
@@ -305,7 +340,10 @@ export default class VenuePage {
     const role = this.auth.role();
     return role === 'owner' || role === 'manager';
   });
+  /** The server's link when loaded, else built locally (same shape). */
   protected readonly publicUrl = computed(() => {
+    const link = this.publicLink.hasValue() ? this.publicLink.value()?.url : undefined;
+    if (link) return link.replace(/^https?:\/\//, '');
     const venue = this.venue.value();
     const tenant = this.auth.me.value()?.tenant.slug ?? '…';
     return venue ? venuePublicUrl(tenant, venue.slug) : '';

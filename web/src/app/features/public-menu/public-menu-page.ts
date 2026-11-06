@@ -63,7 +63,8 @@ export default class PublicMenuPage {
 
   readonly venueSlug = input.required<string>();
 
-  protected readonly menu = inject(PublicMenuApi).menuResource(
+  private readonly api = inject(PublicMenuApi);
+  protected readonly menu = this.api.menuResource(
     () => (this.host.kind === 'tenant' ? this.host.tenantSlug : undefined),
     this.venueSlug,
   );
@@ -77,5 +78,30 @@ export default class PublicMenuPage {
       const venue = this.data()?.venue.name;
       if (venue) this.title.setTitle(`${venue} · Menuly`);
     });
+    // One count per guest visit: once per tab session, not on refresh or language switch.
+    effect(() => {
+      const data = this.data();
+      if (!data) return;
+      const key = `menuly.viewed.${data.tenant.slug}/${data.venue.slug}`;
+      if (readFlag(key)) return;
+      writeFlag(key);
+      this.api.countView(data.tenant.slug, data.venue.slug).subscribe({ error: () => undefined });
+    });
+  }
+}
+
+function readFlag(key: string): boolean {
+  try {
+    return sessionStorage.getItem(key) !== null;
+  } catch {
+    return false;
+  }
+}
+
+function writeFlag(key: string): void {
+  try {
+    sessionStorage.setItem(key, '1');
+  } catch {
+    // Storage blocked: the visit may be counted again on refresh, which is acceptable.
   }
 }

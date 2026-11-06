@@ -1,4 +1,5 @@
 import { inject, Injectable, LOCALE_ID } from '@angular/core';
+import type { Observable } from 'rxjs';
 import { ApiClient } from '../../core/api/api-client';
 import type { PublicMenu } from '../../core/public-menu/public-menu';
 
@@ -19,5 +20,12 @@ export class PublicMenuApi {
         query: { lang: this.lang },
       };
     });
+  }
+
+  /** Counts one menu open for the venue's stats (no auth, 204). */
+  countView(tenantSlug: string, venueSlug: string): Observable<void> {
+    return this.api.post(
+      `/v1/public/menus/${encodeURIComponent(tenantSlug)}/${encodeURIComponent(venueSlug)}/views`,
+    );
   }
 }

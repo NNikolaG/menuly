@@ -26,7 +26,11 @@ src/
         ├── dashboard/
         ├── design/         # /design
         ├── venues/         # /objekti list, /objekti/novi, /objekti/:venueId (+ menus), /objekti/:venueId/izmena
-        ├── menus/          # /meniji/:menuId editor: categories, items, prices, availability
+        ├── menus/          # /meniji/:menuId editor: categories, items, prices, availability, bulk price change
+        ├── promotions/     # /objekti/:venueId/kombo combo offers (list + editor)
+        ├── imports/        # /objekti/:venueId/uvoz photo upload, /uvoz/:importId progress and review
+        ├── team/           # /tim members and invitations
+        ├── admin/          # /admin platform admin (businesses, import limits, OCR spend)
         └── public-menu/    # guest menu page on the tenant subdomain; the themed view itself is core/public-menu/ (the theme editor previews it)
 ```
 
