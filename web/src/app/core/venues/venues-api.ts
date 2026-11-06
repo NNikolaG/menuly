@@ -3,6 +3,8 @@ import type { Observable } from 'rxjs';
 import { ApiClient } from '../api/api-client';
 import type { Venue, VenueInput, VenueList } from './venue';
 
+export type QrFormat = 'png' | 'svg';
+
 /**
  * `/v1/venues`. Template for every feature API: `xxxResource()` for reads (signals, call in a field initializer),
  * plain methods returning Observables for writes.
@@ -21,6 +23,19 @@ export class VenuesApi {
       const venueId = id();
       return venueId ? `/v1/venues/${encodeURIComponent(venueId)}` : undefined;
     });
+  }
+
+  /** `{ url }`: the guest URL of the venue's menu, as the server builds it. */
+  publicLinkResource(id: () => string | undefined) {
+    return this.api.resource<{ url: string }>(() => {
+      const venueId = id();
+      return venueId ? `/v1/venues/${encodeURIComponent(venueId)}/public-link` : undefined;
+    });
+  }
+
+  /** QR code of the public link. SVG prints sharp at any size; PNG is `size`×`size` px. */
+  qr(id: string, format: QrFormat, size?: number): Observable<Blob> {
+    return this.api.blob(`/v1/venues/${encodeURIComponent(id)}/qr`, { format, size });
   }
 
   create(input: VenueInput & Pick<Venue, 'name'>): Observable<Venue> {

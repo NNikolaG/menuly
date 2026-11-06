@@ -84,3 +84,15 @@ export interface ItemCreate extends ItemInput {
   name: string;
   variants: (VariantInput & { price_minor: number })[];
 }
+
+/** `POST /v1/menus/{id}/price-adjustments`: exactly one of `percent` or `amount_minor`. */
+export interface PriceAdjustment {
+  /** Only this category; the whole menu when left out. */
+  category_id?: string;
+  /** +10 = 10% more; -90 … 500. */
+  percent?: number;
+  /** Added to every price, negative to lower. */
+  amount_minor?: number;
+  /** Round to the nearest multiple; 0 = no rounding. */
+  round_to_minor?: number;
+}

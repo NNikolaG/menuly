@@ -10,6 +10,7 @@ import type {
   ItemWithVariants,
   Menu,
   MenuTree,
+  PriceAdjustment,
   Variant,
   VariantInput,
 } from './menu';
@@ -69,6 +70,11 @@ export class MenusApi {
 
   unpublish(menuId: string): Observable<Menu> {
     return this.api.post(`/v1/menus/${id(menuId)}/unpublish`);
+  }
+
+  /** Bulk price change; exactly one of `percent` / `amount_minor`. Answers how many prices changed. */
+  adjustPrices(menuId: string, input: PriceAdjustment): Observable<{ updated: number }> {
+    return this.api.post(`/v1/menus/${id(menuId)}/price-adjustments`, input);
   }
 
   createCategory(menuId: string, input: CategoryInput & { name: string }): Observable<Category> {

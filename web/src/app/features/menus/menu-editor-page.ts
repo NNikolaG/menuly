@@ -22,6 +22,7 @@ import {
   LucideGripVertical,
   LucidePalette,
   LucidePencil,
+  LucidePercent,
   LucidePlus,
   LucideTrash2,
 } from '@lucide/angular';
@@ -29,12 +30,18 @@ import { Toolbar, ToolbarWidget } from '@angular/aria/toolbar';
 import { firstValueFrom, type Observable } from 'rxjs';
 import { toApiError } from '../../core/api/api-error';
 import { AuthStore } from '../../core/auth/auth-store';
-import type { CategoryWithItems, ItemWithVariants, MenuTree } from '../../core/menus/menu';
+import type {
+  CategoryWithItems,
+  ItemWithVariants,
+  MenuTree,
+  PriceAdjustment,
+} from '../../core/menus/menu';
 import { MenusApi } from '../../core/menus/menus-api';
 import { VenuesApi } from '../../core/venues/venues-api';
 import { AppButton, AppSwitch, ConfirmDialog, type ConfirmDialogData } from '../../shared/ui';
 import { CategoryDialog, type CategoryDialogResult } from './category-dialog';
 import { ItemDialog, type ItemDialogData, type ItemDialogResult } from './item-dialog';
+import { PriceAdjustDialog, type PriceAdjustDialogData } from './price-adjust-dialog';
 import { toMajor, toMinor } from './price';
 
 /** `/meniji/:menuId`: categories, items, prices and availability of one menu. */
@@ -55,6 +62,7 @@ import { toMajor, toMinor } from './price';
     LucideGripVertical,
     LucidePalette,
     LucidePencil,
+    LucidePercent,
     LucidePlus,
     LucideTrash2,
   ],
@@ -89,6 +97,12 @@ import { toMajor, toMinor } from './price';
                 <ng-container i18n="@@menu.design">Dizajn</ng-container>
               </a>
               @if (canEdit()) {
+                @if (tree.categories.length) {
+                  <button appButton variant="secondary" type="button" (click)="adjustPrices(tree)">
+                    <svg lucidePercent aria-hidden="true"></svg>
+                    <ng-container i18n="@@prices.open">Promeni cene</ng-container>
+                  </button>
+                }
                 @if (tree.status === 'published') {
                   <button
                     appButton
@@ -118,6 +132,11 @@ import { toMajor, toMinor } from './price';
 
         @if (error()) {
           <p role="alert" class="error">{{ error() }}</p>
+        }
+        @if (updated() !== null) {
+          <p role="status" class="notice" i18n="@@prices.done">
+            {updated(), plural, one {Promenjena je {{ updated() }} cena.} few {Promenjene su {{ updated() }} cene.} other {Promenjeno je {{ updated() }} cena.}}
+          </p>
         }
 
         <p id="move-hint" class="visually-hidden" i18n="@@menu.moveHint">
@@ -372,6 +391,10 @@ import { toMajor, toMinor } from './price';
       color: var(--color-danger);
     }
 
+    .notice {
+      color: var(--color-success);
+    }
+
     .category {
       background: var(--color-bg);
     }
@@ -471,6 +494,8 @@ export default class MenuEditorPage {
   protected readonly currency = computed(() => this.venue.value()?.currency ?? 'RSD');
   protected readonly busy = signal(false);
   protected readonly error = signal('');
+  /** Prices changed by the last bulk change, for the status line. */
+  protected readonly updated = signal<number | null>(null);
   protected readonly toMajor = toMajor;
 
   protected readonly canEdit = computed(() => {
@@ -496,6 +521,27 @@ export default class MenuEditorPage {
     this.busy.set(true);
     try {
       await firstValueFrom(action);
+    } catch (error) {
+      this.error.set(actionError(error));
+    } finally {
+      this.busy.set(false);
+      this.menu.reload();
+    }
+  }
+
+  protected async adjustPrices(tree: MenuTree): Promise<void> {
+    const input = await firstValueFrom(
+      this.dialog.open<PriceAdjustment, PriceAdjustDialogData>(PriceAdjustDialog, {
+        data: { menu: tree, currency: this.currency() },
+      }).closed,
+    );
+    if (!input) return;
+    this.updated.set(null);
+    this.error.set('');
+    this.busy.set(true);
+    try {
+      const { updated } = await firstValueFrom(this.api.adjustPrices(tree.id, input));
+      this.updated.set(updated);
     } catch (error) {
       this.error.set(actionError(error));
     } finally {
