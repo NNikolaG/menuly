@@ -131,6 +131,44 @@ type PriceChange struct {
 	ChangedAt     time.Time  `json:"changed_at"`
 }
 
+type Promotion struct {
+	ID           uuid.UUID       `json:"id"`
+	TenantID     uuid.UUID       `json:"tenant_id"`
+	VenueID      uuid.UUID       `json:"venue_id"`
+	Type         string          `json:"type"`
+	Name         string          `json:"name"`
+	Description  string          `json:"description"`
+	Translations json.RawMessage `json:"translations"`
+	ImageUrl     string          `json:"image_url"`
+	PriceMinor   int64           `json:"price_minor"`
+	StartsAt     *time.Time      `json:"starts_at"`
+	EndsAt       *time.Time      `json:"ends_at"`
+	IsActive     bool            `json:"is_active"`
+	IsFeatured   bool            `json:"is_featured"`
+	Position     int32           `json:"position"`
+	CreatedAt    time.Time       `json:"created_at"`
+	UpdatedAt    time.Time       `json:"updated_at"`
+}
+
+type PromotionSlot struct {
+	ID           uuid.UUID       `json:"id"`
+	TenantID     uuid.UUID       `json:"tenant_id"`
+	PromotionID  uuid.UUID       `json:"promotion_id"`
+	Label        string          `json:"label"`
+	Translations json.RawMessage `json:"translations"`
+	Quantity     int32           `json:"quantity"`
+	Position     int32           `json:"position"`
+}
+
+type PromotionSlotOption struct {
+	ID        uuid.UUID  `json:"id"`
+	TenantID  uuid.UUID  `json:"tenant_id"`
+	SlotID    uuid.UUID  `json:"slot_id"`
+	ItemID    uuid.UUID  `json:"item_id"`
+	VariantID *uuid.UUID `json:"variant_id"`
+	Position  int32      `json:"position"`
+}
+
 type RefreshToken struct {
 	ID        uuid.UUID  `json:"id"`
 	UserID    uuid.UUID  `json:"user_id"`

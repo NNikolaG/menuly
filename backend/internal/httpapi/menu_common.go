@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
+	"net/url"
 	"regexp"
 	"slices"
 	"strings"
@@ -112,6 +113,18 @@ func requireName(p *string, field string) *APIError {
 	}
 	if len(*p) > 200 {
 		return errValidation(field + " must be at most 200 characters")
+	}
+	return nil
+}
+
+// checkImageURL trims the URL and accepts empty or an absolute http(s) URL.
+func checkImageURL(p *string) *APIError {
+	trimPtr(p)
+	if p == nil || *p == "" {
+		return nil
+	}
+	if u, err := url.Parse(*p); err != nil || (u.Scheme != "https" && u.Scheme != "http") || u.Host == "" || len(*p) > 2000 {
+		return errValidation("image_url must be an http(s) URL")
 	}
 	return nil
 }

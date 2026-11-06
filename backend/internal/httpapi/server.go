@@ -102,9 +102,18 @@ func (s *Server) Handler(opts Options) http.Handler {
 					r.Get("/public-link", s.handleVenuePublicLink)
 					r.Get("/qr", s.handleVenueQR)
 					r.With(editors).Post("/menus", s.handleCreateMenu)
+					r.Get("/promotions", s.handleListPromotions)
+					r.With(editors).Post("/promotions", s.handleCreatePromotion)
+					r.With(editors).Put("/promotions/order", s.handleReorderPromotions)
 					r.Get("/imports", s.handleListImports)
 					r.With(editors).Post("/imports", s.handleCreateImport)
 				})
+			})
+
+			r.Route("/promotions/{promotionID}", func(r chi.Router) {
+				r.Get("/", s.handleGetPromotion)
+				r.With(editors).Patch("/", s.handleUpdatePromotion)
+				r.With(editors).Delete("/", s.handleDeletePromotion)
 			})
 
 			// OCR import review: reads for every member, changes for owner/manager.

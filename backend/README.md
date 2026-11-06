@@ -114,6 +114,14 @@ Gost nema tenant kontekst. Zato se tenant prvo nađe po slugu kroz usku RLS poli
 
 `GET /v1/venues/{id}/qr?format=png|svg&size=512&download=1` pravi QR za javni link objekta (`GET /v1/venues/{id}/public-link`). Šablon linka je `PUBLIC_MENU_URL` (podrazumevano `https://{tenant}.menuly.app/{venue}`), pa lokalno može npr. `http://localhost:4200/m/{tenant}/{venue}`.
 
+## Promocije (kombo)
+
+`POST /v1/venues/{id}/promotions`: naziv, fiksna cena (`price_minor`), period važenja (`starts_at` / `ends_at`, oba opciona), `is_active`, `is_featured` i slotovi. Slot je jedna fiksna stavka ("1x Burger") ili izbor ("1 od: Coca-Cola, Fanta"), uz `quantity`. Opcija može da fiksira varijantu (`variant_id`), inače se računa najjeftinija varijanta stavke.
+
+API računa `regular_price_minor` (zbir slotova kupljenih pojedinačno, kod izbora najjeftinija opcija, da ušteda nikad ne bude prenaduvana) i `savings_minor`, po trenutnim cenama. `status` je `live`, `scheduled`, `expired` ili `inactive`.
+
+Javni meni vraća `promotions` samo za kombo ponude koje su `live`. Opcije sa skrivenim stavkama ili stavkama van aktivnog menija se izostavljaju, a kombo sa praznim slotom se ne prikazuje. Ako u nekom slotu nijedna opcija nije dostupna, kombo ima `is_available: false` i ide na kraj, kao i stavke.
+
 ## OCR uvoz menija
 
 1. `POST /v1/venues/{id}/imports` (multipart, polje `files`): slike (JPEG/PNG/WebP) ili PDF, najviše 20 stranica. Slike se rotiraju po EXIF-u i smanjuju na 2000 px. Odgovor je odmah `202` sa statusom `processing`.
@@ -152,5 +160,6 @@ backend/
 - Ograničenje `manager`/`staff` na određene objekte (`memberships.venue_ids` postoji u šemi, provera još ne).
 - `platform_admin` rute (kolona `users.is_platform_admin` postoji).
 - Brojač otvaranja menija (`menu_view_daily`).
-- Promocije / kombo, tema menija, upload slika stavki.
+- Tema menija, upload slika stavki i promocija (sada samo `image_url`).
+- Popusti na stavku/kategoriju i ponavljajući termini promocija (V2).
 - Rate limiting za login/register.

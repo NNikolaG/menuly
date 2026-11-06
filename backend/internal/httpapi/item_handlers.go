@@ -3,7 +3,6 @@ package httpapi
 import (
 	"encoding/json"
 	"net/http"
-	"net/url"
 
 	"github.com/google/uuid"
 
@@ -34,11 +33,8 @@ func (in *itemInput) normalize() (tr []byte, apiErr *APIError) {
 		return nil, apiErr
 	}
 	trimPtr(in.Description)
-	trimPtr(in.ImageURL)
-	if in.ImageURL != nil && *in.ImageURL != "" {
-		if u, err := url.Parse(*in.ImageURL); err != nil || (u.Scheme != "https" && u.Scheme != "http") || u.Host == "" {
-			return nil, errValidation("image_url must be an http(s) URL")
-		}
+	if apiErr = checkImageURL(in.ImageURL); apiErr != nil {
+		return nil, apiErr
 	}
 	if in.Tags, apiErr = normalizeLabels(in.Tags, "tags"); apiErr != nil {
 		return nil, apiErr

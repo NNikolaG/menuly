@@ -23,6 +23,7 @@ tags:
   - { name: Items }
   - { name: Prices }
   - { name: Public }
+  - { name: Promotions, description: "Combo offers: a fixed price for a set of slots, each a fixed item or a choice" }
   - { name: Imports, description: "OCR import of an existing (paper/PDF) menu: upload, review the draft, commit into a menu" }
 servers:
   - url: http://localhost:8080
@@ -410,6 +411,115 @@ paths:
               schema: { type: string }
         "404": { $ref: "#/components/responses/Error" }
         "422": { $ref: "#/components/responses/Error" }
+
+  /v1/venues/{venueID}/promotions:
+    parameters:
+      - $ref: "#/components/parameters/VenueID"
+    get:
+      tags: [Promotions]
+      operationId: listVenuePromotions
+      summary: Promotions of a venue in display order
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/Promotion" } }
+        "404": { $ref: "#/components/responses/Error" }
+    post:
+      tags: [Promotions]
+      operationId: createPromotion
+      summary: Create a combo (owner, manager)
+      description: |
+        `name`, `price_minor` and `slots` are required. Each slot is one fixed item (one option) or a choice
+        (several options); `quantity` defaults to 1. Options reference items of this venue's menus; `variant_id`
+        pins a size, otherwise the item's cheapest variant counts. `is_active` defaults to true.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PromotionInput" }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Promotion" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+
+  /v1/venues/{venueID}/promotions/order:
+    parameters:
+      - $ref: "#/components/parameters/VenueID"
+    put:
+      tags: [Promotions]
+      operationId: reorderPromotions
+      summary: Reorder the venue's promotions (owner, manager)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/OrderInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/Promotion" } }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+
+  /v1/promotions/{promotionID}:
+    parameters:
+      - $ref: "#/components/parameters/PromotionID"
+    get:
+      tags: [Promotions]
+      operationId: getPromotion
+      summary: One promotion
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Promotion" }
+        "404": { $ref: "#/components/responses/Error" }
+    patch:
+      tags: [Promotions]
+      operationId: updatePromotion
+      summary: Change a promotion (owner, manager)
+      description: |
+        Any subset of fields. `starts_at` / `ends_at` set to `null` remove that limit.
+        `slots`, when given, replaces all slots.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PromotionInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Promotion" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+    delete:
+      tags: [Promotions]
+      operationId: deletePromotion
+      summary: Delete a promotion (owner, manager)
+      responses:
+        "204": { description: Deleted }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
 
   /v1/venues/{venueID}/imports:
     parameters:
@@ -997,6 +1107,11 @@ components:
       in: path
       required: true
       schema: { type: string, format: uuid }
+    PromotionID:
+      name: promotionID
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
     ImportID:
       name: importID
       in: path
@@ -1227,6 +1342,87 @@ components:
         new_price_minor: { type: integer, format: int64 }
         changed_by: { type: [string, "null"], format: uuid }
         changed_at: { type: string, format: date-time }
+    PromotionInput:
+      type: object
+      properties:
+        name: { type: string, maxLength: 200 }
+        description: { type: string, maxLength: 2000 }
+        translations: { $ref: "#/components/schemas/Translations" }
+        image_url: { type: string, description: "Empty or an http(s) URL" }
+        price_minor: { type: integer, format: int64, minimum: 0 }
+        starts_at: { type: [string, "null"], format: date-time }
+        ends_at: { type: [string, "null"], format: date-time, description: "Must be after starts_at" }
+        is_active: { type: boolean }
+        is_featured: { type: boolean }
+        slots:
+          type: array
+          minItems: 1
+          maxItems: 10
+          items:
+            type: object
+            required: [options]
+            properties:
+              label: { type: string, maxLength: 100, examples: ["Piće po izboru"] }
+              translations: { $ref: "#/components/schemas/Translations" }
+              quantity: { type: integer, minimum: 1, maximum: 20, default: 1 }
+              options:
+                type: array
+                minItems: 1
+                maxItems: 20
+                items:
+                  type: object
+                  required: [item_id]
+                  properties:
+                    item_id: { type: string, format: uuid }
+                    variant_id: { type: [string, "null"], format: uuid }
+    Promotion:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        tenant_id: { type: string, format: uuid }
+        venue_id: { type: string, format: uuid }
+        type: { type: string, enum: [combo] }
+        name: { type: string }
+        description: { type: string }
+        translations: { $ref: "#/components/schemas/Translations" }
+        image_url: { type: string }
+        price_minor: { type: integer, format: int64 }
+        starts_at: { type: [string, "null"], format: date-time }
+        ends_at: { type: [string, "null"], format: date-time }
+        is_active: { type: boolean }
+        is_featured: { type: boolean }
+        position: { type: integer }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+        status:
+          type: string
+          enum: [live, scheduled, expired, inactive]
+          description: "inactive = switched off; otherwise from the validity window and the current time"
+        regular_price_minor: { type: integer, format: int64, description: "Slots bought one by one (cheapest option of a choice), at current prices" }
+        savings_minor: { type: integer, format: int64, description: "regular_price_minor - price_minor, never negative" }
+        slots:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string, format: uuid }
+              label: { type: string }
+              translations: { $ref: "#/components/schemas/Translations" }
+              quantity: { type: integer }
+              options:
+                type: array
+                description: An option disappears when its item is deleted; a slot can then be empty (guests do not see the combo).
+                items:
+                  type: object
+                  properties:
+                    id: { type: string, format: uuid }
+                    item_id: { type: string, format: uuid }
+                    variant_id: { type: [string, "null"], format: uuid }
+                    item_name: { type: string }
+                    variant_label: { type: [string, "null"] }
+                    price_minor: { type: integer, format: int64 }
+                    is_available: { type: boolean }
+                    in_active_menu: { type: boolean, description: "False when the item is hidden or not in the venue's active menu" }
     Import:
       type: object
       properties:
@@ -1350,3 +1546,41 @@ components:
                               label: { type: string }
                               translations: { $ref: "#/components/schemas/Translations" }
                               price_minor: { type: integer, format: int64 }
+        promotions:
+          description: |
+            Combos live right now (active and inside their validity window). Options whose item is hidden or
+            not in this menu are left out, and a combo with an empty slot is left out entirely. A combo with a slot
+            where no option is available has `is_available: false` and comes last. Show `is_featured` ones as a banner.
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string, format: uuid }
+              name: { type: string }
+              description: { type: string }
+              translations: { $ref: "#/components/schemas/Translations" }
+              image_url: { type: string }
+              price_minor: { type: integer, format: int64 }
+              regular_price_minor: { type: integer, format: int64, description: "Sum of the slots bought one by one (cheapest option of a choice)" }
+              savings_minor: { type: integer, format: int64, description: "regular_price_minor - price_minor, never negative" }
+              ends_at: { type: [string, "null"], format: date-time }
+              is_featured: { type: boolean }
+              is_available: { type: boolean }
+              slots:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    label: { type: string }
+                    quantity: { type: integer }
+                    options:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          item_id: { type: string, format: uuid }
+                          variant_id: { type: [string, "null"], format: uuid }
+                          name: { type: string }
+                          variant_label: { type: string }
+                          price_minor: { type: integer, format: int64 }
+                          is_available: { type: boolean }
