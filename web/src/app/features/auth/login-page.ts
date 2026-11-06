@@ -13,7 +13,7 @@ import { AuthLayout } from './auth-layout';
     <app-auth-layout i18n-heading="@@auth.login.heading" heading="Prijava">
       <form class="stack" novalidate (submit)="onSubmit($event)">
         @if (lozinka() === 'promenjena') {
-          <p class="notice" role="status" i18n="@@auth.reset.done">
+          <p class="alert" data-tone="success" role="status" i18n="@@auth.reset.done">
             Lozinka je promenjena. Prijavite se novom lozinkom.
           </p>
         }
@@ -56,6 +56,7 @@ import { AuthLayout } from './auth-layout';
           size="lg"
           type="submit"
           [disabled]="form().submitting()"
+          [loading]="form().submitting()"
           i18n="@@auth.login.submit"
         >
           Prijavi se
@@ -68,22 +69,6 @@ import { AuthLayout } from './auth-layout';
     </app-auth-layout>
   `,
   styles: `
-    .alert {
-      padding: var(--space-3);
-      border-radius: var(--radius-sm);
-      background: var(--color-danger-subtle);
-      color: var(--color-danger);
-      font: var(--type-body-sm);
-    }
-
-    .notice {
-      padding: var(--space-3);
-      border-radius: var(--radius-sm);
-      background: var(--color-success-subtle);
-      color: var(--color-success);
-      font: var(--type-body-sm);
-    }
-
     .forgot {
       align-self: flex-start;
       font: var(--type-body-sm);

@@ -43,7 +43,7 @@ import {
       </div>
 
       @if (error()) {
-        <p role="alert" class="error">{{ error() }}</p>
+        <p class="alert" role="alert">{{ error() }}</p>
       }
 
       <div ngTabs class="stack" data-gap="4">
@@ -195,7 +195,9 @@ import {
                                 </div>
                               </div>
                             } @else {
-                              <p class="meta" i18n="@@common.loading">Učitavanje…</p>
+                              <p class="loading" role="status" i18n="@@common.loading">
+                                Učitavanje…
+                              </p>
                             }
                           </td>
                         </tr>
@@ -210,7 +212,7 @@ import {
               } @else if (tenantsRes.error()) {
                 <p role="alert" i18n="@@admin.loadError">Podaci nisu učitani.</p>
               } @else {
-                <p class="meta" i18n="@@common.loading">Učitavanje…</p>
+                <p class="loading" role="status" i18n="@@common.loading">Učitavanje…</p>
               }
             </div>
           </ng-template>
@@ -282,34 +284,6 @@ import {
     </div>
   `,
   styles: `
-    .error {
-      color: var(--color-danger);
-    }
-
-    .tabs {
-      display: flex;
-      gap: var(--space-1);
-      border-block-end: var(--stroke-hairline) solid var(--color-border);
-    }
-
-    .tab {
-      padding: var(--space-2) var(--space-3);
-      border-block-end: 2px solid transparent;
-      color: var(--color-text-muted);
-      font: var(--type-label);
-      cursor: pointer;
-    }
-
-    .tab[aria-selected='true'] {
-      border-color: var(--color-text);
-      color: var(--color-text);
-    }
-
-    .tab:focus-visible {
-      outline: var(--stroke-focus) solid var(--color-focus);
-      outline-offset: calc(-1 * var(--stroke-focus));
-    }
-
     .search {
       position: relative;
       flex: 1 1 14rem;

@@ -1,7 +1,7 @@
 import { Dialog } from '@angular/cdk/dialog';
 import { Component, computed, inject, linkedSignal, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { LucidePencil, LucidePlus, LucideTrash2 } from '@lucide/angular';
+import { LucidePencil, LucidePlus, LucideStore, LucideTrash2 } from '@lucide/angular';
 import { Toolbar, ToolbarWidget } from '@angular/aria/toolbar';
 import { firstValueFrom } from 'rxjs';
 import { toApiError } from '../../core/api/api-error';
@@ -23,6 +23,7 @@ import { VenuesStore } from '../../core/venues/venues-store';
 @Component({
   selector: 'app-venues-page',
   imports: [
+    LucideStore,
     Toolbar,
     ToolbarWidget,
     RouterLink,
@@ -51,7 +52,7 @@ import { VenuesStore } from '../../core/venues/venues-store';
       }
 
       @if (venues.isLoading() && !venues.hasValue()) {
-        <p class="meta" i18n="@@common.loading">Učitavanje…</p>
+        <p class="loading" role="status" i18n="@@common.loading">Učitavanje…</p>
       } @else if (venues.error()) {
         <div class="card stack" data-gap="3">
           <p role="alert" i18n="@@venues.loadError">Objekti nisu učitani.</p>
@@ -227,9 +228,10 @@ import { VenuesStore } from '../../core/venues/venues-store';
             </table>
           }
         } @else {
-          <div class="card stack" data-gap="3">
-            <p class="card__title" i18n="@@venues.empty">Još nema objekata.</p>
-            <p class="card__body" i18n="@@venues.emptyBody">
+          <div class="empty-state">
+            <svg lucideStore aria-hidden="true"></svg>
+            <p class="empty-state__title" i18n="@@venues.empty">Još nema objekata.</p>
+            <p class="empty-state__body" i18n="@@venues.emptyBody">
               Dodaj prvi objekat, pa mu uvezi ili napravi meni.
             </p>
           </div>
@@ -275,13 +277,20 @@ import { VenuesStore } from '../../core/venues/venues-store';
 
     .venue-card {
       inline-size: auto;
-      transition: translate var(--duration-fast) ease-out;
+      transition:
+        translate var(--duration-base) var(--ease-out),
+        box-shadow var(--duration-base) var(--ease-out);
     }
 
-    @media (prefers-reduced-motion: no-preference) {
+    @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
       .venue-card:hover {
         translate: 0 calc(-1 * var(--space-1));
+        box-shadow: var(--shadow-md);
       }
+    }
+
+    .venue-card:active {
+      translate: 0 0;
     }
 
     .venue-card__link {

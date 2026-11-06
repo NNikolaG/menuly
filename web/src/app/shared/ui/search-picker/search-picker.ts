@@ -45,6 +45,7 @@ const LIMIT = 50;
         [cdkConnectedOverlay]="{ origin, usePopover: 'inline' }"
         [cdkConnectedOverlayOpen]="true"
         [cdkConnectedOverlayPositions]="positions"
+        cdkConnectedOverlayTransformOriginOn=".popover"
         [cdkConnectedOverlayMinWidth]="width()"
         (attach)="width.set(origin.getBoundingClientRect().width)"
       >
@@ -52,7 +53,7 @@ const LIMIT = 50;
           ngComboboxWidget
           ngListbox
           #listbox="ngListbox"
-          class="panel"
+          class="panel popover"
           focusMode="activedescendant"
           selectionMode="explicit"
           [activeDescendant]="listbox.activeDescendant()"
@@ -121,11 +122,6 @@ const LIMIT = 50;
       max-block-size: 18rem;
       overflow-y: auto;
       padding: var(--space-1);
-      background: var(--color-surface-raised);
-      color: var(--color-text);
-      border: var(--stroke-hairline) solid var(--color-border);
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-lg);
     }
 
     .option {

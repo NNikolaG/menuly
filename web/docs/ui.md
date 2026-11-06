@@ -62,6 +62,15 @@ Type styles are `font` shorthand tokens (`font: var(--type-h3)`) plus `--trackin
 
 `ThemeStore` in `core/theme/` (`light | dark | system`, persisted under `menuly.theme`) sets `data-theme` on `<html>`, or removes it for system; an inline script in `index.html` applies it before first paint. `:root` has `color-scheme: light dark`, so `light-dark()` follows the OS without any `prefers-color-scheme`. A `data-theme` on any element themes just that subtree (used on `/design`).
 
+## Motion and interaction
+
+- Easing and duration only from tokens: `--ease-out` for anything entering or answering the user, `--ease-in-out` for movement on screen, never `ease-in` or the browser default `ease`. `--duration-fast` (color, press) / `--duration-base` (popover, dialog, tab underline) / `--duration-slow` (toast); UI motion stays under 300ms.
+- Animate only `opacity`, `scale`, `translate` and colors, never layout (`width`, `height`, `top`).
+- Entrances start from `--enter-scale` / `--enter-shift`, never from `scale(0)`; a popover grows from its trigger (`cdkConnectedOverlayTransformOriginOn`); exits are faster than entrances.
+- Pressable things scale to `--press-scale` on `:active`; hover styles sit in `@media (hover: hover) and (pointer: fine)` so touch never keeps a stuck hover.
+- `prefers-reduced-motion` zeroes `--press-scale`, `--enter-scale` and `--enter-shift` in `tokens.css`, so code that uses the tokens needs no media query of its own; fades stay.
+- Work that takes time shows feedback: `[loading]` on the submit button, `.loading` for a page (delayed, so fast loads don't flash), a toast for a save that navigates away.
+
 ## Icons
 
 Lucide (`@lucide/angular`), one component per icon: `<svg lucideLogOut></svg>`, stroke 1.5px, size 16/18/20 (default 18), color from the text next to it. Decorative by default (`aria-hidden`); an icon-only button needs an `aria-label`. No emoji in the UI.

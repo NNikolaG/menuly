@@ -4822,6 +4822,26 @@
         <source>Proširi meni</source>
         <target>Expand menu</target>
       </trans-unit>
+      <trans-unit id="toast.region" datatype="html">
+        <source>Obaveštenja</source>
+        <target>Notifications</target>
+      </trans-unit>
+      <trans-unit id="toast.close" datatype="html">
+        <source>Zatvori obaveštenje</source>
+        <target>Dismiss notification</target>
+      </trans-unit>
+      <trans-unit id="venues.toast.saved" datatype="html">
+        <source>Objekat je sačuvan.</source>
+        <target>Venue saved.</target>
+      </trans-unit>
+      <trans-unit id="venues.toast.created" datatype="html">
+        <source>Objekat je napravljen.</source>
+        <target>Venue created.</target>
+      </trans-unit>
+      <trans-unit id="promo.toast.saved" datatype="html">
+        <source>Kombo je sačuvan.</source>
+        <target>Combo saved.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

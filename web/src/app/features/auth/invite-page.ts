@@ -112,6 +112,7 @@ import { ROLE_LABEL } from '../../core/auth/role-labels';
               size="lg"
               type="submit"
               [disabled]="form().submitting()"
+              [loading]="form().submitting()"
               i18n="@@invite.join"
             >
               Napravi nalog i pridruži se
@@ -124,21 +125,13 @@ import { ROLE_LABEL } from '../../core/auth/role-labels';
       } @else if (!token() || invitation.error()) {
         <p class="alert" role="alert" i18n="@@invite.invalid">Link poziva nije važeći.</p>
       } @else {
-        <p class="meta" i18n="@@common.loading">Učitavanje…</p>
+        <p class="loading" role="status" i18n="@@common.loading">Učitavanje…</p>
       }
     </app-auth-layout>
   `,
   styles: `
     .lead {
       font: var(--type-body);
-    }
-
-    .alert {
-      padding: var(--space-3);
-      border-radius: var(--radius-sm);
-      background: var(--color-danger-subtle);
-      color: var(--color-danger);
-      font: var(--type-body-sm);
     }
   `,
 })

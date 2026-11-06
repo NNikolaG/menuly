@@ -30,6 +30,7 @@ import {
   AppSearchPicker,
   AppSwitch,
   type AppSelectOption,
+  Toaster,
 } from '../../shared/ui';
 import { STATUS } from './promotion-labels';
 
@@ -103,7 +104,7 @@ const MAX_OPTIONS = 20;
       @if (promotionId() && promotion.error()) {
         <p role="alert" i18n="@@promo.notFound">Ponuda nije pronađena.</p>
       } @else if (promotionId() && !promotion.hasValue()) {
-        <p class="meta" i18n="@@common.loading">Učitavanje…</p>
+        <p class="loading" role="status" i18n="@@common.loading">Učitavanje…</p>
       } @else {
         <form class="layout" novalidate (submit)="onSubmit($event)">
           <div class="stack" data-gap="6">
@@ -159,7 +160,7 @@ const MAX_OPTIONS = 20;
               </div>
 
               @if (catalog.error()) {
-                <p role="alert" class="error" i18n="@@promo.catalogError">
+                <p class="alert" role="alert" i18n="@@promo.catalogError">
                   Stavke menija nisu učitane.
                 </p>
               }
@@ -343,10 +344,15 @@ const MAX_OPTIONS = 20;
             </section>
 
             @if (error()) {
-              <p role="alert" class="error">{{ error() }}</p>
+              <p class="alert" role="alert">{{ error() }}</p>
             }
             <div class="row" data-gap="2">
-              <button appButton type="submit" [disabled]="form().submitting()">
+              <button
+                appButton
+                type="submit"
+                [disabled]="form().submitting()"
+                [loading]="form().submitting()"
+              >
                 <ng-container i18n="@@common.save">Sačuvaj</ng-container>
               </button>
               <a appButton variant="secondary" routerLink=".." i18n="@@common.cancel">Otkaži</a>
@@ -456,6 +462,7 @@ export default class PromotionFormPage {
   private readonly api = inject(PromotionsApi);
   private readonly menusApi = inject(MenusApi);
   private readonly router = inject(Router);
+  private readonly toaster = inject(Toaster);
 
   readonly venueId = input.required<string>();
   /** Absent on `novi`. */
@@ -624,6 +631,7 @@ export default class PromotionFormPage {
           id ? this.api.update(id, input) : this.api.create(this.venueId(), input),
         );
         await this.router.navigate(['/objekti', this.venueId(), 'kombo']);
+        this.toaster.show($localize`:@@promo.toast.saved:Kombo je sačuvan.`);
       } catch (error) {
         const code = toApiError(error).code;
         this.error.set(

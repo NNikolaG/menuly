@@ -52,7 +52,7 @@ import { matchesQuery } from '../../shared/text/fold';
       </div>
 
       @if (error()) {
-        <p role="alert" class="error">{{ error() }}</p>
+        <p class="alert" role="alert">{{ error() }}</p>
       }
 
       <section class="stack" data-gap="3" aria-labelledby="members-heading">
@@ -143,7 +143,7 @@ import { matchesQuery } from '../../shared/text/fold';
         } @else if (membersRes.error()) {
           <p role="alert" i18n="@@team.loadError">Tim nije učitan.</p>
         } @else {
-          <p class="meta" i18n="@@common.loading">Učitavanje…</p>
+          <p class="loading" role="status" i18n="@@common.loading">Učitavanje…</p>
         }
       </section>
 
@@ -176,13 +176,18 @@ import { matchesQuery } from '../../shared/text/fold';
               [formField]="inviteForm.role"
             />
           </app-field>
-          <button appButton type="submit" [disabled]="inviteForm().submitting()">
+          <button
+            appButton
+            type="submit"
+            [disabled]="inviteForm().submitting()"
+            [loading]="inviteForm().submitting()"
+          >
             <svg lucideSend aria-hidden="true"></svg>
             <ng-container i18n="@@team.send">Pošalji poziv</ng-container>
           </button>
         </form>
         @if (sentTo()) {
-          <p role="status" class="notice" i18n="@@team.sent">
+          <p class="alert" data-tone="success" role="status" i18n="@@team.sent">
             Poziv je poslat na {{ sentTo() }}. Link važi 7 dana.
           </p>
         }
@@ -229,14 +234,6 @@ import { matchesQuery } from '../../shared/text/fold';
     </div>
   `,
   styles: `
-    .error {
-      color: var(--color-danger);
-    }
-
-    .notice {
-      color: var(--color-success);
-    }
-
     .invite {
       align-items: flex-end;
       flex-wrap: wrap;
