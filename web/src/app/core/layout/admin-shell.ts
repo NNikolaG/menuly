@@ -7,8 +7,10 @@ import {
   LucideLogOut,
   LucideMonitor,
   LucideMoon,
+  LucideShieldCheck,
   LucideStore,
   LucideSun,
+  LucideUsers,
   type LucideIcon,
 } from '@lucide/angular';
 import { AppMenu, type AppMenuItem } from '../../shared/ui/menu/menu';
@@ -22,6 +24,8 @@ interface NavItem {
   path: string;
   label: string;
   icon: LucideIcon;
+  /** Shown only when true for the signed-in user. */
+  visible?: (auth: AuthStore) => boolean;
 }
 
 /** Sidebar entries; a new admin feature adds one here next to its route. */
@@ -35,6 +39,18 @@ const NAV: NavItem[] = [
     path: '/objekti',
     label: $localize`:@@shell.nav.venues:Objekti`,
     icon: LucideStore,
+  },
+  {
+    path: '/tim',
+    label: $localize`:@@shell.nav.team:Tim`,
+    icon: LucideUsers,
+    visible: (auth) => auth.role() === 'owner' || auth.role() === 'manager',
+  },
+  {
+    path: '/admin',
+    label: $localize`:@@shell.nav.admin:Administracija`,
+    icon: LucideShieldCheck,
+    visible: (auth) => auth.isPlatformAdmin(),
   },
 ];
 
@@ -61,7 +77,7 @@ const NEXT_THEME: Record<ThemePreference, ThemePreference> = {
           <span class="sidebar__venue-plan">{{ auth.me.value()?.tenant?.plan }}</span>
         </span>
       </a>
-      @for (item of nav; track item.path) {
+      @for (item of nav(); track item.path) {
         <a class="nav-item" [routerLink]="item.path" routerLinkActive ariaCurrentWhenActive="page">
           <svg [lucideIcon]="item.icon"></svg>
           {{ item.label }}
@@ -203,7 +219,9 @@ export class AdminShell {
   protected readonly auth = inject(AuthStore);
   private readonly theme = inject(ThemeStore);
 
-  protected readonly nav = NAV;
+  protected readonly nav = computed(() =>
+    NAV.filter((item) => !item.visible || item.visible(this.auth)),
+  );
   protected readonly brand = 'Menuly';
 
   protected readonly initial = computed(() =>

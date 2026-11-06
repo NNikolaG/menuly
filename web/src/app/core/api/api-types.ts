@@ -15,6 +15,8 @@ export interface User {
   email: string;
   name: string;
   locale: string;
+  /** Shows the platform admin screens; `/v1/admin/*` checks it on every request. */
+  is_platform_admin?: boolean;
 }
 
 export interface Tenant {

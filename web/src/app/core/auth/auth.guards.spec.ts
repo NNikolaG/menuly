@@ -6,8 +6,8 @@ import { provideRouter, Router } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import type { Role } from '../api/api-types';
 import { AuthStore } from './auth-store';
-import { tokenPair } from './auth.testing';
-import { authGuard, guestGuard, roleGuard } from './auth.guards';
+import { signInAs, tokenPair } from './auth.testing';
+import { authGuard, guestGuard, platformAdminGuard, roleGuard } from './auth.guards';
 
 @Component({ template: 'page' })
 class Page {}
@@ -22,6 +22,7 @@ describe('auth guards', () => {
         provideRouter([
           { path: 'prijava', component: Page, canActivate: [guestGuard] },
           { path: 'tim', component: Page, canActivate: [roleGuard('owner')] },
+          { path: 'admin', component: Page, canActivate: [platformAdminGuard] },
           { path: '', canMatch: [authGuard], children: [{ path: '**', component: Page }] },
         ]),
       ],
@@ -65,5 +66,20 @@ describe('auth guards', () => {
     const harness = await RouterTestingHarness.create();
     await harness.navigateByUrl('/tim');
     expect(TestBed.inject(Router).url).toBe('/tim');
+  });
+
+  it('opens /admin only for platform admins', async () => {
+    const http = TestBed.inject(HttpTestingController);
+    await signInAs(http, 'owner');
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl('/admin');
+    expect(TestBed.inject(Router).url).toBe('/');
+
+    TestBed.inject(AuthStore).me.set({
+      ...TestBed.inject(AuthStore).me.value()!,
+      user: { id: 'u1', email: 'a@b.rs', name: 'Ana', locale: 'sr-Latn', is_platform_admin: true },
+    });
+    await harness.navigateByUrl('/admin');
+    expect(TestBed.inject(Router).url).toBe('/admin');
   });
 });

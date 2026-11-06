@@ -1,5 +1,5 @@
 import type { Routes } from '@angular/router';
-import { authGuard, guestGuard, roleGuard } from './core/auth/auth.guards';
+import { authGuard, guestGuard, platformAdminGuard, roleGuard } from './core/auth/auth.guards';
 import { tenantHostGuard } from './core/host/host.guards';
 import { AdminShell } from './core/layout/admin-shell';
 
@@ -21,6 +21,23 @@ export const routes: Routes = [
     title: $localize`:@@auth.register.pageTitle:Registracija`,
     canActivate: [guestGuard],
     loadComponent: () => import('./features/auth/register-page'),
+  },
+  {
+    path: 'zaboravljena-lozinka',
+    title: $localize`:@@auth.forgot.heading:Zaboravljena lozinka`,
+    canActivate: [guestGuard],
+    loadComponent: () => import('./features/auth/forgot-password-page'),
+  },
+  // Paths of the emailed links (backend APP_URL), so they stay English.
+  {
+    path: 'reset-password',
+    title: $localize`:@@auth.reset.heading:Nova lozinka`,
+    loadComponent: () => import('./features/auth/reset-password-page'),
+  },
+  {
+    path: 'invite',
+    title: $localize`:@@invite.heading:Poziv u tim`,
+    loadComponent: () => import('./features/auth/invite-page'),
   },
   {
     path: 'design',
@@ -64,6 +81,18 @@ export const routes: Routes = [
         loadComponent: () => import('./features/imports/import-review-page'),
       },
       { path: 'objekti', loadChildren: () => import('./features/venues/venues.routes') },
+      {
+        path: 'tim',
+        title: $localize`:@@team.heading:Tim`,
+        canActivate: [roleGuard('owner', 'manager')],
+        loadComponent: () => import('./features/team/team-page'),
+      },
+      {
+        path: 'admin',
+        title: $localize`:@@admin.heading:Administracija`,
+        canActivate: [platformAdminGuard],
+        loadComponent: () => import('./features/admin/admin-page'),
+      },
       { path: 'meniji', loadChildren: () => import('./features/menus/menus.routes') },
       {
         path: '**',
