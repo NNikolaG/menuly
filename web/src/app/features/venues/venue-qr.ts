@@ -72,7 +72,8 @@ import { AppButton } from '../../shared/ui';
     :host {
       display: grid;
       gap: var(--space-3);
-      justify-items: start;
+      justify-items: center;
+      text-align: center;
     }
 
     .qr {

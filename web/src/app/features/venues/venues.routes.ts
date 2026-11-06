@@ -1,10 +1,12 @@
 import type { Routes } from '@angular/router';
 import { roleGuard } from '../../core/auth/auth.guards';
+import { singleVenueGuard } from '../../core/venues/venue.guards';
 
 export default [
   {
     path: '',
     title: $localize`:@@venues.pageTitle:Objekti`,
+    canActivate: [singleVenueGuard],
     loadComponent: () => import('./venues-page'),
   },
   {

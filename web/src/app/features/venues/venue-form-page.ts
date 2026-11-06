@@ -1,4 +1,13 @@
-import { Component, computed, inject, input, linkedSignal, LOCALE_ID, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  Injector,
+  input,
+  linkedSignal,
+  LOCALE_ID,
+  signal,
+} from '@angular/core';
 import { form, FormField, maxLength, pattern, required, submit } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
 import { LucideArrowLeft } from '@lucide/angular';
@@ -9,6 +18,7 @@ import { AppButton, AppField, AppInput, AppSelect, type AppSelectOption } from '
 import type { Venue, VenueInput } from '../../core/venues/venue';
 import { venuePublicUrl } from '../../core/venues/venue-public-url';
 import { VenuesApi } from '../../core/venues/venues-api';
+import { VenuesStore } from '../../core/venues/venues-store';
 
 interface VenueModel {
   name: string;
@@ -129,6 +139,11 @@ function toModel(venue: Venue | undefined): VenueModel {
       align-self: flex-start;
     }
 
+    /* Full-width pages, but a form stays at a readable line length. */
+    form {
+      max-inline-size: 48rem;
+    }
+
     .error {
       color: var(--color-danger);
     }
@@ -136,6 +151,7 @@ function toModel(venue: Venue | undefined): VenueModel {
 })
 export default class VenueFormPage {
   private readonly api = inject(VenuesApi);
+  private readonly injector = inject(Injector);
   private readonly auth = inject(AuthStore);
   private readonly router = inject(Router);
 
@@ -194,6 +210,8 @@ export default class VenueFormPage {
         const saved = await firstValueFrom(
           id ? this.api.update(id, input) : this.api.create({ ...input, name: value.name }),
         );
+        // Lazily: the form itself doesn't need the list, only the pages after it.
+        this.injector.get(VenuesStore).list.reload();
         await this.router.navigate(['/objekti', saved.id]);
       } catch (error) {
         this.error.set(errorMessage(toApiError(error).code));

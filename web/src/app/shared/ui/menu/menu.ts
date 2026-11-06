@@ -25,18 +25,26 @@ export interface AppMenuItem {
     <button
       type="button"
       class="trigger"
+      [attr.data-look]="look()"
       ngMenuTrigger
       #origin
       #trigger="ngMenuTrigger"
       [menu]="menu()"
+      [attr.aria-label]="icon() && compact() ? label() : null"
+      [attr.title]="icon() && compact() ? label() : null"
     >
-      {{ label() }}
-      <svg lucideChevronDown class="chevron"></svg>
+      @if (icon(); as triggerIcon) {
+        <svg [lucideIcon]="triggerIcon" class="icon"></svg>
+      }
+      @if (!(icon() && compact())) {
+        <span class="label">{{ label() }}</span>
+        <svg lucideChevronDown class="chevron"></svg>
+      }
     </button>
     <ng-template
       [cdkConnectedOverlay]="{ origin, usePopover: 'inline' }"
       [cdkConnectedOverlayOpen]="trigger.expanded()"
-      [cdkConnectedOverlayPositions]="positions"
+      [cdkConnectedOverlayPositions]="above() ? positionsAbove : positions"
     >
       <div ngMenu class="panel" (itemSelected)="onSelected($event)">
         <ng-template ngMenuContent>
@@ -53,8 +61,14 @@ export interface AppMenuItem {
     </ng-template>
   `,
   styles: `
+    :host {
+      display: block;
+      min-inline-size: 0;
+    }
+
     .trigger {
       display: inline-flex;
+      max-inline-size: 100%;
       align-items: center;
       gap: var(--space-2);
       block-size: var(--control-md);
@@ -68,12 +82,47 @@ export interface AppMenuItem {
       transition: background-color var(--duration-fast);
     }
 
+    /* Same box as a sidebar .nav-item, so it lines up with the navigation above it. */
+    .trigger[data-look='nav'] {
+      inline-size: 100%;
+      block-size: var(--size-nav-item);
+      gap: var(--space-3);
+      padding-inline: var(--space-3);
+      border: 0;
+      color: var(--color-text-muted);
+      font: var(--type-nav);
+    }
+
+    .trigger[data-look='nav']:hover,
+    .trigger[data-look='nav'][aria-expanded='true'] {
+      color: var(--color-text);
+    }
+
+    .trigger[data-look='nav'] .icon {
+      color: inherit;
+    }
+
     .trigger:hover,
     .trigger[aria-expanded='true'] {
       background: var(--color-surface-hover);
     }
 
+    .label {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .icon {
+      flex: none;
+      inline-size: var(--size-icon);
+      block-size: var(--size-icon);
+      color: var(--color-text-muted);
+    }
+
     .chevron {
+      flex: none;
+      margin-inline-start: auto;
       inline-size: var(--size-icon-sm);
       block-size: var(--size-icon-sm);
       color: var(--color-text-muted);
@@ -129,6 +178,13 @@ export interface AppMenuItem {
 export class AppMenu {
   readonly label = input.required<string>();
   readonly items = input.required<readonly AppMenuItem[]>();
+  /** Shown before the label, or alone when `compact` (the label then becomes the accessible name). */
+  readonly icon = input<LucideIcon>();
+  readonly compact = input(false);
+  /** `nav`: full-width row that matches the sidebar navigation items. */
+  readonly look = input<'button' | 'nav'>('button');
+  /** Open upwards first, for a trigger at the bottom of the screen (sidebar footer). */
+  readonly above = input(false);
   readonly selected = output<string>();
 
   protected readonly menu = viewChild(Menu<string>);
@@ -137,6 +193,11 @@ export class AppMenu {
     { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top', offsetY: 4 },
     { originX: 'end', originY: 'top', overlayX: 'end', overlayY: 'bottom', offsetY: -4 },
     { originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom', offsetY: -4 },
+  ];
+
+  protected readonly positionsAbove: ConnectedPosition[] = [
+    { originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom', offsetY: -4 },
+    { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top', offsetY: 4 },
   ];
 
   protected onSelected(value: string | undefined): void {

@@ -72,6 +72,34 @@ describe('MenuEditorPage', () => {
     http.expectOne('/api/v1/menus/m1').flush(tree);
   }
 
+  it('filters items by text and availability and turns reordering off meanwhile', async () => {
+    await signIn('manager');
+    const tree = menuTreeFixture();
+    tree.categories[0].items[1] = { ...tree.categories[0].items[1], is_available: false };
+    const fixture = await render(tree);
+    const root: HTMLElement = fixture.nativeElement;
+    const names = () =>
+      [...root.querySelectorAll('tbody tr strong')].map((el) => el.textContent?.trim());
+    expect(names()).toEqual(['Espreso', 'Kapućino']);
+
+    const search = root.querySelector<HTMLInputElement>('app-search input')!;
+    search.value = 'kapucino';
+    search.dispatchEvent(new Event('input'));
+    await fixture.whenStable();
+    expect(names()).toEqual(['Kapućino']);
+    expect(root.querySelector<HTMLButtonElement>('button.handle')!.disabled).toBe(true);
+    expect(root.textContent).toContain('1 od 2');
+
+    search.value = '';
+    search.dispatchEvent(new Event('input'));
+    const available = [...root.querySelectorAll<HTMLElement>('[role="option"]')].find(
+      (option) => option.textContent?.trim() === 'Dostupne',
+    )!;
+    available.click();
+    await fixture.whenStable();
+    expect(names()).toEqual(['Espreso']);
+  });
+
   it('lists categories and items with prices in the venue currency', async () => {
     await signIn('manager');
     const fixture = await render();

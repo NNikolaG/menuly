@@ -5,6 +5,7 @@ import { LucideArrowRight, LucidePlus } from '@lucide/angular';
 import { AuthStore } from '../../core/auth/auth-store';
 import { venuePublicUrl } from '../../core/venues/venue-public-url';
 import { VenuesApi } from '../../core/venues/venues-api';
+import { VenuesStore } from '../../core/venues/venues-store';
 import { AppButton, AppSelect } from '../../shared/ui';
 import { ViewsChart } from './views-chart';
 
@@ -24,7 +25,7 @@ import { ViewsChart } from './views-chart';
       </div>
 
       <div class="bento">
-        <div class="card">
+        <div class="card count-card" data-rows="2">
           <div class="stat">
             <span class="stat__label" i18n="@@dashboard.venuesStat">Objekti</span>
             <span class="stat__value">{{ venueCount() ?? '—' }}</span>
@@ -32,7 +33,7 @@ import { ViewsChart } from './views-chart';
         </div>
 
         @if (venueCount() === 0) {
-          <div class="card stack" data-variant="inverse" data-span="2" data-rows="2" data-gap="3">
+          <div class="card stack link-card" data-variant="inverse" data-rows="2" data-gap="3">
             <p class="card__eyebrow" i18n="@@dashboard.firstStep">Prvi korak</p>
             <p class="card__title" i18n="@@dashboard.addVenueTitle">Dodaj svoj prvi objekat</p>
             <p class="card__body" i18n="@@dashboard.addVenueBody">
@@ -48,15 +49,22 @@ import { ViewsChart } from './views-chart';
             }
           </div>
         } @else if (firstVenue(); as venue) {
-          <div class="card stack" data-span="2" data-rows="2" data-gap="3">
+          <div class="card stack link-card" data-rows="2" data-gap="3">
             <p class="card__eyebrow" i18n="@@dashboard.publicLink">Javni link</p>
             <p class="card__title">{{ venue.name }}</p>
             <p class="meta">{{ venueUrl() }}</p>
             <div>
-              <a appButton variant="secondary" routerLink="/objekti">
-                <ng-container i18n="@@dashboard.allVenues">Svi objekti</ng-container>
-                <svg lucideArrowRight aria-hidden="true"></svg>
-              </a>
+              @if (venueCount() === 1) {
+                <a appButton variant="secondary" [routerLink]="['/objekti', venue.id]">
+                  <ng-container i18n="@@dashboard.openVenue">Otvori objekat</ng-container>
+                  <svg lucideArrowRight aria-hidden="true"></svg>
+                </a>
+              } @else {
+                <a appButton variant="secondary" routerLink="/objekti">
+                  <ng-container i18n="@@dashboard.allVenues">Svi objekti</ng-container>
+                  <svg lucideArrowRight aria-hidden="true"></svg>
+                </a>
+              }
             </div>
           </div>
         }
@@ -95,6 +103,22 @@ import { ViewsChart } from './views-chart';
     </div>
   `,
   styles: `
+    /* Fills the row next to the venue count, so no column is left empty on wide screens. */
+    .link-card {
+      grid-column: span 3;
+    }
+
+    @media (max-width: 720px) {
+      .link-card {
+        grid-column: 1 / -1;
+      }
+
+      .count-card {
+        grid-column: 1 / -1;
+        grid-row: auto;
+      }
+    }
+
     .views {
       grid-column: 1 / -1;
       justify-content: flex-start;
@@ -112,7 +136,7 @@ import { ViewsChart } from './views-chart';
 export default class DashboardPage {
   protected readonly auth = inject(AuthStore);
   private readonly venuesApi = inject(VenuesApi);
-  private readonly venues = this.venuesApi.listResource();
+  private readonly venues = inject(VenuesStore).list;
 
   protected readonly venueLabel = $localize`:@@dashboard.viewsVenue:Objekat`;
   protected readonly pickedVenue = signal<string | null>(null);

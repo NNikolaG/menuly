@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import {
   LucideArrowLeftRight,
@@ -7,9 +7,12 @@ import {
   LucideLogOut,
   LucideMonitor,
   LucideMoon,
+  LucidePanelLeftClose,
+  LucidePanelLeftOpen,
   LucideShieldCheck,
   LucideStore,
   LucideSun,
+  LucideUserRound,
   LucideUsers,
   type LucideIcon,
 } from '@lucide/angular';
@@ -19,6 +22,7 @@ import { AuthStore } from '../auth/auth-store';
 import { ThemeStore, type ThemePreference } from '../theme/theme-store';
 
 const LOGOUT = 'logout';
+const SIDEBAR_KEY = 'menuly.sidebar';
 
 interface NavItem {
   path: string;
@@ -60,48 +64,78 @@ const NEXT_THEME: Record<ThemePreference, ThemePreference> = {
   dark: 'system',
 };
 
-/** Frame of every signed-in page: sidebar with venue and navigation, top bar with theme and account menu. */
+/** Frame of every signed-in page: collapsible sidebar (venue, navigation, theme, account), top bar for page tools. */
 @Component({
   selector: 'app-admin-shell',
   imports: [RouterOutlet, RouterLink, RouterLinkActive, AppMenu, AppPattern, LucideDynamicIcon],
   template: `
-    <nav class="sidebar" i18n-aria-label="@@shell.nav" aria-label="Glavna navigacija">
-      <a class="sidebar__venue" routerLink="/">
+    <nav
+      class="sidebar"
+      [attr.data-collapsed]="collapsed() ? '' : null"
+      i18n-aria-label="@@shell.nav"
+      aria-label="Glavna navigacija"
+    >
+      <a class="sidebar__venue" routerLink="/" [attr.title]="collapsed() ? tenantName() : null">
         @if (auth.me.value()?.tenant?.name; as venue) {
           <app-pattern class="sidebar__mark" [seed]="venue" [cols]="2" [rows]="2" [big]="false" />
         } @else {
           <span class="sidebar__mark" aria-hidden="true">{{ initial() }}</span>
         }
-        <span>
-          <span class="sidebar__venue-name">{{ auth.me.value()?.tenant?.name ?? brand }}</span>
+        <span class="expanded-only">
+          <span class="sidebar__venue-name">{{ tenantName() }}</span>
           <span class="sidebar__venue-plan">{{ auth.me.value()?.tenant?.plan }}</span>
         </span>
       </a>
       @for (item of nav(); track item.path) {
-        <a class="nav-item" [routerLink]="item.path" routerLinkActive ariaCurrentWhenActive="page">
-          <svg [lucideIcon]="item.icon"></svg>
-          {{ item.label }}
+        <a
+          class="nav-item"
+          [routerLink]="item.path"
+          routerLinkActive
+          ariaCurrentWhenActive="page"
+          [attr.title]="collapsed() ? item.label : null"
+        >
+          <svg [lucideIcon]="item.icon" aria-hidden="true"></svg>
+          <span class="expanded-only">{{ item.label }}</span>
         </a>
       }
-    </nav>
-    <div class="content">
-      <header class="topbar">
+      <div class="sidebar__foot">
         <button
           type="button"
-          class="icon-button"
+          class="nav-item theme"
           [attr.aria-label]="themeLabel()"
           [title]="themeLabel()"
           (click)="cycleTheme()"
         >
-          <svg [lucideIcon]="themeIcon()"></svg>
+          <svg [lucideIcon]="themeIcon()" aria-hidden="true"></svg>
+          <span class="expanded-only" aria-hidden="true">{{ themeLabel() }}</span>
         </button>
         @if (auth.me.value(); as me) {
           <app-menu
+            class="account"
             [label]="me.user.name"
+            [icon]="userIcon"
+            look="nav"
+            [compact]="collapsed()"
+            [above]="true"
             [items]="accountItems()"
             (selected)="onAccountAction($event)"
           />
         }
+      </div>
+    </nav>
+    <div class="content">
+      <!-- Page tools will join the sidebar toggle here. -->
+      <header class="topbar">
+        <button
+          type="button"
+          class="icon-button"
+          [attr.aria-label]="toggleLabel()"
+          [attr.aria-expanded]="!collapsed()"
+          [title]="toggleLabel()"
+          (click)="toggleSidebar()"
+        >
+          <svg [lucideIcon]="collapsed() ? openIcon : closeIcon"></svg>
+        </button>
       </header>
       <main>
         <router-outlet />
@@ -115,25 +149,62 @@ const NEXT_THEME: Record<ThemePreference, ThemePreference> = {
       min-block-size: 100dvh;
     }
 
+    :host:has(.sidebar[data-collapsed]) {
+      grid-template-columns: var(--sidebar-collapsed-width) minmax(0, 1fr);
+    }
+
     .sidebar {
       position: sticky;
       inset-block-start: 0;
+      inline-size: auto;
       block-size: 100dvh;
+      padding-block-start: 0;
       overflow-y: auto;
     }
 
+    /* Mark, icons and labels share one left edge: the nav item's inline padding. */
+    /* Same height and bottom line as the top bar, edge to edge. */
     .sidebar__venue {
+      flex: none;
+      block-size: var(--topbar-height);
+      margin: 0 calc(var(--space-3) * -1) var(--space-4);
+      padding: 0 calc(var(--space-3) * 2);
+      border-block-end: var(--stroke-hairline) solid var(--color-border);
       color: inherit;
       text-decoration: none;
+    }
+
+    .sidebar__venue > span:not(.sidebar__mark) {
+      min-inline-size: 0;
     }
 
     .sidebar__venue-name,
     .sidebar__venue-plan {
       display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .sidebar__venue-plan {
       text-transform: uppercase;
+    }
+
+    .sidebar__foot {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+      margin-block-start: auto;
+      padding-block-start: var(--space-3);
+      border-block-start: var(--stroke-hairline) solid var(--color-border);
+    }
+
+    .theme {
+      inline-size: 100%;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+      text-align: start;
     }
 
     .content {
@@ -148,16 +219,16 @@ const NEXT_THEME: Record<ThemePreference, ThemePreference> = {
       z-index: var(--z-sticky);
       display: flex;
       align-items: center;
-      justify-content: flex-end;
       gap: var(--space-2);
       block-size: var(--topbar-height);
-      padding-inline: var(--space-6);
+      padding-inline: var(--space-4);
       background: var(--color-bg);
       border-block-end: var(--stroke-hairline) solid var(--color-border);
     }
 
     .icon-button {
       display: grid;
+      flex: none;
       place-items: center;
       inline-size: var(--control-md);
       block-size: var(--control-md);
@@ -173,40 +244,86 @@ const NEXT_THEME: Record<ThemePreference, ThemePreference> = {
       color: var(--color-text);
     }
 
+    /* Collapsed: icons only, names stay as accessible names and tooltips. */
+    .sidebar[data-collapsed] {
+      align-items: center;
+      padding-inline: var(--space-2);
+    }
+
+    .sidebar[data-collapsed] .expanded-only {
+      display: none;
+    }
+
+    .sidebar[data-collapsed] .sidebar__venue {
+      align-self: stretch;
+      justify-content: center;
+      margin-inline: calc(var(--space-2) * -1);
+      padding-inline: 0;
+    }
+
+    .sidebar[data-collapsed] .nav-item {
+      justify-content: center;
+      inline-size: var(--control-md);
+      padding-inline: 0;
+    }
+
+    .sidebar[data-collapsed] .sidebar__foot {
+      align-self: stretch;
+      align-items: center;
+    }
+
     main {
       inline-size: 100%;
-      max-inline-size: var(--content-max-width);
+      min-inline-size: 0;
       padding: var(--space-8) var(--space-6);
     }
 
     @media (max-width: 720px) {
-      :host {
+      :host,
+      :host:has(.sidebar[data-collapsed]) {
         grid-template-columns: minmax(0, 1fr);
         grid-template-rows: auto 1fr;
       }
 
-      .sidebar {
+      .sidebar,
+      .sidebar[data-collapsed] {
         position: static;
         flex-direction: row;
         align-items: center;
         inline-size: auto;
         block-size: auto;
         min-block-size: 0;
+        padding: var(--space-2) var(--space-3);
         overflow-x: auto;
         border-inline-end: 0;
         border-block-end: var(--stroke-hairline) solid var(--color-border);
       }
 
-      .sidebar__venue {
-        padding-block-end: var(--space-2);
+      .sidebar__venue,
+      .sidebar[data-collapsed] .sidebar__venue {
+        block-size: auto;
+        margin: 0;
+        padding: 0;
+        border-block-end: 0;
       }
 
-      .sidebar__venue > span:not(.sidebar__mark) {
+      .sidebar__venue > span:not(.sidebar__mark),
+      .sidebar .theme .expanded-only,
+      .topbar {
         display: none;
       }
 
-      .topbar {
-        padding-inline: var(--space-4);
+      .sidebar__foot {
+        flex-direction: row;
+        align-items: center;
+        margin-block-start: 0;
+        margin-inline-start: auto;
+        padding-block-start: 0;
+        border-block-start: 0;
+      }
+
+      .theme {
+        inline-size: auto;
       }
 
       main {
@@ -223,6 +340,28 @@ export class AdminShell {
     NAV.filter((item) => !item.visible || item.visible(this.auth)),
   );
   protected readonly brand = 'Menuly';
+  protected readonly openIcon = LucidePanelLeftOpen;
+  protected readonly closeIcon = LucidePanelLeftClose;
+  protected readonly userIcon = LucideUserRound;
+
+  /** Remembered per browser. */
+  protected readonly collapsed = signal(readCollapsed());
+  protected readonly toggleLabel = computed(() =>
+    this.collapsed()
+      ? $localize`:@@shell.sidebar.expand:Proširi meni`
+      : $localize`:@@shell.sidebar.collapse:Skupi meni`,
+  );
+  protected readonly tenantName = computed(() => this.auth.me.value()?.tenant?.name ?? this.brand);
+
+  protected toggleSidebar(): void {
+    this.collapsed.update((value) => !value);
+    try {
+      if (this.collapsed()) localStorage.setItem(SIDEBAR_KEY, 'collapsed');
+      else localStorage.removeItem(SIDEBAR_KEY);
+    } catch {
+      // Storage can be unavailable (private mode); the choice then lasts only for this page.
+    }
+  }
 
   protected readonly initial = computed(() =>
     (this.auth.me.value()?.tenant.name ?? this.brand).charAt(0).toUpperCase(),
@@ -264,5 +403,13 @@ export class AdminShell {
 
   protected onAccountAction(value: string): void {
     void (value === LOGOUT ? this.auth.logout() : this.auth.switchTenant(value));
+  }
+}
+
+function readCollapsed(): boolean {
+  try {
+    return localStorage.getItem(SIDEBAR_KEY) === 'collapsed';
+  } catch {
+    return false;
   }
 }

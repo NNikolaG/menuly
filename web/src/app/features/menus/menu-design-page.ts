@@ -19,7 +19,7 @@ import { AppImageField } from '../../core/media/image-field';
 import { MenusApi } from '../../core/menus/menus-api';
 import type { Venue } from '../../core/venues/venue';
 import { VenuesApi } from '../../core/venues/venues-api';
-import { AppButton, AppField, AppInput, AppSegmented, AppSwitch } from '../../shared/ui';
+import { AppButton, AppField, AppSegmented, AppSwitch } from '../../shared/ui';
 import type { PublicMenu } from '../../core/public-menu/public-menu';
 import { PublicMenuView } from '../../core/public-menu/public-menu-view';
 
@@ -34,7 +34,6 @@ const URL_PATTERN = /^(https?:\/\/\S+)?$/;
     AppButton,
     AppField,
     AppImageField,
-    AppInput,
     AppSegmented,
     AppSwitch,
     PublicMenuView,

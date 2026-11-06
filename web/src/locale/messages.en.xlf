@@ -4734,6 +4734,94 @@
           <context context-type="linenumber">92</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="admin.filter.active" datatype="html">
+        <source>Aktivne</source>
+        <target>Active</target>
+      </trans-unit>
+      <trans-unit id="admin.filter.suspended" datatype="html">
+        <source>Suspendovane</source>
+        <target>Suspended</target>
+      </trans-unit>
+      <trans-unit id="common.clearFilters" datatype="html">
+        <source> Poništi filtere </source>
+        <target> Clear filters </target>
+      </trans-unit>
+      <trans-unit id="common.filter.all" datatype="html">
+        <source>Svi</source>
+        <target>All</target>
+      </trans-unit>
+      <trans-unit id="common.filter.allItems" datatype="html">
+        <source>Sve</source>
+        <target>All</target>
+      </trans-unit>
+      <trans-unit id="common.filterCount" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ shownItemCount() }}"/> od <x id="INTERPOLATION_1" equiv-text="{{ itemCount() }}"/></source>
+        <target><x id="INTERPOLATION" equiv-text="{{ shownItemCount() }}"/> of <x id="INTERPOLATION_1" equiv-text="{{ itemCount() }}"/></target>
+      </trans-unit>
+      <trans-unit id="common.noFilterMatches" datatype="html">
+        <source>Ništa ne odgovara filterima.</source>
+        <target>Nothing matches the filters.</target>
+      </trans-unit>
+      <trans-unit id="dashboard.openVenue" datatype="html">
+        <source>Otvori objekat</source>
+        <target>Open venue</target>
+      </trans-unit>
+      <trans-unit id="menu.filter.available" datatype="html">
+        <source>Dostupne</source>
+        <target>Available</target>
+      </trans-unit>
+      <trans-unit id="menu.filter.unavailable" datatype="html">
+        <source>Nedostupne</source>
+        <target>Unavailable</target>
+      </trans-unit>
+      <trans-unit id="menu.search" datatype="html">
+        <source>Traži stavku</source>
+        <target>Search items</target>
+      </trans-unit>
+      <trans-unit id="promo.search" datatype="html">
+        <source>Traži ponudu ili stavku</source>
+        <target>Search offers or items</target>
+      </trans-unit>
+      <trans-unit id="team.search" datatype="html">
+        <source>Traži po imenu ili emailu</source>
+        <target>Search by name or email</target>
+      </trans-unit>
+      <trans-unit id="venue.filter.draft" datatype="html">
+        <source>Nacrti</source>
+        <target>Drafts</target>
+      </trans-unit>
+      <trans-unit id="venue.filter.published" datatype="html">
+        <source>Objavljeni</source>
+        <target>Published</target>
+      </trans-unit>
+      <trans-unit id="venue.menuSearch" datatype="html">
+        <source>Traži meni</source>
+        <target>Search menus</target>
+      </trans-unit>
+      <trans-unit id="venues.search" datatype="html">
+        <source>Traži objekat ili adresu</source>
+        <target>Search venue or address</target>
+      </trans-unit>
+      <trans-unit id="venues.view" datatype="html">
+        <source>Prikaz</source>
+        <target>View</target>
+      </trans-unit>
+      <trans-unit id="venues.view.cards" datatype="html">
+        <source>Kartice</source>
+        <target>Cards</target>
+      </trans-unit>
+      <trans-unit id="venues.view.list" datatype="html">
+        <source>Lista</source>
+        <target>List</target>
+      </trans-unit>
+      <trans-unit id="shell.sidebar.collapse" datatype="html">
+        <source>Skupi meni</source>
+        <target>Collapse menu</target>
+      </trans-unit>
+      <trans-unit id="shell.sidebar.expand" datatype="html">
+        <source>Proširi meni</source>
+        <target>Expand menu</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -48,7 +48,47 @@ describe('VenuesPage', () => {
 
   const list = (items = [venueFixture()]) => http.expectOne('/api/v1/venues').flush({ items });
 
+  it('shows a few venues as cards', async () => {
+    const fixture = await render(() => list());
+    const card = fixture.nativeElement.querySelector('.venue-card');
+    expect(card.textContent).toContain('Kafana Zora');
+    expect(card.querySelector('a').getAttribute('href')).toBe('/v1');
+    expect(fixture.nativeElement.querySelector('table')).toBeNull();
+  });
+
+  it('switches to the list once there are many venues, and remembers the pick', async () => {
+    const many = Array.from({ length: 9 }, (_, i) =>
+      venueFixture({ id: `v${i}`, name: `Objekat ${i}` }),
+    );
+    const fixture = await render(() => list(many));
+    expect(fixture.nativeElement.querySelectorAll('tbody tr').length).toBe(9);
+
+    const cards = [...fixture.nativeElement.querySelectorAll('[role="option"]')].find(
+      (option: HTMLElement) => option.textContent?.includes('Kartice'),
+    ) as HTMLElement;
+    cards.click();
+    await fixture.whenStable();
+    expect(fixture.nativeElement.querySelectorAll('.venue-card').length).toBe(9);
+    expect(localStorage.getItem('menuly.venues.view')).toBe('cards');
+  });
+
+  it('filters by name or address without diacritics', async () => {
+    const fixture = await render(() =>
+      list([venueFixture(), venueFixture({ id: 'v2', name: 'Bašta', address: 'Dorćol' })]),
+    );
+    const search: HTMLInputElement = fixture.nativeElement.querySelector('app-search input');
+    search.value = 'dorcol';
+    search.dispatchEvent(new Event('input'));
+    await fixture.whenStable();
+    const names = [...fixture.nativeElement.querySelectorAll('.venue-card .ticket__title')].map(
+      (el: HTMLElement) => el.textContent?.trim(),
+    );
+    expect(names).toEqual(['Bašta']);
+    expect(fixture.nativeElement.textContent).toContain('1 od 2');
+  });
+
   it('lists the venues with their public link', async () => {
+    localStorage.setItem('menuly.venues.view', 'list');
     const fixture = await render(() => list());
     const row = fixture.nativeElement.querySelector('tbody tr');
     expect(row.textContent).toContain('Kafana Zora');
@@ -58,6 +98,7 @@ describe('VenuesPage', () => {
 
   it('builds the public link from the tenant subdomain', async () => {
     await signIn('owner');
+    localStorage.setItem('menuly.venues.view', 'list');
     const fixture = await render(() => list());
     expect(fixture.nativeElement.querySelector('tbody tr').textContent).toContain(
       'zora.menuly.app/centar',
