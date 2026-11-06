@@ -15,6 +15,7 @@ import {
   type MenuTemplate,
   type MenuTheme,
 } from '../../core/menus/menu-theme';
+import { AppImageField } from '../../core/media/image-field';
 import { MenusApi } from '../../core/menus/menus-api';
 import type { Venue } from '../../core/venues/venue';
 import { VenuesApi } from '../../core/venues/venues-api';
@@ -32,6 +33,7 @@ const URL_PATTERN = /^(https?:\/\/\S+)?$/;
     RouterLink,
     AppButton,
     AppField,
+    AppImageField,
     AppInput,
     AppSegmented,
     AppSwitch,
@@ -175,24 +177,30 @@ const URL_PATTERN = /^(https?:\/\/\S+)?$/;
             <fieldset class="stack" data-gap="4" [disabled]="!canEdit()">
               <legend class="card__title" i18n="@@menuDesign.images">Logo i naslovna slika</legend>
               <app-field
-                i18n-label="@@menuDesign.logoUrl"
-                label="Logo (URL slike)"
+                i18n-label="@@menuDesign.logo"
+                label="Logo"
                 controlId="design-logo"
-                i18n-hint="@@menuDesign.urlHint"
-                hint="Link na sliku, npr. https://…/logo.png"
                 [field]="themeForm.logo_url"
               >
-                <input appInput id="design-logo" type="url" [formField]="themeForm.logo_url" />
+                <app-image-field
+                  controlId="design-logo"
+                  purpose="logo"
+                  [formField]="themeForm.logo_url"
+                />
               </app-field>
               <app-field
-                i18n-label="@@menuDesign.coverUrl"
-                label="Naslovna slika (URL)"
+                i18n-label="@@menuDesign.cover"
+                label="Naslovna slika"
                 controlId="design-cover"
                 i18n-hint="@@menuDesign.coverHint"
                 hint="Zamenjuje uzorak u zaglavlju kada su slike uključene."
                 [field]="themeForm.cover_url"
               >
-                <input appInput id="design-cover" type="url" [formField]="themeForm.cover_url" />
+                <app-image-field
+                  controlId="design-cover"
+                  purpose="cover"
+                  [formField]="themeForm.cover_url"
+                />
               </app-field>
             </fieldset>
           </form>

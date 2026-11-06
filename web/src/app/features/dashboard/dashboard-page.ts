@@ -1,16 +1,17 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LucideArrowRight, LucidePlus } from '@lucide/angular';
 import { AuthStore } from '../../core/auth/auth-store';
 import { venuePublicUrl } from '../../core/venues/venue-public-url';
 import { VenuesApi } from '../../core/venues/venues-api';
-import { AppButton } from '../../shared/ui';
+import { AppButton, AppSelect } from '../../shared/ui';
+import { ViewsChart } from './views-chart';
 
 /** Start screen: who is signed in, how many venues, and the next step. */
 @Component({
   selector: 'app-dashboard-page',
-  imports: [DatePipe, RouterLink, AppButton, LucidePlus, LucideArrowRight],
+  imports: [DatePipe, RouterLink, AppButton, AppSelect, ViewsChart, LucidePlus, LucideArrowRight],
   template: `
     <div class="stack" data-gap="6">
       <div class="stack" data-gap="1">
@@ -59,13 +60,71 @@ import { AppButton } from '../../shared/ui';
             </div>
           </div>
         }
+
+        @if (statsVenue(); as venue) {
+          <section
+            class="card stack views"
+            data-rows="2"
+            data-gap="3"
+            aria-labelledby="views-title"
+          >
+            <div class="row" data-justify="between">
+              <div class="stat">
+                <span class="stat__label" id="views-title" i18n="@@dashboard.views"
+                  >Otvaranja menija, 30 dana</span
+                >
+                <span class="stat__value">{{ stats.value()?.total ?? '—' }}</span>
+              </div>
+              @if (venueOptions().length > 1) {
+                <app-select
+                  [label]="venueLabel"
+                  [options]="venueOptions()"
+                  [value]="venue.id"
+                  (valueChange)="pickedVenue.set($event)"
+                />
+              }
+            </div>
+            @if (stats.value(); as s) {
+              <app-views-chart [days]="s.days" [caption]="venue.name" />
+            } @else if (stats.error()) {
+              <p class="meta" i18n="@@dashboard.viewsError">Statistika nije učitana.</p>
+            }
+          </section>
+        }
       </div>
     </div>
+  `,
+  styles: `
+    .views {
+      grid-column: 1 / -1;
+      justify-content: flex-start;
+    }
+
+    .views app-views-chart {
+      flex: 1;
+    }
+
+    .views app-select {
+      min-inline-size: 12rem;
+    }
   `,
 })
 export default class DashboardPage {
   protected readonly auth = inject(AuthStore);
-  private readonly venues = inject(VenuesApi).listResource();
+  private readonly venuesApi = inject(VenuesApi);
+  private readonly venues = this.venuesApi.listResource();
+
+  protected readonly venueLabel = $localize`:@@dashboard.viewsVenue:Objekat`;
+  protected readonly pickedVenue = signal<string | null>(null);
+  protected readonly venueOptions = computed(() =>
+    (this.venues.value()?.items ?? []).map((venue) => ({ value: venue.id, label: venue.name })),
+  );
+  /** Venue whose opens the chart shows: the picked one, else the first. */
+  protected readonly statsVenue = computed(() => {
+    const items = this.venues.value()?.items ?? [];
+    return items.find((venue) => venue.id === this.pickedVenue()) ?? items[0];
+  });
+  protected readonly stats = this.venuesApi.statsResource(() => this.statsVenue()?.id);
 
   protected readonly today = new Date();
 

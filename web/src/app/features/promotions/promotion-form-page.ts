@@ -22,6 +22,7 @@ import { MenusApi } from '../../core/menus/menus-api';
 import type { Promotion, PromotionInput } from '../../core/promotions/promotion';
 import { PromotionsApi } from '../../core/promotions/promotions-api';
 import { VenuesApi } from '../../core/venues/venues-api';
+import { AppImageField } from '../../core/media/image-field';
 import {
   AppButton,
   AppField,
@@ -74,6 +75,7 @@ const MAX_OPTIONS = 20;
     RouterLink,
     AppButton,
     AppField,
+    AppImageField,
     AppInput,
     AppSearchPicker,
     AppSwitch,
@@ -135,12 +137,16 @@ const MAX_OPTIONS = 20;
                 ></textarea>
               </app-field>
               <app-field
-                i18n-label="@@item.field.image"
-                label="Slika (URL, opciono)"
+                i18n-label="@@item.field.photo"
+                label="Slika (opciono)"
                 controlId="promo-image"
                 [field]="form.image_url"
               >
-                <input appInput id="promo-image" type="url" [formField]="form.image_url" />
+                <app-image-field
+                  controlId="promo-image"
+                  purpose="promotion"
+                  [formField]="form.image_url"
+                />
               </app-field>
             </section>
 

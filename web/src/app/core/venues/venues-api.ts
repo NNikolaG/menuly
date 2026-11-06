@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import type { Observable } from 'rxjs';
 import { ApiClient } from '../api/api-client';
-import type { Venue, VenueInput, VenueList } from './venue';
+import type { Venue, VenueInput, VenueList, VenueStats } from './venue';
 
 export type QrFormat = 'png' | 'svg';
 
@@ -36,6 +36,16 @@ export class VenuesApi {
   /** QR code of the public link. SVG prints sharp at any size; PNG is `size`×`size` px. */
   qr(id: string, format: QrFormat, size?: number): Observable<Blob> {
     return this.api.blob(`/v1/venues/${encodeURIComponent(id)}/qr`, { format, size });
+  }
+
+  /** Menu opens per day in the venue's time zone, oldest first, ending today. */
+  statsResource(id: () => string | undefined, days: () => number = () => 30) {
+    return this.api.resource<VenueStats>(() => {
+      const venueId = id();
+      return venueId
+        ? { path: `/v1/venues/${encodeURIComponent(venueId)}/stats`, query: { days: days() } }
+        : undefined;
+    });
   }
 
   create(input: VenueInput & Pick<Venue, 'name'>): Observable<Venue> {

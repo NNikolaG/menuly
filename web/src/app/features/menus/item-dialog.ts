@@ -13,6 +13,7 @@ import {
 import { LucidePlus, LucideX } from '@lucide/angular';
 import type { ItemWithVariants } from '../../core/menus/menu';
 import { ALLERGENS, DIET_TAGS, HIGHLIGHT_TAGS, labelOf } from '../../core/menus/menu-labels';
+import { AppImageField } from '../../core/media/image-field';
 import { AppButton, AppChipGroup, AppDialog, AppField, AppInput } from '../../shared/ui';
 import { toMajor } from './price';
 
@@ -40,7 +41,17 @@ export interface ItemDialogResult {
 /** Add or edit an item: name, description and one price, or several sizes with their prices. */
 @Component({
   selector: 'app-item-dialog',
-  imports: [FormField, AppDialog, AppButton, AppChipGroup, AppField, AppInput, LucidePlus, LucideX],
+  imports: [
+    FormField,
+    AppDialog,
+    AppButton,
+    AppChipGroup,
+    AppField,
+    AppImageField,
+    AppInput,
+    LucidePlus,
+    LucideX,
+  ],
   template: `
     <form novalidate (submit)="onSubmit($event)">
       <app-dialog [title]="title">
@@ -68,14 +79,14 @@ export interface ItemDialogResult {
           </app-field>
 
           <app-field
-            i18n-label="@@item.field.image"
-            label="Slika (URL, opciono)"
+            i18n-label="@@item.field.photo"
+            label="Slika (opciono)"
             controlId="item-image"
             i18n-hint="@@item.field.imageHint"
             hint="Gost je vidi u detalju stavke i u šablonu Galerija."
             [field]="form.image_url"
           >
-            <input appInput id="item-image" type="url" [formField]="form.image_url" />
+            <app-image-field controlId="item-image" purpose="item" [formField]="form.image_url" />
           </app-field>
 
           @for (row of model().variants; track $index; let i = $index) {
