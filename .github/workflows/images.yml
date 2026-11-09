@@ -181,8 +181,9 @@ jobs:
           echo "$token" | docker login ghcr.io -u "$actor" --password-stdin
           trap 'docker logout ghcr.io >/dev/null' EXIT
           docker compose pull
-          # WEB_PORT was the public port before Caddy took 80/443.
-          sed -i '/^WEB_PORT=/d' .env
+          # The domain follows DEMO_DOMAIN; WEB_PORT was the public port before
+          # Caddy took 80/443.
+          sed -i -e "s/^DOMAIN=.*/DOMAIN=$domain/" -e '/^WEB_PORT=/d' .env
           docker compose up -d --remove-orphans --wait --wait-timeout 180 web api caddy
           docker image prune -f
           port=$(sed -n 's/^LOCAL_PORT=//p' .env); port=${port:-8000}
