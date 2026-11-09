@@ -10,6 +10,14 @@ server {
     proxy_set_header X-Forwarded-Proto $scheme;
   }
 
+  # Runtime settings read by index.html before the app starts, so one image
+  # works on any domain. `ng serve` serves the empty public/app-config.js.
+  location = /app-config.js {
+    default_type application/javascript;
+    add_header Cache-Control "no-cache";
+    return 200 'window.menulyConfig = { baseDomain: "${BASE_DOMAIN}" };';
+  }
+
   location /en/ {
     try_files $uri $uri/ /en/index.html;
   }

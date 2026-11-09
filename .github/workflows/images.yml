@@ -1,0 +1,191 @@
+name: images
+
+# Builds the API and web images for amd64 + arm64 and pushes them to GHCR, so a
+# server only pulls and runs them (deploy/demo/compose.yml). The API image also
+# runs `migrate` and `seed`. Pull requests build and smoke-test without pushing.
+on:
+  pull_request:
+    paths:
+      - "backend/**"
+      - "web/**"
+      - "deploy/**"
+      - ".github/workflows/images.yml"
+  push:
+    branches: [main]
+    paths:
+      - "backend/**"
+      - "web/**"
+      - "deploy/**"
+      - ".github/workflows/images.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: images-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  # GHCR names must be lowercase.
+  REGISTRY: ghcr.io/nnikolag
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        include:
+          - image: menuly-api
+            context: backend
+          - image: menuly-web
+            context: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Log in to GHCR
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ matrix.image }}
+          tags: |
+            type=sha,format=long,prefix=
+            type=raw,value=latest,enable={{is_default_branch}}
+      # Build stages cross-compile on the runner's platform (see the
+      # Dockerfiles), so arm64 needs no QEMU and costs about the same as amd64.
+      - uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          platforms: linux/amd64,linux/arm64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=${{ matrix.image }}
+          cache-to: type=gha,scope=${{ matrix.image }},mode=max
+
+  # Runs the demo stack on a native arm64 machine, like the Oracle A1 server.
+  smoke-arm64:
+    needs: build
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: read
+      packages: read
+    env:
+      IMAGE_TAG: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get images
+        run: |
+          if [ "${{ github.event_name }}" = pull_request ]; then
+            docker build -t "$REGISTRY/menuly-api:$IMAGE_TAG" backend
+            docker build -t "$REGISTRY/menuly-web:$IMAGE_TAG" web
+          else
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+            docker pull "$REGISTRY/menuly-api:$IMAGE_TAG"
+            docker pull "$REGISTRY/menuly-web:$IMAGE_TAG"
+          fi
+          docker image inspect -f '{{.Architecture}}' "$REGISTRY/menuly-api:$IMAGE_TAG" | grep -qx arm64
+      - name: Start
+        working-directory: deploy/demo
+        run: |
+          cp ../postgres/init.sh postgres-init.sh
+          cat > .env <<ENV
+          DOMAIN=demo.test
+          WEB_PORT=8000
+          POSTGRES_PASSWORD=$(openssl rand -hex 16)
+          APP_DB_PASSWORD=$(openssl rand -hex 16)
+          JWT_SECRET=$(openssl rand -hex 32)
+          IMAGE_TAG=$IMAGE_TAG
+          ENV
+          docker compose up -d --pull missing --wait --wait-timeout 180 web api
+      - name: Smoke test
+        run: |
+          curl -fsS --retry 15 --retry-all-errors --retry-delay 2 http://localhost:8000/api/healthz
+          curl -fsS http://localhost:8000/app-config.js | grep -q '"demo.test"'
+          curl -fsS http://localhost:8000/api/v1/auth/login \
+            -H 'content-type: application/json' \
+            -d '{"email":"demo@menuly.app","password":"demo1234"}' > /dev/null
+          curl -fsS -H 'Host: demo.demo.test' http://localhost:8000/mornar > /dev/null
+          curl -fsS http://localhost:8000/api/v1/public/menus/demo/mornar > /dev/null
+          docker stats --no-stream --format 'table {{.Name}}\t{{.MemUsage}}'
+      - name: Logs
+        if: failure()
+        working-directory: deploy/demo
+        run: docker compose logs
+      - name: Stop
+        if: always()
+        working-directory: deploy/demo
+        run: docker compose down -v
+
+  # Off until the repository variable DEPLOY_HOST and the secret DEPLOY_SSH_KEY
+  # are set (Settings → Secrets and variables → Actions). Optional variables:
+  # DEPLOY_USER (default ubuntu), DEPLOY_PATH (default menuly, in the user's
+  # home), DEMO_DOMAIN (default <DEPLOY_HOST>.nip.io), WEB_PORT (default 80).
+  deploy:
+    needs: smoke-arm64
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.DEPLOY_HOST != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    concurrency: deploy-demo
+    env:
+      HOST: ${{ vars.DEPLOY_HOST }}
+      USER_AT_HOST: ${{ vars.DEPLOY_USER || 'ubuntu' }}@${{ vars.DEPLOY_HOST }}
+      DIR: ${{ vars.DEPLOY_PATH || 'menuly' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: SSH key
+        env:
+          KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          test -n "$KEY" || { echo "::error::Secret DEPLOY_SSH_KEY is not set"; exit 1; }
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$KEY" > ~/.ssh/id_deploy && chmod 600 ~/.ssh/id_deploy
+          ssh-keyscan -T 15 "$HOST" >> ~/.ssh/known_hosts
+          printf 'Host *\n  IdentityFile ~/.ssh/id_deploy\n  ServerAliveInterval 30\n' > ~/.ssh/config
+      - name: Copy files
+        run: |
+          ssh "$USER_AT_HOST" "mkdir -p '$DIR'"
+          scp deploy/demo/compose.yml "$USER_AT_HOST:$DIR/compose.yml"
+          scp deploy/postgres/init.sh "$USER_AT_HOST:$DIR/postgres-init.sh"
+      - name: Pull and start
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ACTOR: ${{ github.actor }}
+          DOMAIN: ${{ vars.DEMO_DOMAIN || format('{0}.nip.io', vars.DEPLOY_HOST) }}
+          WEB_PORT: ${{ vars.WEB_PORT || '80' }}
+        run: |
+          ssh "$USER_AT_HOST" bash -s -- "$DIR" "$DOMAIN" "$WEB_PORT" "$ACTOR" "$TOKEN" <<'SCRIPT'
+          set -euo pipefail
+          dir=$1 domain=$2 port=$3 actor=$4 token=$5
+          cd "$dir"
+          # First deploy: random secrets, kept on the server from then on.
+          if [ ! -f .env ]; then
+            umask 077
+            cat > .env <<ENV
+          DOMAIN=$domain
+          WEB_PORT=$port
+          POSTGRES_PASSWORD=$(openssl rand -hex 16)
+          APP_DB_PASSWORD=$(openssl rand -hex 16)
+          JWT_SECRET=$(openssl rand -hex 32)
+          IMAGE_TAG=latest
+          # OPENAI_API_KEY=
+          ENV
+          fi
+          # The job's token can read this repository's images even while they
+          # are private; it expires with the job, so log out afterwards.
+          echo "$token" | docker login ghcr.io -u "$actor" --password-stdin
+          trap 'docker logout ghcr.io >/dev/null' EXIT
+          docker compose pull
+          docker compose up -d --remove-orphans --wait --wait-timeout 180 web api
+          docker image prune -f
+          port=$(sed -n 's/^WEB_PORT=//p' .env); port=${port:-80}
+          curl -fsS --retry 10 --retry-all-errors --retry-delay 3 "http://localhost:$port/api/healthz"
+          SCRIPT
