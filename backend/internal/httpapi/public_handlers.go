@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"net/http"
+	"slices"
 	"sort"
 	"strings"
 	"time"
@@ -47,8 +48,11 @@ type publicCategory struct {
 }
 
 type publicMenu struct {
-	Lang   string `json:"lang"`
-	Tenant struct {
+	// Language actually served: the asked one when the menu offers it, else sr.
+	Lang string `json:"lang"`
+	// Languages the menu offers, Serbian first. One entry means no picker.
+	Languages []menuLanguage `json:"languages"`
+	Tenant    struct {
 		Name string `json:"name"`
 		Slug string `json:"slug"`
 	} `json:"tenant"`
@@ -94,14 +98,15 @@ func localize(translations []byte, lang, field, base string) string {
 //
 // No auth. Returns the venue's published menu: visible categories and items
 // only; unavailable items stay in, after the available ones of their
-// category. With ?lang the text fields are translated where a translation
-// exists, falling back to Serbian.
+// category. With ?lang (one of the menu's languages) the text fields are
+// translated where a translation exists, falling back to Serbian; a language
+// the menu does not offer is served as Serbian.
 func (s *Server) handlePublicMenu(w http.ResponseWriter, r *http.Request) {
 	tenantSlug := strings.ToLower(chi.URLParam(r, "tenantSlug"))
 	venueSlug := strings.ToLower(chi.URLParam(r, "venueSlug"))
 	lang := strings.ToLower(r.URL.Query().Get("lang"))
 	if lang != "" && !langRe.MatchString(lang) {
-		writeError(w, r, errValidation("lang must be a 2-letter language code"))
+		writeError(w, r, errValidation("lang must be a language code such as en or pt-br"))
 		return
 	}
 
@@ -122,10 +127,11 @@ func (s *Server) handlePublicMenu(w http.ResponseWriter, r *http.Request) {
 		if tree.Status != "published" {
 			return errNotFound
 		}
-		out.Lang = lang
-		if out.Lang == "" {
-			out.Lang = "sr"
+		out.Languages = append([]menuLanguage{baseLanguage}, parseLanguages(tree.Languages)...)
+		if !slices.ContainsFunc(out.Languages, func(l menuLanguage) bool { return l.Code == lang }) {
+			lang = baseLanguage.Code
 		}
+		out.Lang = lang
 		out.Tenant.Name, out.Tenant.Slug = t.Name, t.Slug
 		out.Venue.Name, out.Venue.Slug, out.Venue.Address, out.Venue.Phone = v.Name, v.Slug, v.Address, v.Phone
 		out.Venue.Currency, out.Venue.Timezone = v.Currency, v.Timezone

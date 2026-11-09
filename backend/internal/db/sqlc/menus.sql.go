@@ -167,7 +167,7 @@ const createMenu = `-- name: CreateMenu :one
 
 
 INSERT INTO menus (id, tenant_id, venue_id, name) VALUES ($1, $2, $3, $4)
-RETURNING id, tenant_id, venue_id, name, status, published_at, created_at, updated_at
+RETURNING id, tenant_id, venue_id, name, status, published_at, created_at, updated_at, languages
 `
 
 type CreateMenuParams struct {
@@ -196,6 +196,7 @@ func (q *Queries) CreateMenu(ctx context.Context, arg CreateMenuParams) (Menu, e
 		&i.PublishedAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Languages,
 	)
 	return i, err
 }
@@ -414,7 +415,7 @@ func (q *Queries) GetItemMenuID(ctx context.Context, arg GetItemMenuIDParams) (u
 }
 
 const getMenu = `-- name: GetMenu :one
-SELECT id, tenant_id, venue_id, name, status, published_at, created_at, updated_at FROM menus WHERE tenant_id = $1 AND id = $2
+SELECT id, tenant_id, venue_id, name, status, published_at, created_at, updated_at, languages FROM menus WHERE tenant_id = $1 AND id = $2
 `
 
 type GetMenuParams struct {
@@ -434,6 +435,7 @@ func (q *Queries) GetMenu(ctx context.Context, arg GetMenuParams) (Menu, error) 
 		&i.PublishedAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Languages,
 	)
 	return i, err
 }
@@ -746,7 +748,7 @@ func (q *Queries) ListVariantsForAdjustment(ctx context.Context, arg ListVariant
 }
 
 const listVenueMenus = `-- name: ListVenueMenus :many
-SELECT id, tenant_id, venue_id, name, status, published_at, created_at, updated_at FROM menus WHERE tenant_id = $1 AND venue_id = $2 ORDER BY created_at, id
+SELECT id, tenant_id, venue_id, name, status, published_at, created_at, updated_at, languages FROM menus WHERE tenant_id = $1 AND venue_id = $2 ORDER BY created_at, id
 `
 
 type ListVenueMenusParams struct {
@@ -772,6 +774,7 @@ func (q *Queries) ListVenueMenus(ctx context.Context, arg ListVenueMenusParams) 
 			&i.PublishedAt,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.Languages,
 		); err != nil {
 			return nil, err
 		}
@@ -802,7 +805,7 @@ func (q *Queries) NextItemPosition(ctx context.Context, arg NextItemPositionPara
 const publishMenu = `-- name: PublishMenu :one
 UPDATE menus SET status = 'published', published_at = now()
 WHERE tenant_id = $1 AND id = $2
-RETURNING id, tenant_id, venue_id, name, status, published_at, created_at, updated_at
+RETURNING id, tenant_id, venue_id, name, status, published_at, created_at, updated_at, languages
 `
 
 type PublishMenuParams struct {
@@ -822,33 +825,7 @@ func (q *Queries) PublishMenu(ctx context.Context, arg PublishMenuParams) (Menu,
 		&i.PublishedAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-	)
-	return i, err
-}
-
-const renameMenu = `-- name: RenameMenu :one
-UPDATE menus SET name = $3 WHERE tenant_id = $1 AND id = $2
-RETURNING id, tenant_id, venue_id, name, status, published_at, created_at, updated_at
-`
-
-type RenameMenuParams struct {
-	TenantID uuid.UUID `json:"tenant_id"`
-	ID       uuid.UUID `json:"id"`
-	Name     string    `json:"name"`
-}
-
-func (q *Queries) RenameMenu(ctx context.Context, arg RenameMenuParams) (Menu, error) {
-	row := q.db.QueryRow(ctx, renameMenu, arg.TenantID, arg.ID, arg.Name)
-	var i Menu
-	err := row.Scan(
-		&i.ID,
-		&i.TenantID,
-		&i.VenueID,
-		&i.Name,
-		&i.Status,
-		&i.PublishedAt,
-		&i.CreatedAt,
-		&i.UpdatedAt,
+		&i.Languages,
 	)
 	return i, err
 }
@@ -927,7 +904,7 @@ func (q *Queries) SetVenueActiveMenu(ctx context.Context, arg SetVenueActiveMenu
 const unpublishMenu = `-- name: UnpublishMenu :one
 UPDATE menus SET status = 'draft', published_at = NULL
 WHERE tenant_id = $1 AND id = $2
-RETURNING id, tenant_id, venue_id, name, status, published_at, created_at, updated_at
+RETURNING id, tenant_id, venue_id, name, status, published_at, created_at, updated_at, languages
 `
 
 type UnpublishMenuParams struct {
@@ -947,6 +924,7 @@ func (q *Queries) UnpublishMenu(ctx context.Context, arg UnpublishMenuParams) (M
 		&i.PublishedAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Languages,
 	)
 	return i, err
 }
@@ -1114,6 +1092,43 @@ func (q *Queries) UpdateItemStatus(ctx context.Context, arg UpdateItemStatusPara
 		&i.IsVisible,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const updateMenu = `-- name: UpdateMenu :one
+UPDATE menus SET
+    name      = COALESCE($1, name),
+    languages = COALESCE($2, languages)
+WHERE tenant_id = $3 AND id = $4
+RETURNING id, tenant_id, venue_id, name, status, published_at, created_at, updated_at, languages
+`
+
+type UpdateMenuParams struct {
+	Name      *string   `json:"name"`
+	Languages []byte    `json:"languages"`
+	TenantID  uuid.UUID `json:"tenant_id"`
+	ID        uuid.UUID `json:"id"`
+}
+
+func (q *Queries) UpdateMenu(ctx context.Context, arg UpdateMenuParams) (Menu, error) {
+	row := q.db.QueryRow(ctx, updateMenu,
+		arg.Name,
+		arg.Languages,
+		arg.TenantID,
+		arg.ID,
+	)
+	var i Menu
+	err := row.Scan(
+		&i.ID,
+		&i.TenantID,
+		&i.VenueID,
+		&i.Name,
+		&i.Status,
+		&i.PublishedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Languages,
 	)
 	return i, err
 }

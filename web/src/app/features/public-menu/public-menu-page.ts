@@ -62,11 +62,14 @@ export default class PublicMenuPage {
   private readonly title = inject(Title);
 
   readonly venueSlug = input.required<string>();
+  /** `?lang=de`: a menu language the app itself has no texts for (see PublicMenuView). */
+  readonly lang = input<string>();
 
   private readonly api = inject(PublicMenuApi);
   protected readonly menu = this.api.menuResource(
     () => (this.host.kind === 'tenant' ? this.host.tenantSlug : undefined),
     this.venueSlug,
+    this.lang,
   );
 
   /** Undefined while loading or failed (reading `value()` of a failed resource throws). */

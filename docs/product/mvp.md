@@ -172,7 +172,7 @@ Van MVP-a namerno ostaju: porudžbine, plaćanja, naplata pretplate, mobilna apl
 
 1. Skenira QR, otvara se javni meni (bez prijave, bez kolačića za praćenje).
 2. Vidi kategorije, stavke, cene, oznake, promocije. Stavke "nema na stanju" ostaju vidljive, označene kao nedostupne, i prikazuju se na dnu svoje kategorije (sakrivanje kao podešavanje u V2).
-3. Jezik: podrazumevano srpski (latinica), prekidač za engleski; gde prevod ne postoji prikazuje se srpski tekst.
+3. Jezik: podrazumevano srpski (latinica); vlasnik meniju dodaje jezike po želji (engleski, nemački, bilo koji) i sam upisuje prevode. Gost bira jezik samo kad meni ima više od jednog; gde prevod ne postoji prikazuje se srpski tekst.
 
 ## 6. Domenski model (osnovni entiteti)
 

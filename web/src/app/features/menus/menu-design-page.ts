@@ -445,6 +445,7 @@ export default class MenuDesignPage {
 export function toPublicMenu(tree: MenuTree, venue: Venue): PublicMenu {
   return {
     lang: 'sr',
+    languages: [{ code: 'sr', name: 'Srpski' }, ...tree.languages],
     tenant: { name: '', slug: '' },
     venue: {
       name: venue.name,

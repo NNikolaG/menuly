@@ -20,6 +20,7 @@ import { RouterLink } from '@angular/router';
 import {
   LucideArrowLeft,
   LucideGripVertical,
+  LucideLanguages,
   LucidePalette,
   LucidePencil,
   LucidePercent,
@@ -34,6 +35,7 @@ import { AuthStore } from '../../core/auth/auth-store';
 import type {
   CategoryWithItems,
   ItemWithVariants,
+  MenuLanguage,
   MenuTree,
   PriceAdjustment,
 } from '../../core/menus/menu';
@@ -48,7 +50,12 @@ import {
   type ConfirmDialogData,
 } from '../../shared/ui';
 import { matchesQuery } from '../../shared/text/fold';
-import { CategoryDialog, type CategoryDialogResult } from './category-dialog';
+import {
+  CategoryDialog,
+  type CategoryDialogData,
+  type CategoryDialogResult,
+} from './category-dialog';
+import { LanguagesDialog } from './languages-dialog';
 import { ItemDialog, type ItemDialogData, type ItemDialogResult } from './item-dialog';
 import { PriceAdjustDialog, type PriceAdjustDialogData } from './price-adjust-dialog';
 import { toMajor, toMinor } from './price';
@@ -72,6 +79,7 @@ import { toMajor, toMinor } from './price';
     AppSwitch,
     LucideArrowLeft,
     LucideGripVertical,
+    LucideLanguages,
     LucidePalette,
     LucidePencil,
     LucidePercent,
@@ -104,6 +112,19 @@ import { toMajor, toMinor } from './price';
               }
             </div>
             <div class="row" data-gap="2">
+              @if (canEdit()) {
+                <button
+                  appButton
+                  variant="secondary"
+                  type="button"
+                  [attr.aria-label]="languagesLabel(tree)"
+                  (click)="editLanguages(tree)"
+                >
+                  <svg lucideLanguages aria-hidden="true"></svg>
+                  <ng-container i18n="@@menu.languages">Jezici</ng-container>
+                  <span class="meta">{{ languageCodes(tree) }}</span>
+                </button>
+              }
               <a appButton variant="secondary" [routerLink]="['/meniji', tree.id, 'dizajn']">
                 <svg lucidePalette aria-hidden="true"></svg>
                 <ng-container i18n="@@menu.design">Dizajn</ng-container>
@@ -642,6 +663,26 @@ export default class MenuEditorPage {
     }
   }
 
+  /** "SR · EN · DE" next to the languages button. */
+  protected languageCodes(tree: MenuTree): string {
+    return ['sr', ...tree.languages.map((language) => language.code)]
+      .map((code) => code.toUpperCase())
+      .join(' · ');
+  }
+
+  protected languagesLabel(tree: MenuTree): string {
+    const names = ['Srpski', ...tree.languages.map((language) => language.name)].join(', ');
+    return $localize`:@@menu.languagesLabel:Jezici menija: ${names}:names:`;
+  }
+
+  protected async editLanguages(tree: MenuTree): Promise<void> {
+    const languages = await firstValueFrom(
+      this.dialog.open<MenuLanguage[], MenuLanguage[]>(LanguagesDialog, { data: tree.languages })
+        .closed,
+    );
+    if (languages) await this.run(this.api.setLanguages(tree.id, languages));
+  }
+
   protected async addCategory(tree: MenuTree): Promise<void> {
     const result = await this.openCategoryDialog();
     if (result) await this.run(this.api.createCategory(tree.id, result));
@@ -668,11 +709,13 @@ export default class MenuEditorPage {
       this.api.createItem(category.id, {
         name: result.name,
         description: result.description,
+        translations: result.translations,
         image_url: result.image_url,
         tags: result.tags,
         allergens: result.allergens,
         variants: result.variants.map((row) => ({
           label: row.label,
+          translations: row.translations,
           price_minor: toMinor(row.price ?? 0),
         })),
       }),
@@ -689,6 +732,7 @@ export default class MenuEditorPage {
         this.api.updateItem(item.id, {
           name: result.name,
           description: result.description,
+          translations: result.translations,
           image_url: result.image_url,
           tags: result.tags,
           allergens: result.allergens,
@@ -697,12 +741,15 @@ export default class MenuEditorPage {
       for (const row of result.variants) {
         const price_minor = toMinor(row.price ?? 0);
         const existing = item.variants.find((variant) => variant.id === row.id);
+        const input = { label: row.label, translations: row.translations, price_minor };
         if (!existing) {
-          await firstValueFrom(this.api.createVariant(item.id, { label: row.label, price_minor }));
-        } else if (existing.label !== row.label || existing.price_minor !== price_minor) {
-          await firstValueFrom(
-            this.api.updateVariant(existing.id, { label: row.label, price_minor }),
-          );
+          await firstValueFrom(this.api.createVariant(item.id, input));
+        } else if (
+          existing.label !== row.label ||
+          existing.price_minor !== price_minor ||
+          JSON.stringify(existing.translations) !== JSON.stringify(row.translations)
+        ) {
+          await firstValueFrom(this.api.updateVariant(existing.id, input));
         }
       }
       // Deletes last, so the item never drops to zero variants (the API refuses that).
@@ -824,17 +871,27 @@ export default class MenuEditorPage {
     );
   }
 
+  private languages(): MenuLanguage[] {
+    return this.menu.value()?.languages ?? [];
+  }
+
   private openCategoryDialog(
     category?: CategoryWithItems,
   ): Promise<CategoryDialogResult | undefined> {
     return firstValueFrom(
-      this.dialog.open<CategoryDialogResult>(CategoryDialog, { data: category }).closed,
+      this.dialog.open<CategoryDialogResult, CategoryDialogData>(CategoryDialog, {
+        data: { category, languages: this.languages() },
+      }).closed,
     );
   }
 
-  private openItemDialog(data: ItemDialogData): Promise<ItemDialogResult | undefined> {
+  private openItemDialog(
+    data: Omit<ItemDialogData, 'languages'>,
+  ): Promise<ItemDialogResult | undefined> {
     return firstValueFrom(
-      this.dialog.open<ItemDialogResult, ItemDialogData>(ItemDialog, { data }).closed,
+      this.dialog.open<ItemDialogResult, ItemDialogData>(ItemDialog, {
+        data: { ...data, languages: this.languages() },
+      }).closed,
     );
   }
 

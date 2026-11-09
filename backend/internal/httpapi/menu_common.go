@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"slices"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
@@ -50,7 +51,60 @@ func writeResult(w http.ResponseWriter, r *http.Request, status int, v any, err 
 	writeJSON(w, status, v)
 }
 
-var langRe = regexp.MustCompile(`^[a-z]{2}$`)
+// langRe accepts language codes like "en", "de" or "pt-br" (lowercase BCP 47 subset).
+var langRe = regexp.MustCompile(`^[a-z]{2,3}(-[a-z0-9]{2,8})?$`)
+
+// baseLanguage is the menu's own language: its text lives in the base columns.
+var baseLanguage = menuLanguage{Code: "sr", Name: "Srpski"}
+
+const maxMenuLanguages = 10
+
+// menuLanguage is one entry of menus.languages.
+type menuLanguage struct {
+	Code string `json:"code"`
+	Name string `json:"name"`
+}
+
+// normalizeLanguages validates the languages a menu offers besides Serbian.
+func normalizeLanguages(raw *json.RawMessage) ([]byte, *APIError) {
+	if raw == nil {
+		return nil, nil
+	}
+	var in []menuLanguage
+	if err := json.Unmarshal(*raw, &in); err != nil {
+		return nil, errValidation(`languages must look like [{"code": "en", "name": "English"}]`)
+	}
+	if len(in) > maxMenuLanguages {
+		return nil, errValidation("languages: at most 10 besides Serbian")
+	}
+	out := make([]menuLanguage, 0, len(in))
+	for _, l := range in {
+		l.Code = strings.ToLower(strings.TrimSpace(l.Code))
+		l.Name = strings.TrimSpace(l.Name)
+		if !langRe.MatchString(l.Code) {
+			return nil, errValidation("languages: code must be a language code such as en, de or pt-br (got " + l.Code + ")")
+		}
+		if l.Code == baseLanguage.Code {
+			return nil, errValidation("languages: sr is the base language and is always offered")
+		}
+		if l.Name == "" || utf8.RuneCountInString(l.Name) > 40 {
+			return nil, errValidation("languages: name is required (max 40 characters)")
+		}
+		if slices.ContainsFunc(out, func(o menuLanguage) bool { return o.Code == l.Code }) {
+			return nil, errValidation("languages: " + l.Code + " is listed twice")
+		}
+		out = append(out, l)
+	}
+	b, _ := json.Marshal(out)
+	return b, nil
+}
+
+// parseLanguages reads menus.languages; bad data yields no extra languages.
+func parseLanguages(raw []byte) []menuLanguage {
+	var out []menuLanguage
+	_ = json.Unmarshal(raw, &out)
+	return out
+}
 
 // normalizeTranslations validates {"en": {"name": "...", ...}}. Only the
 // given fields are allowed per language. Serbian ("sr") lives in the base
@@ -68,7 +122,7 @@ func normalizeTranslations(raw *json.RawMessage, fields ...string) ([]byte, *API
 	}
 	for lang, tr := range m {
 		if !langRe.MatchString(lang) || lang == "sr" {
-			return nil, errValidation("translations: language must be a 2-letter code other than sr (got " + lang + ")")
+			return nil, errValidation("translations: language must be a code such as en or pt-br, other than sr (got " + lang + ")")
 		}
 		for k, v := range tr {
 			if !slices.Contains(fields, k) {

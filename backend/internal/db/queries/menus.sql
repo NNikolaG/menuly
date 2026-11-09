@@ -12,8 +12,11 @@ SELECT * FROM menus WHERE tenant_id = $1 AND venue_id = $2 ORDER BY created_at, 
 -- name: GetMenu :one
 SELECT * FROM menus WHERE tenant_id = $1 AND id = $2;
 
--- name: RenameMenu :one
-UPDATE menus SET name = $3 WHERE tenant_id = $1 AND id = $2
+-- name: UpdateMenu :one
+UPDATE menus SET
+    name      = COALESCE(sqlc.narg('name'), name),
+    languages = COALESCE(sqlc.narg('languages'), languages)
+WHERE tenant_id = sqlc.arg('tenant_id') AND id = sqlc.arg('id')
 RETURNING *;
 
 -- name: DeleteMenu :execrows

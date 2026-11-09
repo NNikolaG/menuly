@@ -5158,6 +5158,166 @@
           <context context-type="linenumber">512</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="languages.tabs" datatype="html">
+        <source>Jezik teksta</source>
+        <target>Text language</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/language-tabs.ts</context>
+          <context context-type="linenumber">21</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="languages.original" datatype="html">
+        <source>Srpski: <x id="text" equiv-text="text"/></source>
+        <target>Serbian: <x id="text" equiv-text="text"/></target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/language-tabs.ts</context>
+          <context context-type="linenumber">32</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="publicMenu.language" datatype="html">
+        <source>Jezik menija</source>
+        <target>Menu language</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/public-menu/public-menu-view.ts</context>
+          <context context-type="linenumber">688</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="languages.intro" datatype="html">
+        <source> Srpski je osnovni jezik menija. Za svaki dodat jezik upisuješ prevode u kategorijama, stavkama i kombo ponudama. Gost bira jezik samo kad meni ima više od jednog. </source>
+        <target> Serbian is the menu's base language. For each language you add, you type the translations in categories, items and combos. Guests choose a language only when the menu has more than one. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/languages-dialog.ts</context>
+          <context context-type="linenumber">32,34</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="languages.base" datatype="html">
+        <source>Osnovni</source>
+        <target>Base</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/languages-dialog.ts</context>
+          <context context-type="linenumber">42,44</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="languages.full" datatype="html">
+        <source>Meni može imati najviše 10 dodatnih jezika.</source>
+        <target>A menu can have at most 10 extra languages.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/languages-dialog.ts</context>
+          <context context-type="linenumber">65,67</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="languages.quickAdd" datatype="html">
+        <source>Dodaj jezik</source>
+        <target>Add a language</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/languages-dialog.ts</context>
+          <context context-type="linenumber">69,70</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="languages.custom" datatype="html">
+        <source>Drugi jezik</source>
+        <target>Other language</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/languages-dialog.ts</context>
+          <context context-type="linenumber">88,89</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="languages.field.name" datatype="html">
+        <source>Naziv za goste</source>
+        <target>Name for guests</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/languages-dialog.ts</context>
+          <context context-type="linenumber">92,93</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="languages.field.namePlaceholder" datatype="html">
+        <source>npr. Português</source>
+        <target>e.g. Português</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/languages-dialog.ts</context>
+          <context context-type="linenumber">100,101</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="languages.field.code" datatype="html">
+        <source>Kod</source>
+        <target>Code</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/languages-dialog.ts</context>
+          <context context-type="linenumber">107</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="languages.field.codePlaceholder" datatype="html">
+        <source>npr. pt</source>
+        <target>e.g. pt</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/languages-dialog.ts</context>
+          <context context-type="linenumber">115,116</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="languages.add" datatype="html">
+        <source>Dodaj</source>
+        <target>Add</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/languages-dialog.ts</context>
+          <context context-type="linenumber">121,122</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="languages.codeHint" datatype="html">
+        <source> Kod od 2–3 mala slova (en, de, pt), po potrebi sa regionom: pt-br. </source>
+        <target> A code of 2–3 lowercase letters (en, de, pt), with a region if needed: pt-br. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/languages-dialog.ts</context>
+          <context context-type="linenumber">125,126</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="languages.title" datatype="html">
+        <source>Jezici menija</source>
+        <target>Menu languages</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/languages-dialog.ts</context>
+          <context context-type="linenumber">197</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="languages.codeInvalid" datatype="html">
+        <source>Kod je 2–3 mala slova, npr. pt ili pt-br.</source>
+        <target>The code is 2–3 lowercase letters, e.g. pt or pt-br.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/languages-dialog.ts</context>
+          <context context-type="linenumber">211</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="languages.codeTaken" datatype="html">
+        <source>Ovaj jezik je već dodat.</source>
+        <target>This language is already added.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/languages-dialog.ts</context>
+          <context context-type="linenumber">217</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="languages.remove" datatype="html">
+        <source>Ukloni <x id="name" equiv-text="name"/></source>
+        <target>Remove <x id="name" equiv-text="name"/></target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/languages-dialog.ts</context>
+          <context context-type="linenumber">224</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="menu.languages" datatype="html">
+        <source>Jezici</source>
+        <target>Languages</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
+          <context context-type="linenumber">124,125</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="menu.languagesLabel" datatype="html">
+        <source>Jezici menija: <x id="names" equiv-text="names"/></source>
+        <target>Menu languages: <x id="names" equiv-text="names"/></target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-editor-page.ts</context>
+          <context context-type="linenumber">675</context>
+        </context-group>
+      </trans-unit>
     </body>
   </file>
 </xliff>
