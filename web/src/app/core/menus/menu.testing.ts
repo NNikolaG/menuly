@@ -38,6 +38,7 @@ export function menuTreeFixture(overrides: Partial<MenuTree> = {}): MenuTree {
     name: 'Glavni meni',
     status: 'draft',
     published_at: null,
+    languages: [],
     created_at: '2026-11-01T10:00:00Z',
     updated_at: '2026-11-01T10:00:00Z',
     categories: [

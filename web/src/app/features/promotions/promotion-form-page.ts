@@ -17,7 +17,9 @@ import { Router, RouterLink } from '@angular/router';
 import { LucideArrowLeft, LucidePlus, LucideX } from '@lucide/angular';
 import { firstValueFrom } from 'rxjs';
 import { toApiError } from '../../core/api/api-error';
-import type { MenuTree } from '../../core/menus/menu';
+import { LanguageTabs, originalHint } from '../../core/menus/language-tabs';
+import type { MenuTree, Translations } from '../../core/menus/menu';
+import { cleanTranslations, unionLanguages } from '../../core/menus/menu-languages';
 import { MenusApi } from '../../core/menus/menus-api';
 import type { Promotion, PromotionInput } from '../../core/promotions/promotion';
 import { PromotionsApi } from '../../core/promotions/promotions-api';
@@ -46,6 +48,8 @@ export interface CatalogEntry {
 
 interface SlotModel {
   label: string;
+  /** Keyed by language code; a key is added when its tab is first opened. */
+  translations: Record<string, { label: string }>;
   quantity: number;
   /** Catalog keys. */
   options: string[];
@@ -54,6 +58,8 @@ interface SlotModel {
 interface PromotionModel {
   name: string;
   description: string;
+  /** Keyed by language code; a key is added when its tab is first opened. */
+  translations: Record<string, { name: string; description: string }>;
   image_url: string;
   price: number | null;
   /** `datetime-local` values, '' = no limit. */
@@ -80,6 +86,7 @@ const MAX_OPTIONS = 20;
     AppInput,
     AppSearchPicker,
     AppSwitch,
+    LanguageTabs,
     LucideArrowLeft,
     LucidePlus,
     LucideX,
@@ -110,45 +117,91 @@ const MAX_OPTIONS = 20;
           <div class="stack" data-gap="6">
             <section class="card stack" data-gap="4" aria-labelledby="promo-basics">
               <h2 id="promo-basics" class="card__title" i18n="@@promo.basics">Osnovno</h2>
-              <app-field
-                i18n-label="@@promo.field.name"
-                label="Naziv"
-                controlId="promo-name"
-                [field]="form.name"
-              >
-                <input
-                  appInput
-                  id="promo-name"
-                  i18n-placeholder="@@promo.field.namePlaceholder"
-                  placeholder="npr. Burger meni"
-                  [formField]="form.name"
-                />
-              </app-field>
-              <app-field
-                i18n-label="@@item.field.description"
-                label="Opis (opciono)"
-                controlId="promo-description"
-                [field]="form.description"
-              >
-                <textarea
-                  appInput
-                  id="promo-description"
-                  rows="2"
-                  [formField]="form.description"
-                ></textarea>
-              </app-field>
-              <app-field
-                i18n-label="@@item.field.photo"
-                label="Slika (opciono)"
-                controlId="promo-image"
-                [field]="form.image_url"
-              >
-                <app-image-field
+              <app-language-tabs
+                [languages]="languages()"
+                [value]="lang()"
+                (valueChange)="selectLang($event)"
+              />
+              @let code = lang();
+              @if (code !== 'sr' && model().translations[code]) {
+                <app-field
+                  [label]="nameLabel"
+                  controlId="promo-name-tr"
+                  [hint]="originalHint(model().name)"
+                  [field]="form.translations[code].name"
+                >
+                  <input appInput id="promo-name-tr" [formField]="form.translations[code].name" />
+                </app-field>
+                <app-field
+                  [label]="descriptionLabel"
+                  controlId="promo-description-tr"
+                  [hint]="originalHint(model().description)"
+                  [field]="form.translations[code].description"
+                >
+                  <textarea
+                    appInput
+                    id="promo-description-tr"
+                    rows="2"
+                    [formField]="form.translations[code].description"
+                  ></textarea>
+                </app-field>
+                @for (slot of model().slots; track $index; let i = $index) {
+                  @if (slot.label && slot.translations[code]) {
+                    <app-field
+                      [label]="slotTitle(i)"
+                      [controlId]="'slot-label-tr-' + i"
+                      [hint]="originalHint(slot.label)"
+                      [field]="form.slots[i].translations[code].label"
+                    >
+                      <input
+                        appInput
+                        [id]="'slot-label-tr-' + i"
+                        [formField]="form.slots[i].translations[code].label"
+                      />
+                    </app-field>
+                  }
+                }
+              } @else {
+                <app-field
+                  i18n-label="@@promo.field.name"
+                  label="Naziv"
+                  controlId="promo-name"
+                  [field]="form.name"
+                >
+                  <input
+                    appInput
+                    id="promo-name"
+                    i18n-placeholder="@@promo.field.namePlaceholder"
+                    placeholder="npr. Burger meni"
+                    [formField]="form.name"
+                  />
+                </app-field>
+                <app-field
+                  i18n-label="@@item.field.description"
+                  label="Opis (opciono)"
+                  controlId="promo-description"
+                  [field]="form.description"
+                >
+                  <textarea
+                    appInput
+                    id="promo-description"
+                    rows="2"
+                    [formField]="form.description"
+                  ></textarea>
+                </app-field>
+                <app-field
+                  i18n-label="@@item.field.photo"
+                  label="Slika (opciono)"
                   controlId="promo-image"
-                  purpose="promotion"
-                  [formField]="form.image_url"
-                />
-              </app-field>
+                  [field]="form.image_url"
+                >
+                  <app-image-field
+                    controlId="promo-image"
+                    purpose="promotion"
+                    [formField]="form.image_url"
+                  />
+                </app-field>
+              }
             </section>
 
             <section class="stack" data-gap="4" aria-labelledby="promo-slots">
@@ -485,6 +538,21 @@ export default class PromotionFormPage {
     params: () => this.venueId(),
     stream: ({ params }) => this.menusApi.venueTrees(params),
   });
+  /** Languages of the venue's menus, the active menu's first: a combo shows on any of them. */
+  protected readonly languages = computed(() => {
+    const trees = this.catalog.hasValue() ? (this.catalog.value() ?? []) : [];
+    const active = this.venue.value()?.active_menu_id ?? null;
+    return unionLanguages(
+      [...trees]
+        .sort((a, b) => Number(b.id === active) - Number(a.id === active))
+        .map((tree) => tree.languages),
+    );
+  });
+  /** 'sr' or a language code. */
+  protected readonly lang = signal('sr');
+  protected readonly originalHint = originalHint;
+  protected readonly nameLabel = $localize`:@@promo.field.name:Naziv`;
+  protected readonly descriptionLabel = $localize`:@@item.field.description:Opis (opciono)`;
   private readonly entries = computed(() =>
     buildCatalog(
       this.catalog.hasValue() ? (this.catalog.value() ?? []) : [],
@@ -598,6 +666,24 @@ export default class PromotionFormPage {
     return $localize`:@@promo.removeOption:Ukloni ${name}:name:`;
   }
 
+  /** Opens a language tab, giving the combo and its slots an entry to type into. */
+  protected selectLang(code: string): void {
+    if (code !== 'sr') {
+      this.model.update((value) => ({
+        ...value,
+        translations: {
+          ...value.translations,
+          [code]: value.translations[code] ?? { name: '', description: '' },
+        },
+        slots: value.slots.map((slot) => ({
+          ...slot,
+          translations: { ...slot.translations, [code]: slot.translations[code] ?? { label: '' } },
+        })),
+      }));
+    }
+    this.lang.set(code);
+  }
+
   protected addSlot(): void {
     this.model.update((value) => ({ ...value, slots: [...value.slots, emptySlot()] }));
   }
@@ -621,6 +707,7 @@ export default class PromotionFormPage {
 
   protected async onSubmit(event: Event): Promise<void> {
     event.preventDefault();
+    if (this.form.name().invalid() || this.form.price().invalid()) this.lang.set('sr');
     this.submitted.set(true);
     this.error.set('');
     await submit(this.form, async (field) => {
@@ -657,6 +744,7 @@ export default class PromotionFormPage {
     return {
       name: model.name.trim(),
       description: model.description.trim(),
+      translations: cleanTranslations(model.translations),
       image_url: model.image_url.trim(),
       price_minor: Math.round((model.price ?? 0) * 100),
       starts_at: model.starts_at ? new Date(model.starts_at).toISOString() : null,
@@ -665,6 +753,7 @@ export default class PromotionFormPage {
       is_featured: model.is_featured,
       slots: model.slots.map((slot) => ({
         label: slot.label.trim(),
+        translations: cleanTranslations(slot.translations),
         quantity: slot.quantity,
         options: slot.options.map((key) => {
           const [item_id, variant] = key.split('|');
@@ -723,13 +812,27 @@ export function buildCatalog(
 }
 
 function emptySlot(): SlotModel {
-  return { label: '', quantity: 1, options: [] };
+  return { label: '', translations: {}, quantity: 1, options: [] };
+}
+
+/** Model entries filled from stored translations, so every field exists. */
+function fill<F extends string>(
+  translations: Translations | undefined,
+  fields: readonly F[],
+): Record<string, Record<F, string>> {
+  return Object.fromEntries(
+    Object.entries(translations ?? {}).map(([code, text]) => [
+      code,
+      Object.fromEntries(fields.map((field) => [field, text[field] ?? ''])) as Record<F, string>,
+    ]),
+  );
 }
 
 function toModel(promo: Promotion | undefined): PromotionModel {
   return {
     name: promo?.name ?? '',
     description: promo?.description ?? '',
+    translations: fill(promo?.translations, ['name', 'description']),
     image_url: promo?.image_url ?? '',
     price: promo ? promo.price_minor / 100 : null,
     starts_at: toLocalInput(promo?.starts_at ?? null),
@@ -739,6 +842,7 @@ function toModel(promo: Promotion | undefined): PromotionModel {
     slots: promo?.slots.length
       ? promo.slots.map((slot) => ({
           label: slot.label,
+          translations: fill(slot.translations, ['label']),
           quantity: slot.quantity,
           options: slot.options.map((option) => keyOf(option.item_id, option.variant_id)),
         }))

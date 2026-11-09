@@ -167,3 +167,8 @@ Why: Nikola wants menu themes from this inspiration only, not a restyle of the d
 
 The default template now looks printed: the menu sits on a paper strip (`--color-surface` with `--texture-grain`, an inline SVG noise) over a darker table (`--color-receipt-backdrop`), with zigzag torn edges top and bottom (CSS mask, `--size-receipt-zigzag`). It is signed at the end with a rotated rubber stamp in the accent color: the venue name and "MENI" around the ring, the name's first letter and the year inside (SVG `textPath`, unique id per view for the editor preview). Host and sticky-bar backgrounds live in the component CSS because component styles are unlayered and beat `@layer patterns`.
 Why: second step from the micrographics inspiration (#33); the receipt is our default and Receipt is the design system's name, so it should feel like one.
+
+## #35 — Menus choose their own languages (2026-11-09)
+
+A menu offers Serbian (the base, always there) plus any languages the owner adds in the editor's "Jezici" dialog (`menus.languages`, `{ code, name }`, max 10; quick picks or a custom code like `pt-br`). Category, item, size and combo forms get a language tab per menu language (`LanguageTabs`, `core/menus/`); empty translations fall back to Serbian. Removing a language keeps its text, so adding it back restores it. Guests see no picker with one language, a one-tap pill to the other with two, and a native `<select>` over the pill with more. The app's own texts stay sr/en: Serbian is the root build, English `/en/`, and any other menu language opens the English build with `?lang=xx` (the public menu page reads it as an input).
+Why: Nikola wants owners to add any language and type its translations themselves, with no picker when there is nothing to pick.

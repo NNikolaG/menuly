@@ -9,6 +9,7 @@ import type {
   ItemInput,
   ItemWithVariants,
   Menu,
+  MenuLanguage,
   MenuTree,
   PriceAdjustment,
   Variant,
@@ -70,6 +71,11 @@ export class MenusApi {
 
   renameMenu(menuId: string, name: string): Observable<Menu> {
     return this.api.patch(`/v1/menus/${id(menuId)}`, { name });
+  }
+
+  /** Replaces the languages offered besides Serbian; `[]` = Serbian only. */
+  setLanguages(menuId: string, languages: MenuLanguage[]): Observable<Menu> {
+    return this.api.patch(`/v1/menus/${id(menuId)}`, { languages });
   }
 
   deleteMenu(menuId: string): Observable<void> {

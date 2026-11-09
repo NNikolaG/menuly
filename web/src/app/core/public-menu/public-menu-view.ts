@@ -11,7 +11,6 @@ import {
   inject,
   Injector,
   input,
-  LOCALE_ID,
   signal,
   viewChildren,
 } from '@angular/core';
@@ -91,16 +90,41 @@ let stampCount = 0;
           }
           <h1 class="venue">{{ data.venue.name }}</h1>
           <div class="tools">
-            @if (preview()) {
-              <span class="pill-btn" aria-disabled="true">{{ otherLanguage.short }}</span>
-            } @else {
-              <a
-                class="pill-btn"
-                [href]="otherLanguage.href"
-                [attr.hreflang]="otherLanguage.code"
-                [attr.aria-label]="otherLanguage.label"
-                >{{ otherLanguage.short }}</a
-              >
+            @let langs = languages();
+            @if (langs.length === 2) {
+              @let other = otherLanguages()[0];
+              @if (preview()) {
+                <span class="pill-btn" aria-disabled="true">{{ other.short }}</span>
+              } @else {
+                <a
+                  class="pill-btn"
+                  [href]="other.href"
+                  [attr.hreflang]="other.code"
+                  [attr.lang]="other.code"
+                  [attr.aria-label]="other.name"
+                  >{{ other.short }}</a
+                >
+              }
+            } @else if (langs.length > 2) {
+              <!-- Native select: the phone's own picker, fine for any number of languages. -->
+              <label class="pill-btn lang-pick">
+                <span aria-hidden="true">{{ currentShort() }}</span>
+                <select
+                  [attr.aria-label]="languageLabel"
+                  [disabled]="preview()"
+                  (change)="goToLanguage($event)"
+                >
+                  @for (language of langs; track language.code) {
+                    <option
+                      [value]="language.code"
+                      [attr.lang]="language.code"
+                      [selected]="language.code === data.lang"
+                    >
+                      {{ language.name }}
+                    </option>
+                  }
+                </select>
+              </label>
             }
             <button
               type="button"
@@ -437,12 +461,22 @@ let stampCount = 0;
 
       <footer class="foot">
         <span class="meta" i18n="@@publicMenu.poweredBy">Meni pokreće Menuly</span>
-        @if (preview()) {
-          <span class="meta">{{ otherLanguage.label }}</span>
-        } @else {
-          <a class="meta" [href]="otherLanguage.href" [attr.hreflang]="otherLanguage.code">{{
-            otherLanguage.label
-          }}</a>
+        @if (otherLanguages().length) {
+          <span class="row" data-gap="3">
+            @for (other of otherLanguages(); track other.code) {
+              @if (preview()) {
+                <span class="meta" [attr.lang]="other.code">{{ other.name }}</span>
+              } @else {
+                <a
+                  class="meta"
+                  [href]="other.href"
+                  [attr.hreflang]="other.code"
+                  [attr.lang]="other.code"
+                  >{{ other.name }}</a
+                >
+              }
+            }
+          </span>
         }
       </footer>
     </div>
@@ -539,7 +573,6 @@ let stampCount = 0;
 })
 export class PublicMenuView {
   private readonly document = inject(DOCUMENT);
-  private readonly locale = inject(LOCALE_ID);
   private readonly dialog = inject(Dialog);
   private readonly injector = inject(Injector);
 
@@ -651,9 +684,22 @@ export class PublicMenuView {
   protected readonly active = signal<string | null>(null);
   private readonly sections = viewChildren<ElementRef<HTMLElement>>('section');
 
-  protected readonly otherLanguage = this.locale.startsWith('sr')
-    ? { code: 'en', short: 'EN', label: 'English', href: `/en/${this.slugPath()}` }
-    : { code: 'sr', short: 'SR', label: 'Srpski', href: `/${this.slugPath()}` };
+  // ---- Languages: a picker only when the menu offers more than one ----
+  protected readonly languageLabel = $localize`:@@publicMenu.language:Jezik menija`;
+  /** Older payloads (and the editor preview) without `languages` count as Serbian only. */
+  protected readonly languages = computed(
+    () => this.menu().languages ?? [{ code: 'sr', name: 'Srpski' }],
+  );
+  protected readonly otherLanguages = computed(() =>
+    this.languages()
+      .filter((language) => language.code !== this.menu().lang)
+      .map((language) => ({
+        ...language,
+        short: language.code.split('-')[0].toUpperCase(),
+        href: this.languageHref(language.code),
+      })),
+  );
+  protected readonly currentShort = computed(() => this.menu().lang.split('-')[0].toUpperCase());
 
   protected readonly mapHref = computed(() => {
     const venue = this.menu().venue;
@@ -794,6 +840,20 @@ export class PublicMenuView {
     link.rel = 'stylesheet';
     link.href = `https://fonts.googleapis.com/css2?family=${family.replaceAll(' ', '+')}:wght@400;500;600;700&display=swap`;
     this.document.head.appendChild(link);
+  }
+
+  protected goToLanguage(event: Event): void {
+    this.document.location.assign(this.languageHref((event.target as HTMLSelectElement).value));
+  }
+
+  /**
+   * Serbian at the root, English under /en/. The app's own texts exist only in those two, so any
+   * other menu language uses the English build with `?lang=`.
+   */
+  private languageHref(code: string): string {
+    const path = this.slugPath();
+    if (code === 'sr') return `/${path}`;
+    return code === 'en' ? `/en/${path}` : `/en/${path}?lang=${encodeURIComponent(code)}`;
   }
 
   private slugPath(): string {

@@ -1,6 +1,13 @@
 /** Types from backend/api/openapi.yaml (Menus, Categories, Items, Prices). Prices are minor units. */
 
+/** Keyed by language code (never `sr`, which is the base text): `{ en: { name: 'Drinks' } }`. */
 export type Translations = Record<string, Record<string, string>>;
+
+/** A language a menu offers besides Serbian, e.g. `{ code: 'de', name: 'Deutsch' }`. */
+export interface MenuLanguage {
+  code: string;
+  name: string;
+}
 
 export interface Menu {
   id: string;
@@ -9,6 +16,8 @@ export interface Menu {
   name: string;
   status: 'draft' | 'published';
   published_at: string | null;
+  /** Offered besides Serbian, which is always there; empty = Serbian only. */
+  languages: MenuLanguage[];
   created_at: string;
   updated_at: string;
 }
@@ -61,17 +70,20 @@ export interface MenuTree extends Menu {
 export interface CategoryInput {
   name?: string;
   description?: string;
+  translations?: Translations;
   is_visible?: boolean;
 }
 
 export interface VariantInput {
   label?: string;
+  translations?: Translations;
   price_minor?: number;
 }
 
 export interface ItemInput {
   name?: string;
   description?: string;
+  translations?: Translations;
   /** Empty or an http(s) URL. */
   image_url?: string;
   tags?: string[];

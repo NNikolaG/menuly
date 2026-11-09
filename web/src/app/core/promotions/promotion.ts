@@ -31,6 +31,7 @@ export interface Promotion {
   type: 'combo';
   name: string;
   description: string;
+  translations: Translations;
   image_url: string;
   price_minor: number;
   starts_at: string | null;
@@ -47,6 +48,7 @@ export interface Promotion {
 
 export interface PromotionSlotInput {
   label: string;
+  translations?: Translations;
   quantity: number;
   options: { item_id: string; variant_id: string | null }[];
 }
@@ -54,6 +56,7 @@ export interface PromotionSlotInput {
 export interface PromotionInput {
   name?: string;
   description?: string;
+  translations?: Translations;
   image_url?: string;
   price_minor?: number;
   starts_at?: string | null;

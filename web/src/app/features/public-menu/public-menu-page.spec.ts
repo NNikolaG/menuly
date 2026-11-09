@@ -177,4 +177,53 @@ describe('PublicMenuPage', () => {
     again.detectChanges();
     http.expectNone('/api/v1/public/menus/zora/centar/views');
   });
+
+  it('hides the language picker when the menu has one language', async () => {
+    const menu = { ...publicMenuFixture(), languages: [{ code: 'sr', name: 'Srpski' }] };
+    const fixture = await render((url) => http.expectOne(url).flush(menu));
+    const root: HTMLElement = fixture.nativeElement;
+    expect(root.querySelector('[hreflang]')).toBeNull();
+    expect(root.querySelector('.lang-pick')).toBeNull();
+  });
+
+  it('links to the other language when there are two, and offers a list for more', async () => {
+    const two = {
+      ...publicMenuFixture(),
+      languages: [
+        { code: 'sr', name: 'Srpski' },
+        { code: 'de', name: 'Deutsch' },
+      ],
+    };
+    let fixture = await render((url) => http.expectOne(url).flush(two));
+    const pill = fixture.nativeElement.querySelector('.tools a[hreflang]') as HTMLAnchorElement;
+    expect(pill.textContent!.trim()).toBe('DE');
+    expect(pill.getAttribute('href')).toMatch(/^\/en\/.*\?lang=de$/);
+
+    fixture.destroy();
+    const three = {
+      ...two,
+      languages: [...two.languages, { code: 'en', name: 'English' }],
+    };
+    fixture = await render((url) => http.expectOne(url).flush(three));
+    const options = [...fixture.nativeElement.querySelectorAll('.lang-pick option')];
+    expect(options.map((option) => option.textContent.trim())).toEqual([
+      'Srpski',
+      'Deutsch',
+      'English',
+    ]);
+    expect(fixture.nativeElement.querySelector('.lang-pick span').textContent).toBe('SR');
+  });
+
+  it('asks the API for the language in ?lang', async () => {
+    const fixture = TestBed.createComponent(PublicMenuPage);
+    fixture.componentRef.setInput('venueSlug', 'centar');
+    fixture.componentRef.setInput('lang', 'de');
+    fixture.detectChanges();
+    http
+      .expectOne(
+        (req) => req.url === '/api/v1/public/menus/zora/centar' && req.params.get('lang') === 'de',
+      )
+      .flush({ ...publicMenuFixture(), lang: 'de' });
+    await fixture.whenStable();
+  });
 });

@@ -8,8 +8,10 @@ import type { OpeningHours, WifiAccess } from '../venues/venue';
  * Prices are minor units. `translations` are also sent but not needed here.
  */
 export interface PublicMenu {
-  /** Language actually served (`sr` when none was asked for). */
+  /** Language actually served: the asked one when the menu offers it, else `sr`. */
   lang: string;
+  /** What the menu offers, Serbian first; one entry = no language picker. */
+  languages?: { code: string; name: string }[];
   tenant: { name: string; slug: string };
   venue: {
     name: string;
