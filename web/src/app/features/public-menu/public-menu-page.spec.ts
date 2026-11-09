@@ -98,6 +98,19 @@ describe('PublicMenuPage', () => {
     expect(view.getAttribute('data-theme')).toBe('light');
   });
 
+  it('draws "plakat" with numbered heads, the accent dot and the "trake" band', async () => {
+    const menu = publicMenuFixture();
+    menu.theme = { ...DEFAULT_MENU_THEME, template: 'plakat', pattern: 'trake' };
+    menu.menu.categories[0].items[0].tags = ['preporuka'];
+    const fixture = await render((url) => http.expectOne(url).flush(menu));
+    const root: HTMLElement = fixture.nativeElement;
+    const numbers = [...root.querySelectorAll('.menu-cat__num')].map((n) => n.textContent!.trim());
+    expect(numbers).toEqual(menu.menu.categories.map((_, i) => String(i + 1).padStart(2, '0')));
+    expect(root.querySelectorAll('.menu-item[data-highlight]').length).toBe(1);
+    expect(root.querySelector('app-stripes')).not.toBeNull();
+    expect(root.querySelector('app-pattern')).toBeNull();
+  });
+
   it('signs the "racun" receipt with a stamp of the venue name', async () => {
     const menu = publicMenuFixture();
     menu.theme = { ...DEFAULT_MENU_THEME, template: 'racun' };

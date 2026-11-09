@@ -626,6 +626,26 @@
         <source>MENI</source>
         <target>MENU</target>
       </trans-unit>
+      <trans-unit id="theme.template.plakat" datatype="html">
+        <source>Plakat</source>
+        <target>Poster</target>
+      </trans-unit>
+      <trans-unit id="theme.template.plakatBody" datatype="html">
+        <source>Crne kapsule za kategorije, krem papir i jedna tačka boje za preporuke. Za lokale sa jakim karakterom.</source>
+        <target>Black capsule category heads, cream paper and one dot of color for recommendations. For venues with a strong character.</target>
+      </trans-unit>
+      <trans-unit id="theme.pattern.bauhaus" datatype="html">
+        <source>Bauhaus</source>
+        <target>Bauhaus</target>
+      </trans-unit>
+      <trans-unit id="theme.pattern.trake" datatype="html">
+        <source>Trake</source>
+        <target>Stripes</target>
+      </trans-unit>
+      <trans-unit id="menuDesign.pattern" datatype="html">
+        <source>Uzorak</source>
+        <target>Pattern</target>
+      </trans-unit>
       <trans-unit id="theme.template.etiketa" datatype="html">
         <source>Etiketa</source>
         <target>Label</target>
@@ -3135,8 +3155,8 @@
         </context-group>
       </trans-unit>
       <trans-unit id="menuDesign.showPattern" datatype="html">
-        <source>Bauhaus uzorak lokala u zaglavlju</source>
-        <target>Venue Bauhaus pattern in the header</target>
+        <source>Uzorak lokala u zaglavlju</source>
+        <target>Venue pattern in the header</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/menus/menu-design-page.ts</context>
           <context context-type="linenumber">173,175</context>

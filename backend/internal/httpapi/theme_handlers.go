@@ -14,10 +14,11 @@ import (
 // presets of the Receipt design system (web: [data-tenant], font presets).
 // Venues pick from these lists only, so every menu stays readable.
 var (
-	themeTemplates  = []string{"racun", "galerija", "tabla", "etiketa"}
+	themeTemplates  = []string{"racun", "galerija", "tabla", "etiketa", "plakat"}
 	themeAccents    = []string{"tinta", "narandza", "espresso", "bordo", "maslina", "teget", "kobalt", "smaragd", "senf", "roze"}
 	themeFonts      = []string{"onest", "manrope", "plex"}
 	themeColorModes = []string{"auto", "light", "dark"}
+	themePatterns   = []string{"bauhaus", "trake"}
 )
 
 // themeDTO is the theme as admin and public clients see it.
@@ -31,13 +32,14 @@ type themeDTO struct {
 	ShowPattern      bool   `json:"show_pattern"`
 	LogoURL          string `json:"logo_url"`
 	CoverURL         string `json:"cover_url"`
+	Pattern          string `json:"pattern"`
 }
 
 // defaultTheme matches the column defaults of menu_themes.
 func defaultTheme() themeDTO {
 	return themeDTO{
 		Template: "racun", Accent: "tinta", Font: "onest", ColorMode: "auto",
-		ShowImages: true, ShowDescriptions: true, ShowPattern: true,
+		ShowImages: true, ShowDescriptions: true, ShowPattern: true, Pattern: "bauhaus",
 	}
 }
 
@@ -45,7 +47,7 @@ func themeFromRow(t sqlc.MenuTheme) themeDTO {
 	return themeDTO{
 		Template: t.Template, Accent: t.Accent, Font: t.Font, ColorMode: t.ColorMode,
 		ShowImages: t.ShowImages, ShowDescriptions: t.ShowDescriptions, ShowPattern: t.ShowPattern,
-		LogoURL: t.LogoUrl, CoverURL: t.CoverUrl,
+		LogoURL: t.LogoUrl, CoverURL: t.CoverUrl, Pattern: t.Pattern,
 	}
 }
 
@@ -99,6 +101,7 @@ func (s *Server) handlePutMenuTheme(w http.ResponseWriter, r *http.Request) {
 		ShowPattern      *bool   `json:"show_pattern"`
 		LogoURL          *string `json:"logo_url"`
 		CoverURL         *string `json:"cover_url"`
+		Pattern          *string `json:"pattern"`
 	}
 	if err := decodeJSON(w, r, &in); err != nil {
 		writeError(w, r, err)
@@ -113,6 +116,7 @@ func (s *Server) handlePutMenuTheme(w http.ResponseWriter, r *http.Request) {
 		{in.Accent, "accent", themeAccents},
 		{in.Font, "font", themeFonts},
 		{in.ColorMode, "color_mode", themeColorModes},
+		{in.Pattern, "pattern", themePatterns},
 	} {
 		if c.v != nil && !slices.Contains(c.keys, *c.v) {
 			writeError(w, r, errValidation(c.field+" must be one of: "+strings.Join(c.keys, ", ")))
@@ -147,11 +151,12 @@ func (s *Server) handlePutMenuTheme(w http.ResponseWriter, r *http.Request) {
 		set(&cur.ShowPattern, in.ShowPattern)
 		set(&cur.LogoURL, in.LogoURL)
 		set(&cur.CoverURL, in.CoverURL)
+		set(&cur.Pattern, in.Pattern)
 		row, err := q.UpsertMenuTheme(ctx, sqlc.UpsertMenuThemeParams{
 			MenuID: menuID, TenantID: p.TenantID,
 			Template: cur.Template, Accent: cur.Accent, Font: cur.Font, ColorMode: cur.ColorMode,
 			ShowImages: cur.ShowImages, ShowDescriptions: cur.ShowDescriptions, ShowPattern: cur.ShowPattern,
-			LogoUrl: cur.LogoURL, CoverUrl: cur.CoverURL,
+			LogoUrl: cur.LogoURL, CoverUrl: cur.CoverURL, Pattern: cur.Pattern,
 		})
 		if err != nil {
 			return err

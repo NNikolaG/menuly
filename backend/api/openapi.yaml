@@ -2239,14 +2239,15 @@ components:
       properties:
         template:
           type: string
-          enum: [racun, galerija, tabla, etiketa]
-          description: "racun: one column text list; galerija: photo cards; tabla: compact board with variant columns; etiketa: spec labels with item codes, category color stripes and combo tickets"
+          enum: [racun, galerija, tabla, etiketa, plakat]
+          description: "racun: one column text list; galerija: photo cards; tabla: compact board with variant columns; etiketa: spec labels with item codes, category color stripes and combo tickets; plakat: poster with black capsule category heads and one accent dot"
         accent: { type: string, enum: [tinta, narandza, espresso, bordo, maslina, teget, kobalt, smaragd, senf, roze] }
         font: { type: string, enum: [onest, manrope, plex] }
         color_mode: { type: string, enum: [auto, light, dark], description: "Starting theme; guests can still switch" }
         show_images: { type: boolean }
         show_descriptions: { type: boolean }
-        show_pattern: { type: boolean, description: "Venue's Bauhaus pattern band in the header" }
+        show_pattern: { type: boolean, description: "Venue's generated pattern band in the header" }
+        pattern: { type: string, enum: [bauhaus, trake], description: "Which generated band: bauhaus shapes or trake (color bars)" }
         logo_url: { type: string, description: "Empty or an http(s) URL" }
         cover_url: { type: string, description: "Empty or an http(s) URL" }
     PublicMenu:

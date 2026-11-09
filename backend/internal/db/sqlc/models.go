@@ -153,6 +153,7 @@ type MenuTheme struct {
 	CoverUrl         string    `json:"cover_url"`
 	CreatedAt        time.Time `json:"created_at"`
 	UpdatedAt        time.Time `json:"updated_at"`
+	Pattern          string    `json:"pattern"`
 }
 
 type MenuViewDaily struct {

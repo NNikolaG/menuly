@@ -233,6 +233,20 @@
   background: var(--texture-grain), var(--color-surface);
 }
 
+/* "Plakat": cream poster paper, bold venue name (shapes in patterns.css). */
+:host([data-template='plakat']),
+:host([data-template='plakat']) .bar {
+  background: var(--color-poster-paper);
+}
+
+:host([data-template='plakat']) .foot {
+  padding-block-start: calc(var(--space-6) + var(--space-5));
+}
+
+:host([data-template='plakat']) .venue {
+  font-weight: 700;
+}
+
 /* ---------- Footer ---------- */
 .foot {
   display: flex;

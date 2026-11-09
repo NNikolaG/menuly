@@ -6,6 +6,7 @@ export { AppField } from './field/field';
 export { AppInput, type AppInputVariant } from './input/input';
 export { AppMenu, type AppMenuItem } from './menu/menu';
 export { AppPattern } from './pattern/pattern';
+export { AppStripes } from './stripes/stripes';
 export { AppSearch } from './search/search';
 export { AppSearchPicker } from './search-picker/search-picker';
 export { AppSelect, type AppSelectOption } from './select/select';

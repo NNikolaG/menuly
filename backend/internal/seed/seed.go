@@ -205,7 +205,7 @@ func create(ctx context.Context, q *sqlc.Queries, tenantID, userID uuid.UUID, ha
 
 	if _, err := q.UpsertMenuTheme(ctx, sqlc.UpsertMenuThemeParams{
 		MenuID: menuID, TenantID: tenantID, Template: "racun", Accent: "espresso", Font: "onest", ColorMode: "auto",
-		ShowImages: true, ShowDescriptions: true, ShowPattern: true,
+		ShowImages: true, ShowDescriptions: true, ShowPattern: true, Pattern: "bauhaus",
 	}); err != nil {
 		return uuid.Nil, fmt.Errorf("theme: %w", err)
 	}
