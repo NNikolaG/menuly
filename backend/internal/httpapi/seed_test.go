@@ -64,6 +64,6 @@ func TestDemoSeed(t *testing.T) {
 	if !reset.Created || reset.TenantID == first.TenantID {
 		t.Fatalf("reset did not recreate the account: %+v", reset)
 	}
-	// The old menu is gone with the old tenant.
-	expect(t, call(t, "GET", "/v1/menus/"+first.MenuID.String(), tok, nil), http.StatusNotFound)
+	// The old tenant is gone, so its token no longer works.
+	expect(t, call(t, "GET", "/v1/menus/"+first.MenuID.String(), tok, nil), http.StatusUnauthorized)
 }

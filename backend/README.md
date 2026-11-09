@@ -84,7 +84,7 @@ Globalne tabele (bez RLS): `users` (korisnik može biti član više tenanta) i `
 
 - `POST /v1/auth/register` kreira tenant, korisnika i `owner` članstvo.
 - `POST /v1/auth/login` (opciono `tenant_id`), `POST /v1/auth/refresh` (rotacija; ponovna upotreba starog tokena opoziva sve sesije korisnika), `POST /v1/auth/logout`, `POST /v1/auth/switch-tenant`.
-- Access token nosi `sub` (korisnik), `tid` (tenant) i `role`. Uloge: `owner`, `manager`, `staff`; provera kroz `requireRole(...)` middleware.
+- Access token nosi `sub` (korisnik), `tid` (tenant) i `role`. Uloge: `owner`, `manager`, `staff`; provera kroz `requireRole(...)` middleware. Uloga se na svakom zahtevu čita iz baze (`memberships`), ne iz tokena: promena uloge važi odmah, uklonjen član dobija `401`, a suspendovan tenant `403 tenant_suspended`, i sa tokenom izdatim ranije.
 - `GET /v1/me` vraća korisnika, trenutni tenant, ulogu i sva članstva (za izbor tenanta u UI-ju).
 
 Objekti (`/v1/venues`): čitanje svi članovi, kreiranje i brisanje `owner`, izmena `owner` i `manager`. `slug` se pravi iz naziva ako nije zadat (ćirilica i latinica se transliteruju).

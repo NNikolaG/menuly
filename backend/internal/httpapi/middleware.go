@@ -2,6 +2,7 @@ package httpapi
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"net/http"
 	"slices"
@@ -10,11 +11,14 @@ import (
 
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 
 	"github.com/nnikolag/menuly/backend/internal/db"
+	"github.com/nnikolag/menuly/backend/internal/db/sqlc"
 )
 
-// Principal is the authenticated caller, taken from the access token.
+// Principal is the authenticated caller: user and tenant from the access
+// token, role from the database (see requireAuth).
 type Principal struct {
 	UserID   uuid.UUID
 	TenantID uuid.UUID
@@ -42,7 +46,23 @@ func mustPrincipal(r *http.Request) Principal {
 	return p
 }
 
+var errTenantSuspended = &APIError{Status: http.StatusForbidden, Code: "tenant_suspended", Message: "this account is suspended"}
+
+// requireAuth authenticates the access token and then reads the caller's
+// membership from the database, so the role used by requireRole is the
+// current one: a role change, a removed member or a suspended tenant takes
+// effect on the next request, not when the token expires.
 func (s *Server) requireAuth(next http.Handler) http.Handler {
+	return s.authenticate(true, next)
+}
+
+// requireToken checks only the access token, for routes that must work
+// while the caller's current tenant is unavailable (switching tenants).
+func (s *Server) requireToken(next http.Handler) http.Handler {
+	return s.authenticate(false, next)
+}
+
+func (s *Server) authenticate(checkMembership bool, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		raw, ok := strings.CutPrefix(r.Header.Get("Authorization"), "Bearer ")
 		if !ok || raw == "" {
@@ -56,6 +76,25 @@ func (s *Server) requireAuth(next http.Handler) http.Handler {
 		}
 		uid, _ := claims.UserID()
 		p := Principal{UserID: uid, TenantID: claims.TenantID, Role: claims.Role}
+		if checkMembership {
+			var m sqlc.GetMemberAccessRow
+			err := s.db.Tx(r.Context(), p.Scope(), func(q *sqlc.Queries) (err error) {
+				m, err = q.GetMemberAccess(r.Context(), sqlc.GetMemberAccessParams{TenantID: p.TenantID, UserID: p.UserID})
+				return err
+			})
+			switch {
+			case errors.Is(err, pgx.ErrNoRows):
+				writeError(w, r, errUnauthorized) // removed from the tenant
+				return
+			case err != nil:
+				writeError(w, r, err)
+				return
+			case m.TenantStatus != "active":
+				writeError(w, r, errTenantSuspended)
+				return
+			}
+			p.Role = m.Role
+		}
 		if slot, ok := r.Context().Value(logSlotKey{}).(*Principal); ok {
 			*slot = p
 		}

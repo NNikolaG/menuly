@@ -107,7 +107,7 @@ func (s *Server) Handler(opts Options) http.Handler {
 			r.Post("/login", s.handleLogin)
 			r.Post("/refresh", s.handleRefresh)
 			r.Post("/logout", s.handleLogout)
-			r.With(s.requireAuth).Post("/switch-tenant", s.handleSwitchTenant)
+			r.With(s.requireToken).Post("/switch-tenant", s.handleSwitchTenant)
 			r.Post("/accept-invite", s.handleAcceptInvitation)
 			r.Post("/forgot-password", s.handleForgotPassword)
 			r.Post("/reset-password", s.handleResetPassword)
