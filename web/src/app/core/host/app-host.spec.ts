@@ -22,4 +22,16 @@ describe('parseHost', () => {
       expect(parseHost(host)).toEqual({ kind: 'app' });
     }
   });
+
+  it('reads the tenant from a configured base domain', () => {
+    expect(parseHost('demo.1.2.3.4.nip.io', '1.2.3.4.nip.io')).toEqual({
+      kind: 'tenant',
+      tenantSlug: 'demo',
+    });
+    expect(parseHost('1.2.3.4.nip.io', '1.2.3.4.nip.io')).toEqual({ kind: 'app' });
+    expect(parseHost('demo.localhost', '1.2.3.4.nip.io')).toEqual({
+      kind: 'tenant',
+      tenantSlug: 'demo',
+    });
+  });
 });

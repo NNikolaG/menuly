@@ -53,3 +53,16 @@ Uvoz menija sa fotografije traži API ključ (npr. OpenAI). Napravi kopiju fajla
 ### Za razvoj
 
 Docker pokreće sve na http://localhost:8000. Web aplikacija se i dalje razvija lokalno sa `cd web && npm start` (http://localhost:4200, `/api` ide na API iz Dockera na :8080); oba rade istovremeno. Ako ti web kontejner ne treba: `docker compose up postgres migrate seed api`. Detalji: [web/README.md](web/README.md), [backend/README.md](backend/README.md).
+
+## Demo server
+
+GitHub Actions (`.github/workflows/images.yml`) na svaki push na `main` pravi
+slike za amd64 i arm64, šalje ih na GHCR i proverava ih na arm64 mašini.
+Server samo povlači slike i pokreće `deploy/demo/compose.yml` (oko 300 MB RAM-a).
+
+Automatski deploy se uključuje kad u *Settings → Secrets and variables → Actions*
+postoje promenljiva `DEPLOY_HOST` (IP servera) i tajna `DEPLOY_SSH_KEY`
+(privatni SSH ključ). Opciono: `DEPLOY_USER` (podrazumevano `ubuntu`),
+`DEMO_DOMAIN` (podrazumevano `<IP>.nip.io`), `WEB_PORT` (podrazumevano 80).
+Na serveru treba Docker sa compose dodatkom i otvoren port (Oracle Security List
+i iptables). Prvi deploy sam napravi `.env` sa nasumičnim lozinkama.
