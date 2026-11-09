@@ -224,6 +224,15 @@
   text-transform: uppercase;
 }
 
+/* "Racun": a paper strip on a darker table (paper, edges and stamp in patterns.css). */
+:host([data-template='racun']) {
+  background: var(--color-receipt-backdrop);
+}
+
+:host([data-template='racun']) .bar {
+  background: var(--texture-grain), var(--color-surface);
+}
+
 /* ---------- Footer ---------- */
 .foot {
   display: flex;

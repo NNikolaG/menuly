@@ -40,6 +40,9 @@ import type { PublicCategory, PublicItem, PublicMenu, PublicPromotion } from './
 
 type Mode = 'light' | 'dark';
 
+/** Unique ids for the stamp's text path when several menus render (editor preview). */
+let stampCount = 0;
+
 /**
  * A published menu drawn with its theme: template, accent, font, light/dark, plus what a printed menu
  * can't do (search, diet and allergen filters, item detail, combos, sold-out state, language and theme
@@ -406,6 +409,26 @@ type Mode = 'light' | 'dark';
         }
       }
 
+      @if (t.template === 'racun') {
+        <!-- The receipt's sign-off: a rubber stamp with the venue's name. -->
+        <svg class="stamp" viewBox="0 0 120 120" aria-hidden="true">
+          <defs>
+            <path [attr.id]="stampId" d="M60,60 m-44,0 a44,44 0 1,1 88,0 a44,44 0 1,1 -88,0" />
+          </defs>
+          <circle class="stamp__ring" cx="60" cy="60" r="56" />
+          <circle class="stamp__ring" cx="60" cy="60" r="33" />
+          <text class="stamp__ring-text">
+            <textPath [attr.href]="'#' + stampId" textLength="272" lengthAdjust="spacing">
+              {{ stampText() }}
+            </textPath>
+          </text>
+          <text class="stamp__initial" x="60" y="66" text-anchor="middle">
+            {{ stampInitial() }}
+          </text>
+          <text class="stamp__year" x="60" y="82" text-anchor="middle">{{ year }}</text>
+        </svg>
+      }
+
       <footer class="foot">
         <span class="meta" i18n="@@publicMenu.poweredBy">Meni pokreće Menuly</span>
         @if (preview()) {
@@ -569,6 +592,19 @@ export class PublicMenuView {
     });
     return { codes, stripes };
   });
+  // ---- "Racun" stamp ----
+  protected readonly stampId = `menu-stamp-${++stampCount}`;
+  protected readonly year = new Date().getFullYear();
+  /** Name and "MENI" around the ring, repeated to fill it; very long names are cut to fit. */
+  protected readonly stampText = computed(() => {
+    const name = [...this.menu().venue.name.trim().toUpperCase()].slice(0, 26).join('');
+    const unit = `${name} · ${$localize`:@@publicMenu.stampWord:MENI`} · `;
+    return unit.repeat(Math.max(1, Math.floor(36 / unit.length)));
+  });
+  protected readonly stampInitial = computed(
+    () => [...this.menu().venue.name.trim()][0]?.toUpperCase() ?? '',
+  );
+
   private readonly promotions = computed(() => this.menu().promotions ?? []);
   protected readonly featured = computed(() => this.promotions().filter((p) => p.is_featured));
   protected readonly regularPromos = computed(() =>

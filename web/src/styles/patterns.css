@@ -492,6 +492,54 @@
   display: block;
 }
 
+/* ---------- "Racun": the menu printed on a paper strip, signed with a stamp ---------- */
+app-public-menu-view[data-template='racun'] .page {
+  background: var(--texture-grain), var(--color-surface);
+}
+
+/* Torn edges: zigzag top and bottom. */
+app-public-menu-view[data-template='racun'] .page {
+  margin-block: var(--space-3);
+  padding-block-start: calc(var(--size-receipt-zigzag) + var(--space-4));
+  mask:
+    conic-gradient(from 135deg at top, transparent, black 1deg 89deg, transparent 90deg) top /
+      calc(var(--size-receipt-zigzag) * 2) 51% repeat-x,
+    conic-gradient(from -45deg at bottom, transparent, black 1deg 89deg, transparent 90deg) bottom /
+      calc(var(--size-receipt-zigzag) * 2) 51% repeat-x;
+}
+
+.stamp {
+  align-self: flex-end;
+  inline-size: var(--size-receipt-stamp);
+  margin-block-end: calc(-1 * var(--space-6));
+  color: var(--color-accent-text);
+  opacity: 0.8;
+  rotate: -12deg;
+}
+
+.stamp__ring {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+}
+
+.stamp__ring-text {
+  fill: currentColor;
+  font: 600 10px var(--font-mono);
+  letter-spacing: 0.08em;
+}
+
+.stamp__initial {
+  fill: currentColor;
+  font: 600 28px var(--font-sans);
+}
+
+.stamp__year {
+  fill: currentColor;
+  font: 500 9px var(--font-mono);
+  letter-spacing: 0.12em;
+}
+
 /* ---------- "Etiketa": every item a spec label, a color stripe per category ---------- */
 [data-stripe='1'] {
   --stripe: var(--color-stripe-1);

@@ -98,6 +98,20 @@ describe('PublicMenuPage', () => {
     expect(view.getAttribute('data-theme')).toBe('light');
   });
 
+  it('signs the "racun" receipt with a stamp of the venue name', async () => {
+    const menu = publicMenuFixture();
+    menu.theme = { ...DEFAULT_MENU_THEME, template: 'racun' };
+    const fixture = await render((url) => http.expectOne(url).flush(menu));
+    const root: HTMLElement = fixture.nativeElement;
+    const ring = root.querySelector('.stamp textPath')!;
+    expect(ring.textContent).toContain(menu.venue.name.toUpperCase());
+    expect(root.querySelector(ring.getAttribute('href')!)).not.toBeNull();
+
+    menu.theme = { ...menu.theme, template: 'galerija' };
+    const other = await render((url) => http.expectOne(url).flush(menu));
+    expect((other.nativeElement as HTMLElement).querySelector('.stamp')).toBeNull();
+  });
+
   it('draws "etiketa" labels with codes that survive search', async () => {
     const menu = publicMenuFixture();
     menu.theme = { ...DEFAULT_MENU_THEME, template: 'etiketa' };
