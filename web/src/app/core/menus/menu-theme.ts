@@ -3,7 +3,7 @@
  * Every value is a key of the Receipt design system, never a raw color or font,
  * so any combination a venue picks stays readable.
  */
-export type MenuTemplate = 'racun' | 'galerija' | 'tabla';
+export type MenuTemplate = 'racun' | 'galerija' | 'tabla' | 'etiketa';
 export type MenuAccent =
   | 'tinta'
   | 'narandza'
@@ -64,6 +64,11 @@ export const MENU_TEMPLATES: readonly MenuTemplateOption[] = [
     value: 'tabla',
     label: $localize`:@@theme.template.tabla:Tabla`,
     description: $localize`:@@theme.template.tablaBody:Gusta lista sa krupnim tekstom i varijantama u kolonama. Za pića i duge menije.`,
+  },
+  {
+    value: 'etiketa',
+    label: $localize`:@@theme.template.etiketa:Etiketa`,
+    description: $localize`:@@theme.template.etiketaBody:Svaka stavka kao etiketa sa šifrom i bojom kategorije, kombo kao ulaznica. Za moderne barove i bistroe.`,
   },
 ];
 

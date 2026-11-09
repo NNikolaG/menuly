@@ -40,6 +40,11 @@
   --red-300: #ff9a8f;
   --red-600: #c8261b;
   --red-900: #2e0d0a;
+  /* "Etiketa" menu template: four print stripes. */
+  --coral-400: #e8806f;
+  --steel-400: #6f93c4;
+  --mustard-400: #e3b856;
+  --bone-200: #e6e2d6;
 
   /* ---------- Semantic colors (light, dark) ---------- */
   --color-bg: light-dark(var(--n-25), var(--n-900));
@@ -73,6 +78,12 @@
   --color-shadow-soft: light-dark(rgb(20 20 20 / 0.06), rgb(0 0 0 / 0.5));
   --color-shadow-near: light-dark(rgb(20 20 20 / 0.06), rgb(0 0 0 / 0.4));
   --color-shadow-far: light-dark(rgb(20 20 20 / 0.12), rgb(0 0 0 / 0.6));
+
+  /* "Etiketa" menu template: category stripes, cycled by category order. Decorative only. */
+  --color-stripe-1: var(--coral-400);
+  --color-stripe-2: var(--steel-400);
+  --color-stripe-3: var(--mustard-400);
+  --color-stripe-4: light-dark(var(--n-400), var(--bone-200));
 
   /* Tenant layer: the only five tokens a venue may change, via [data-tenant]. Default: ink. */
   --color-accent: light-dark(var(--n-900), var(--n-25));
@@ -227,6 +238,10 @@
   --size-pattern-cell: 48px;
   --size-menu-thumb: 72px;
   --size-menu-card-min: 260px;
+  --size-label-stripe: 6px;
+  --size-label-barcode: 72px;
+  --size-label-notch: 10px;
+  --size-label-venn: 96px;
   --size-price-col: 10ch;
   --size-phone-width: 390px;
   --size-phone-height: 780px;
@@ -271,6 +286,8 @@
   --enter-scale: 0.96;
   --enter-shift: 8px;
   --loading-delay: 400ms;
+  /* "Etiketa": a label's stripe prints in once, left to right. */
+  --label-print-from: 0;
 
   --z-sticky: 10;
   --z-sidebar: 20;
@@ -285,6 +302,7 @@
     --press-scale: 1;
     --enter-scale: 1;
     --enter-shift: 0px;
+    --label-print-from: 1;
   }
 }
 

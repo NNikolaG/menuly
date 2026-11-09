@@ -2137,8 +2137,8 @@ components:
       properties:
         template:
           type: string
-          enum: [racun, galerija, tabla]
-          description: "racun: one column text list; galerija: photo cards; tabla: compact board with variant columns"
+          enum: [racun, galerija, tabla, etiketa]
+          description: "racun: one column text list; galerija: photo cards; tabla: compact board with variant columns; etiketa: spec labels with item codes, category color stripes and combo tickets"
         accent: { type: string, enum: [tinta, narandza, espresso, bordo, maslina, teget, kobalt, smaragd, senf, roze] }
         font: { type: string, enum: [onest, manrope, plex] }
         color_mode: { type: string, enum: [auto, light, dark], description: "Starting theme; guests can still switch" }
