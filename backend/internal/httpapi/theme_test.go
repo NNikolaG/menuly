@@ -35,6 +35,15 @@ func TestMenuTheme(t *testing.T) {
 		expect(t, r, http.StatusUnprocessableEntity)
 	}
 
+	// Every template is accepted by the API and the table check.
+	for _, tpl := range []string{"racun", "tabla", "etiketa", "galerija"} {
+		r = call(t, "PUT", path, tok, map[string]any{"template": tpl})
+		expect(t, r, http.StatusOK)
+		if r.body["template"] != tpl {
+			t.Fatalf("template = %v, want %s", r.body["template"], tpl)
+		}
+	}
+
 	// Staff reads, cannot write; another tenant sees nothing.
 	staff := addMember(t, f.owner, register(t, "theme staff"), "staff")
 	expect(t, call(t, "GET", path, staff, nil), http.StatusOK)

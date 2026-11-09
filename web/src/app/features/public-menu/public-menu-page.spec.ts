@@ -98,6 +98,30 @@ describe('PublicMenuPage', () => {
     expect(view.getAttribute('data-theme')).toBe('light');
   });
 
+  it('draws "etiketa" labels with codes that survive search', async () => {
+    const menu = publicMenuFixture();
+    menu.theme = { ...DEFAULT_MENU_THEME, template: 'etiketa' };
+    const fixture = await render((url) => http.expectOne(url).flush(menu));
+    const root: HTMLElement = fixture.nativeElement;
+    const sections = [...root.querySelectorAll<HTMLElement>('section.category')];
+    expect(sections.map((s) => s.dataset['stripe'])).toEqual(
+      sections.map((_, i) => String((i % 4) + 1)),
+    );
+    const codeOf = (name: string) =>
+      [...root.querySelectorAll('.menu-item')]
+        .find((item) => item.querySelector('.menu-item__name')!.textContent!.includes(name))!
+        .querySelector('.menu-item__code')!
+        .textContent!.trim();
+    const before = codeOf('Kapućino');
+    expect(before).toMatch(/^№ \d{2}\.\d{2}$/);
+
+    const search: HTMLInputElement = root.querySelector('input[type="search"]')!;
+    search.value = 'kapucino';
+    search.dispatchEvent(new Event('input'));
+    await fixture.whenStable();
+    expect(codeOf('Kapućino')).toBe(before);
+  });
+
   it('filters out sold-out items and allergens', async () => {
     const fixture = await render((url) => http.expectOne(url).flush(publicMenuFixture()));
     const root: HTMLElement = fixture.nativeElement;

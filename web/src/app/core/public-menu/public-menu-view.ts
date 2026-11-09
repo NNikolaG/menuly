@@ -274,13 +274,18 @@ type Mode = 'light' | 'dark';
 
       @for (category of shown(); track category.id) {
         @let columns = t.template === 'tabla' ? variantColumns(category) : null;
+        @let label = t.template === 'etiketa';
         <section
           class="category"
           [attr.aria-labelledby]="'cat-' + category.id"
           #section
           [attr.data-id]="category.id"
+          [attr.data-stripe]="label ? labels().stripes.get(category.id) : null"
         >
           <div class="menu-cat">
+            @if (label) {
+              <span class="menu-cat__stripes" aria-hidden="true"></span>
+            }
             <h2 class="menu-cat__title" [id]="'cat-' + category.id">{{ category.name }}</h2>
             @if (columns) {
               <span class="menu-cat__cols" aria-hidden="true">
@@ -310,6 +315,11 @@ type Mode = 'light' | 'dark';
                 [attr.data-status]="item.is_available ? null : 'unavailable'"
                 [attr.data-photo]="showPhoto(item) ? '' : null"
               >
+                @if (label) {
+                  <span class="menu-item__code" aria-hidden="true"
+                    >№ {{ labels().codes.get(item.id) }}</span
+                  >
+                }
                 @if (showPhoto(item)) {
                   <img class="menu-item__photo" [src]="item.image_url" alt="" loading="lazy" />
                 }
@@ -416,6 +426,32 @@ type Mode = 'light' | 'dark';
       >
         @if (promo.image_url && t.show_images) {
           <img class="promo__photo" [src]="promo.image_url" alt="" loading="lazy" />
+        } @else if (t.template === 'etiketa') {
+          <!-- Two items overlap into one combo: the shared part is striped. -->
+          <svg class="promo__venn" viewBox="0 0 120 80" aria-hidden="true">
+            <defs>
+              <clipPath [attr.id]="'venn-' + promo.id">
+                <circle cx="46" cy="40" r="32" />
+              </clipPath>
+              <pattern
+                [attr.id]="'venn-lines-' + promo.id"
+                width="4"
+                height="5"
+                patternUnits="userSpaceOnUse"
+              >
+                <rect class="promo__venn-line" width="4" height="2.5" />
+              </pattern>
+            </defs>
+            <circle class="promo__venn-a" cx="46" cy="40" r="32" />
+            <circle class="promo__venn-b" cx="74" cy="40" r="32" />
+            <circle
+              cx="74"
+              cy="40"
+              r="32"
+              [attr.fill]="'url(#venn-lines-' + promo.id + ')'"
+              [attr.clip-path]="'url(#venn-' + promo.id + ')'"
+            />
+          </svg>
         }
         <div class="promo__body">
           <div class="row" data-gap="2">
@@ -519,6 +555,20 @@ export class PublicMenuView {
       ],
     })),
   );
+  /**
+   * "Etiketa": a stable code per item (category.item, "02.05") and a stripe color per category,
+   * both from the menu's order, so filtering never renumbers what a guest might quote to staff.
+   */
+  protected readonly labels = computed(() => {
+    const codes = new Map<string, string>();
+    const stripes = new Map<string, number>();
+    const pad = (n: number) => String(n).padStart(2, '0');
+    this.menu().menu.categories.forEach((category, c) => {
+      stripes.set(category.id, (c % 4) + 1);
+      category.items.forEach((item, i) => codes.set(item.id, `${pad(c + 1)}.${pad(i + 1)}`));
+    });
+    return { codes, stripes };
+  });
   private readonly promotions = computed(() => this.menu().promotions ?? []);
   protected readonly featured = computed(() => this.promotions().filter((p) => p.is_featured));
   protected readonly regularPromos = computed(() =>

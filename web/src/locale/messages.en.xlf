@@ -622,6 +622,14 @@
           <context context-type="linenumber">66</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="theme.template.etiketa" datatype="html">
+        <source>Etiketa</source>
+        <target>Label</target>
+      </trans-unit>
+      <trans-unit id="theme.template.etiketaBody" datatype="html">
+        <source>Svaka stavka kao etiketa sa šifrom i bojom kategorije, kombo kao ulaznica. Za moderne barove i bistroe.</source>
+        <target>Every item as a label with a code and its category color, combos as tickets. For modern bars and bistros.</target>
+      </trans-unit>
       <trans-unit id="theme.accent.tinta" datatype="html">
         <source>Tinta</source>
         <target>Ink</target>

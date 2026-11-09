@@ -492,6 +492,194 @@
   display: block;
 }
 
+/* ---------- "Etiketa": every item a spec label, a color stripe per category ---------- */
+[data-stripe='1'] {
+  --stripe: var(--color-stripe-1);
+}
+[data-stripe='2'] {
+  --stripe: var(--color-stripe-2);
+}
+[data-stripe='3'] {
+  --stripe: var(--color-stripe-3);
+}
+[data-stripe='4'] {
+  --stripe: var(--color-stripe-4);
+}
+
+[data-template='etiketa'] .menu-cat {
+  align-items: center;
+  gap: var(--space-3);
+  padding-block-end: var(--space-2);
+  border-block-end: var(--stroke-rule) solid var(--color-text);
+}
+
+[data-template='etiketa'] .menu-cat__title {
+  flex: 1;
+  min-inline-size: 0;
+}
+
+.menu-cat__stripes {
+  flex: none;
+  inline-size: var(--space-8);
+  block-size: var(--space-5);
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--stripe) 0 var(--stroke-rule),
+    transparent var(--stroke-rule) calc(var(--stroke-rule) * 2)
+  );
+}
+
+[data-template='etiketa'] .menu-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--size-menu-card-min)), 1fr));
+  gap: var(--space-3);
+  padding-block-start: var(--space-3);
+}
+
+[data-template='etiketa'] .menu-item {
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  gap: var(--space-2);
+  padding: calc(var(--size-label-stripe) + var(--space-3)) var(--space-4) var(--space-3);
+  overflow: hidden;
+  border: var(--stroke-hairline) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+}
+
+/* The stripe prints in once; reduced motion starts it full. */
+[data-template='etiketa'] .menu-item::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  block-size: var(--size-label-stripe);
+  background: var(--stripe);
+  transform-origin: left;
+  animation: label-print var(--duration-slow) var(--ease-out) both;
+}
+
+@keyframes label-print {
+  from {
+    scale: var(--label-print-from) 1;
+  }
+}
+
+[data-template='etiketa'] .menu-item[data-status='unavailable']::before {
+  background: var(--color-border);
+}
+
+/* Code row: "№ 02.05" left, a printed barcode right (decoration). */
+.menu-item__code {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-block-end: var(--space-2);
+  border-block-end: var(--stroke-hairline) solid var(--color-border);
+  font: var(--type-eyebrow);
+  letter-spacing: var(--tracking-eyebrow);
+  color: var(--color-text-muted);
+}
+
+.menu-item__code::after {
+  content: '';
+  inline-size: var(--size-label-barcode);
+  block-size: var(--space-4);
+  background: repeating-linear-gradient(
+    to right,
+    currentColor 0 1px,
+    transparent 1px 3px,
+    currentColor 3px 5px,
+    transparent 5px 6px,
+    currentColor 6px 7px,
+    transparent 7px 10px
+  );
+  opacity: 0.7;
+}
+
+[data-template='etiketa'] .menu-item__name {
+  font: var(--type-h2);
+  letter-spacing: var(--tracking-h2);
+}
+
+[data-template='etiketa'] .menu-item__photo {
+  inline-size: 100%;
+  aspect-ratio: 3 / 2;
+  border-radius: var(--radius-xs);
+}
+
+[data-template='etiketa'] .menu-item__price {
+  padding-block-start: var(--space-2);
+  border-block-start: var(--stroke-hairline) dashed var(--color-border);
+  font: var(--type-price-lg);
+}
+
+[data-template='etiketa'] .menu-item__open::after {
+  border-radius: var(--radius-sm);
+}
+
+/* Combo as a ticket: notched sides, the two-circle mark beside it. */
+[data-template='etiketa'] .promo {
+  flex-direction: row;
+  align-items: center;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--color-accent-subtle);
+  box-shadow: none;
+  mask:
+    radial-gradient(
+        circle at 0 50%,
+        transparent var(--size-label-notch),
+        #000 calc(var(--size-label-notch) + 0.5px)
+      )
+      left / 51% 100% no-repeat,
+    radial-gradient(
+        circle at 100% 50%,
+        transparent var(--size-label-notch),
+        #000 calc(var(--size-label-notch) + 0.5px)
+      )
+      right / 51% 100% no-repeat;
+}
+
+[data-template='etiketa'] .promo:has(.promo__photo) {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+[data-template='etiketa'] .promo__body {
+  flex: 1;
+  min-inline-size: 0;
+}
+
+.promo__venn {
+  flex: none;
+  inline-size: var(--size-label-venn);
+  margin-inline-start: var(--space-5);
+}
+
+.promo__venn-a {
+  fill: var(--color-stripe-3);
+}
+
+.promo__venn-b {
+  fill: var(--color-stripe-1);
+}
+
+.promo__venn-line {
+  fill: var(--color-stripe-2);
+}
+
+@media (max-width: 420px) {
+  [data-template='etiketa'] .promo {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .promo__venn {
+    margin-block-start: var(--space-4);
+  }
+}
+
 /* ---------- Combos ---------- */
 .promo {
   display: flex;
