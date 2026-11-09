@@ -1,4 +1,5 @@
 import type { MenuTheme } from '../menus/menu-theme';
+import type { OpeningHours, WifiAccess } from '../venues/venue';
 
 /**
  * Guest view of a venue's published menu: `GET /v1/public/menus/{tenantSlug}/{venueSlug}`.
@@ -16,7 +17,12 @@ export interface PublicMenu {
     address: string;
     phone: string;
     currency: string;
+    /** IANA zone the opening hours are in. */
     timezone: string;
+    /** `{}` when the venue has not set them. */
+    opening_hours?: OpeningHours;
+    /** `null` when the venue has no Wi-Fi. */
+    wifi?: PublicWifi | null;
   };
   menu: {
     id: string;
@@ -28,6 +34,13 @@ export interface PublicMenu {
   promotions?: PublicPromotion[];
   /** Defaults when the menu never saved one. */
   theme?: MenuTheme;
+}
+
+export interface PublicWifi {
+  ssid: string;
+  /** Empty when guests ask the staff, or the network is open. */
+  password: string;
+  access: WifiAccess;
 }
 
 export interface PublicPromotion {

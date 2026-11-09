@@ -1797,7 +1797,44 @@ components:
         phone: { type: string }
         currency: { type: string, pattern: "^[A-Z]{3}$", default: RSD }
         timezone: { type: string, default: Europe/Belgrade }
-        opening_hours: { type: object, additionalProperties: true }
+        opening_hours: { $ref: "#/components/schemas/OpeningHours" }
+        wifi_available:
+          type: boolean
+          default: false
+          description: Whether the venue offers Wi-Fi to guests. `true` needs a non-empty `wifi_ssid` (checked on the saved row, so a PATCH may send them separately only if the name is already set).
+        wifi_ssid: { type: string, maxLength: 32, description: "Network name (trimmed, max 32 bytes)" }
+        wifi_password: { type: string, maxLength: 63, description: "Kept as typed, not trimmed. Empty for an open network." }
+        wifi_access: { $ref: "#/components/schemas/WifiAccess" }
+    OpeningHours:
+      type: object
+      description: |
+        Weekly opening hours: up to 3 `[open, close]` intervals per weekday, times as `HH:MM` (00:00-23:59)
+        in the venue's `timezone`. A missing or empty day is closed. A close at or before the open time means
+        the interval runs past midnight (`["17:00", "01:00"]`). `{}` means the hours are not set (do not show them).
+        The server drops empty days; key order is not meaningful.
+      properties:
+        mon: { $ref: "#/components/schemas/DayHours" }
+        tue: { $ref: "#/components/schemas/DayHours" }
+        wed: { $ref: "#/components/schemas/DayHours" }
+        thu: { $ref: "#/components/schemas/DayHours" }
+        fri: { $ref: "#/components/schemas/DayHours" }
+        sat: { $ref: "#/components/schemas/DayHours" }
+        sun: { $ref: "#/components/schemas/DayHours" }
+      additionalProperties: false
+      example: { mon: [["08:00", "23:00"]], fri: [["08:00", "15:00"], ["17:00", "01:00"]] }
+    DayHours:
+      type: array
+      maxItems: 3
+      items:
+        type: array
+        minItems: 2
+        maxItems: 2
+        items: { type: string, pattern: "^([01][0-9]|2[0-3]):[0-5][0-9]$" }
+    WifiAccess:
+      type: string
+      enum: [menu, staff]
+      default: staff
+      description: "How guests get the Wi-Fi password: `menu` shows it on the public menu, `staff` shows only the network name and tells guests to ask the staff."
     Venue:
       type: object
       properties:
@@ -1809,7 +1846,11 @@ components:
         phone: { type: string }
         currency: { type: string }
         timezone: { type: string }
-        opening_hours: { type: object, additionalProperties: true }
+        opening_hours: { $ref: "#/components/schemas/OpeningHours" }
+        wifi_available: { type: boolean }
+        wifi_ssid: { type: string }
+        wifi_password: { type: string, description: "Admin only; the public menu shows it only when wifi_access is menu" }
+        wifi_access: { $ref: "#/components/schemas/WifiAccess" }
         ocr_import_limit: { type: integer, description: "OCR imports allowed for this venue (read-only, default 3)" }
         active_menu_id: { type: [string, "null"], format: uuid, description: "The published menu guests see" }
         created_at: { type: string, format: date-time }
@@ -2165,7 +2206,17 @@ components:
             address: { type: string }
             phone: { type: string }
             currency: { type: string }
-            timezone: { type: string }
+            timezone: { type: string, description: "IANA zone the opening hours are in" }
+            opening_hours: { $ref: "#/components/schemas/OpeningHours" }
+            wifi:
+              description: "`null` when the venue has no Wi-Fi."
+              oneOf:
+                - type: "null"
+                - type: object
+                  properties:
+                    ssid: { type: string }
+                    password: { type: string, description: "Empty unless access is menu (or the network is open)" }
+                    access: { $ref: "#/components/schemas/WifiAccess" }
         menu:
           type: object
           properties:

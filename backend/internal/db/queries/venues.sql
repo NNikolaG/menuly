@@ -1,8 +1,9 @@
 -- Tenant filtering is explicit in every query AND enforced by RLS.
 
 -- name: CreateVenue :one
-INSERT INTO venues (id, tenant_id, name, slug, address, phone, currency, timezone, opening_hours)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+INSERT INTO venues (id, tenant_id, name, slug, address, phone, currency, timezone, opening_hours,
+                    wifi_available, wifi_ssid, wifi_password, wifi_access)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
 RETURNING *;
 
 -- name: ListVenues :many
@@ -19,7 +20,11 @@ UPDATE venues SET
     phone         = COALESCE(sqlc.narg('phone'), phone),
     currency      = COALESCE(sqlc.narg('currency'), currency),
     timezone      = COALESCE(sqlc.narg('timezone'), timezone),
-    opening_hours = COALESCE(sqlc.narg('opening_hours'), opening_hours)
+    opening_hours = COALESCE(sqlc.narg('opening_hours'), opening_hours),
+    wifi_available = COALESCE(sqlc.narg('wifi_available'), wifi_available),
+    wifi_ssid     = COALESCE(sqlc.narg('wifi_ssid'), wifi_ssid),
+    wifi_password = COALESCE(sqlc.narg('wifi_password'), wifi_password),
+    wifi_access   = COALESCE(sqlc.narg('wifi_access'), wifi_access)
 WHERE tenant_id = sqlc.arg('tenant_id') AND id = sqlc.arg('id')
 RETURNING *;
 
