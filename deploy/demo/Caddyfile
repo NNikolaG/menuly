@@ -1,0 +1,33 @@
+# HTTPS in front of the web container (deploy/demo/compose.yml).
+# Every tenant has its own subdomain, and nip.io can't do the DNS challenge a
+# wildcard certificate needs, so Caddy gets a Let's Encrypt certificate per
+# host name the first time a browser asks for it (on-demand TLS). The `ask`
+# check below only allows DOMAIN and its subdomains, so nobody can make the
+# server request certificates for other names.
+{
+	on_demand_tls {
+		ask http://127.0.0.1:5555/
+	}
+}
+
+# Internal: Caddy asks this before getting a certificate for ?domain=<name>.
+http://127.0.0.1:5555 {
+	bind 127.0.0.1
+	@allowed expression `{query.domain} == "{$DOMAIN}" || {query.domain}.endsWith(".{$DOMAIN}")`
+	respond @allowed 200
+	respond 404
+}
+
+# Explicit so it covers every host; ACME HTTP challenges are still answered.
+http:// {
+	redir https://{host}{uri} 308
+}
+
+https:// {
+	tls {
+		on_demand
+	}
+	encode zstd gzip
+	header Strict-Transport-Security "max-age=31536000"
+	reverse_proxy web:80
+}
