@@ -36,17 +36,17 @@ jobs:
           - image: menuly-web
             context: web
     steps:
-      - uses: actions/checkout@v4
-      - uses: docker/setup-buildx-action@v3
+      - uses: actions/checkout@v7
+      - uses: docker/setup-buildx-action@v4
       - name: Log in to GHCR
         if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.REGISTRY }}/${{ matrix.image }}
           tags: |
@@ -54,7 +54,7 @@ jobs:
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/prod' }}
       # Build stages cross-compile on the runner's platform (see the
       # Dockerfiles), so arm64 needs no QEMU and costs about the same as amd64.
-      - uses: docker/build-push-action@v6
+      - uses: docker/build-push-action@v7
         with:
           context: ${{ matrix.context }}
           platforms: linux/amd64,linux/arm64
@@ -74,7 +74,7 @@ jobs:
     env:
       IMAGE_TAG: ${{ github.event.pull_request.head.sha || github.sha }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Get images
         run: |
           if [ "${{ github.event_name }}" = pull_request ]; then
@@ -135,7 +135,7 @@ jobs:
       USER_AT_HOST: ${{ vars.DEPLOY_USER || 'ubuntu' }}@${{ vars.DEPLOY_HOST }}
       DIR: ${{ vars.DEPLOY_PATH || 'menuly' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: SSH key
         env:
           KEY: ${{ secrets.DEPLOY_SSH_KEY }}
