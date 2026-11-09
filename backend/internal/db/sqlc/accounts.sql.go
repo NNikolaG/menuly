@@ -254,7 +254,7 @@ func (q *Queries) AdminSetTenantStatus(ctx context.Context, arg AdminSetTenantSt
 }
 
 const adminSetVenueImportLimit = `-- name: AdminSetVenueImportLimit :one
-UPDATE venues SET ocr_import_limit = $2 WHERE id = $1 RETURNING id, tenant_id, name, slug, address, phone, currency, timezone, opening_hours, ocr_import_limit, created_at, updated_at, active_menu_id
+UPDATE venues SET ocr_import_limit = $2 WHERE id = $1 RETURNING id, tenant_id, name, slug, address, phone, currency, timezone, opening_hours, ocr_import_limit, created_at, updated_at, active_menu_id, wifi_available, wifi_ssid, wifi_password, wifi_access
 `
 
 type AdminSetVenueImportLimitParams struct {
@@ -279,6 +279,10 @@ func (q *Queries) AdminSetVenueImportLimit(ctx context.Context, arg AdminSetVenu
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.ActiveMenuID,
+		&i.WifiAvailable,
+		&i.WifiSsid,
+		&i.WifiPassword,
+		&i.WifiAccess,
 	)
 	return i, err
 }

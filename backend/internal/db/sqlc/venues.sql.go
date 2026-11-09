@@ -14,21 +14,26 @@ import (
 
 const createVenue = `-- name: CreateVenue :one
 
-INSERT INTO venues (id, tenant_id, name, slug, address, phone, currency, timezone, opening_hours)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-RETURNING id, tenant_id, name, slug, address, phone, currency, timezone, opening_hours, ocr_import_limit, created_at, updated_at, active_menu_id
+INSERT INTO venues (id, tenant_id, name, slug, address, phone, currency, timezone, opening_hours,
+                    wifi_available, wifi_ssid, wifi_password, wifi_access)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+RETURNING id, tenant_id, name, slug, address, phone, currency, timezone, opening_hours, ocr_import_limit, created_at, updated_at, active_menu_id, wifi_available, wifi_ssid, wifi_password, wifi_access
 `
 
 type CreateVenueParams struct {
-	ID           uuid.UUID       `json:"id"`
-	TenantID     uuid.UUID       `json:"tenant_id"`
-	Name         string          `json:"name"`
-	Slug         string          `json:"slug"`
-	Address      string          `json:"address"`
-	Phone        string          `json:"phone"`
-	Currency     string          `json:"currency"`
-	Timezone     string          `json:"timezone"`
-	OpeningHours json.RawMessage `json:"opening_hours"`
+	ID            uuid.UUID       `json:"id"`
+	TenantID      uuid.UUID       `json:"tenant_id"`
+	Name          string          `json:"name"`
+	Slug          string          `json:"slug"`
+	Address       string          `json:"address"`
+	Phone         string          `json:"phone"`
+	Currency      string          `json:"currency"`
+	Timezone      string          `json:"timezone"`
+	OpeningHours  json.RawMessage `json:"opening_hours"`
+	WifiAvailable bool            `json:"wifi_available"`
+	WifiSsid      string          `json:"wifi_ssid"`
+	WifiPassword  string          `json:"wifi_password"`
+	WifiAccess    string          `json:"wifi_access"`
 }
 
 // Tenant filtering is explicit in every query AND enforced by RLS.
@@ -43,6 +48,10 @@ func (q *Queries) CreateVenue(ctx context.Context, arg CreateVenueParams) (Venue
 		arg.Currency,
 		arg.Timezone,
 		arg.OpeningHours,
+		arg.WifiAvailable,
+		arg.WifiSsid,
+		arg.WifiPassword,
+		arg.WifiAccess,
 	)
 	var i Venue
 	err := row.Scan(
@@ -59,6 +68,10 @@ func (q *Queries) CreateVenue(ctx context.Context, arg CreateVenueParams) (Venue
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.ActiveMenuID,
+		&i.WifiAvailable,
+		&i.WifiSsid,
+		&i.WifiPassword,
+		&i.WifiAccess,
 	)
 	return i, err
 }
@@ -81,7 +94,7 @@ func (q *Queries) DeleteVenue(ctx context.Context, arg DeleteVenueParams) (int64
 }
 
 const getVenue = `-- name: GetVenue :one
-SELECT id, tenant_id, name, slug, address, phone, currency, timezone, opening_hours, ocr_import_limit, created_at, updated_at, active_menu_id FROM venues WHERE tenant_id = $1 AND id = $2
+SELECT id, tenant_id, name, slug, address, phone, currency, timezone, opening_hours, ocr_import_limit, created_at, updated_at, active_menu_id, wifi_available, wifi_ssid, wifi_password, wifi_access FROM venues WHERE tenant_id = $1 AND id = $2
 `
 
 type GetVenueParams struct {
@@ -106,12 +119,16 @@ func (q *Queries) GetVenue(ctx context.Context, arg GetVenueParams) (Venue, erro
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.ActiveMenuID,
+		&i.WifiAvailable,
+		&i.WifiSsid,
+		&i.WifiPassword,
+		&i.WifiAccess,
 	)
 	return i, err
 }
 
 const listVenues = `-- name: ListVenues :many
-SELECT id, tenant_id, name, slug, address, phone, currency, timezone, opening_hours, ocr_import_limit, created_at, updated_at, active_menu_id FROM venues WHERE tenant_id = $1 ORDER BY created_at, id
+SELECT id, tenant_id, name, slug, address, phone, currency, timezone, opening_hours, ocr_import_limit, created_at, updated_at, active_menu_id, wifi_available, wifi_ssid, wifi_password, wifi_access FROM venues WHERE tenant_id = $1 ORDER BY created_at, id
 `
 
 func (q *Queries) ListVenues(ctx context.Context, tenantID uuid.UUID) ([]Venue, error) {
@@ -137,6 +154,10 @@ func (q *Queries) ListVenues(ctx context.Context, tenantID uuid.UUID) ([]Venue, 
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.ActiveMenuID,
+			&i.WifiAvailable,
+			&i.WifiSsid,
+			&i.WifiPassword,
+			&i.WifiAccess,
 		); err != nil {
 			return nil, err
 		}
@@ -156,21 +177,29 @@ UPDATE venues SET
     phone         = COALESCE($4, phone),
     currency      = COALESCE($5, currency),
     timezone      = COALESCE($6, timezone),
-    opening_hours = COALESCE($7, opening_hours)
-WHERE tenant_id = $8 AND id = $9
-RETURNING id, tenant_id, name, slug, address, phone, currency, timezone, opening_hours, ocr_import_limit, created_at, updated_at, active_menu_id
+    opening_hours = COALESCE($7, opening_hours),
+    wifi_available = COALESCE($8, wifi_available),
+    wifi_ssid     = COALESCE($9, wifi_ssid),
+    wifi_password = COALESCE($10, wifi_password),
+    wifi_access   = COALESCE($11, wifi_access)
+WHERE tenant_id = $12 AND id = $13
+RETURNING id, tenant_id, name, slug, address, phone, currency, timezone, opening_hours, ocr_import_limit, created_at, updated_at, active_menu_id, wifi_available, wifi_ssid, wifi_password, wifi_access
 `
 
 type UpdateVenueParams struct {
-	Name         *string   `json:"name"`
-	Slug         *string   `json:"slug"`
-	Address      *string   `json:"address"`
-	Phone        *string   `json:"phone"`
-	Currency     *string   `json:"currency"`
-	Timezone     *string   `json:"timezone"`
-	OpeningHours []byte    `json:"opening_hours"`
-	TenantID     uuid.UUID `json:"tenant_id"`
-	ID           uuid.UUID `json:"id"`
+	Name          *string   `json:"name"`
+	Slug          *string   `json:"slug"`
+	Address       *string   `json:"address"`
+	Phone         *string   `json:"phone"`
+	Currency      *string   `json:"currency"`
+	Timezone      *string   `json:"timezone"`
+	OpeningHours  []byte    `json:"opening_hours"`
+	WifiAvailable *bool     `json:"wifi_available"`
+	WifiSsid      *string   `json:"wifi_ssid"`
+	WifiPassword  *string   `json:"wifi_password"`
+	WifiAccess    *string   `json:"wifi_access"`
+	TenantID      uuid.UUID `json:"tenant_id"`
+	ID            uuid.UUID `json:"id"`
 }
 
 func (q *Queries) UpdateVenue(ctx context.Context, arg UpdateVenueParams) (Venue, error) {
@@ -182,6 +211,10 @@ func (q *Queries) UpdateVenue(ctx context.Context, arg UpdateVenueParams) (Venue
 		arg.Currency,
 		arg.Timezone,
 		arg.OpeningHours,
+		arg.WifiAvailable,
+		arg.WifiSsid,
+		arg.WifiPassword,
+		arg.WifiAccess,
 		arg.TenantID,
 		arg.ID,
 	)
@@ -200,6 +233,10 @@ func (q *Queries) UpdateVenue(ctx context.Context, arg UpdateVenueParams) (Venue
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.ActiveMenuID,
+		&i.WifiAvailable,
+		&i.WifiSsid,
+		&i.WifiPassword,
+		&i.WifiAccess,
 	)
 	return i, err
 }

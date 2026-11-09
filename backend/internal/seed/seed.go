@@ -125,6 +125,7 @@ func create(ctx context.Context, q *sqlc.Queries, tenantID, userID uuid.UUID, ha
 		ID: venueID, TenantID: tenantID, Name: "Kafana Mornar", Slug: "mornar",
 		Address: "Karađorđeva 12, Beograd", Phone: "+381 11 123 4567",
 		Currency: "RSD", Timezone: "Europe/Belgrade", OpeningHours: hours,
+		WifiAvailable: true, WifiSsid: "Mornar-Gost", WifiPassword: "mornar2026", WifiAccess: "menu",
 	}); err != nil {
 		return uuid.Nil, fmt.Errorf("venue: %w", err)
 	}
@@ -132,7 +133,7 @@ func create(ctx context.Context, q *sqlc.Queries, tenantID, userID uuid.UUID, ha
 	if _, err := q.CreateVenue(ctx, sqlc.CreateVenueParams{
 		ID: newID(), TenantID: tenantID, Name: "Mornar Bašta", Slug: "basta",
 		Address: "Strahinjića Bana 5, Beograd", Currency: "RSD", Timezone: "Europe/Belgrade",
-		OpeningHours: json.RawMessage(`{}`),
+		OpeningHours: json.RawMessage(`{}`), WifiAccess: "staff",
 	}); err != nil {
 		return uuid.Nil, fmt.Errorf("venue: %w", err)
 	}

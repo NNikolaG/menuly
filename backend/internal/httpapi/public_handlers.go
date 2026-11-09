@@ -59,6 +59,9 @@ type publicMenu struct {
 		Phone    string `json:"phone"`
 		Currency string `json:"currency"`
 		Timezone string `json:"timezone"`
+		// {"mon": [["08:00", "23:00"]], ...}; {} when not set.
+		OpeningHours json.RawMessage `json:"opening_hours"`
+		Wifi         *publicWifi     `json:"wifi"`
 	} `json:"venue"`
 	Menu struct {
 		ID          uuid.UUID        `json:"id"`
@@ -126,6 +129,8 @@ func (s *Server) handlePublicMenu(w http.ResponseWriter, r *http.Request) {
 		out.Tenant.Name, out.Tenant.Slug = t.Name, t.Slug
 		out.Venue.Name, out.Venue.Slug, out.Venue.Address, out.Venue.Phone = v.Name, v.Slug, v.Address, v.Phone
 		out.Venue.Currency, out.Venue.Timezone = v.Currency, v.Timezone
+		out.Venue.OpeningHours = v.OpeningHours
+		out.Venue.Wifi = buildPublicWifi(v.WifiAvailable, v.WifiSsid, v.WifiPassword, v.WifiAccess)
 		out.Menu.ID, out.Menu.Name, out.Menu.PublishedAt = tree.ID, tree.Name, tree.PublishedAt
 		out.Menu.Categories = buildPublicCategories(tree, lang)
 		if out.Theme, err = loadTheme(r, q, t.ID, tree.ID); err != nil {

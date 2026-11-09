@@ -262,4 +262,8 @@ type Venue struct {
 	CreatedAt      time.Time       `json:"created_at"`
 	UpdatedAt      time.Time       `json:"updated_at"`
 	ActiveMenuID   *uuid.UUID      `json:"active_menu_id"`
+	WifiAvailable  bool            `json:"wifi_available"`
+	WifiSsid       string          `json:"wifi_ssid"`
+	WifiPassword   string          `json:"wifi_password"`
+	WifiAccess     string          `json:"wifi_access"`
 }

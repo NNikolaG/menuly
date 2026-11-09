@@ -1,7 +1,6 @@
 package httpapi
 
 import (
-	"bytes"
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
@@ -74,18 +73,23 @@ func randomSuffix() string {
 var errSlugTaken = &APIError{Status: http.StatusConflict, Code: "slug_taken", Message: "another venue in this account already uses this slug"}
 
 type venueInput struct {
-	Name         *string          `json:"name"`
-	Slug         *string          `json:"slug"`
-	Address      *string          `json:"address"`
-	Phone        *string          `json:"phone"`
-	Currency     *string          `json:"currency"`
-	Timezone     *string          `json:"timezone"`
-	OpeningHours *json.RawMessage `json:"opening_hours"`
+	Name          *string          `json:"name"`
+	Slug          *string          `json:"slug"`
+	Address       *string          `json:"address"`
+	Phone         *string          `json:"phone"`
+	Currency      *string          `json:"currency"`
+	Timezone      *string          `json:"timezone"`
+	OpeningHours  *json.RawMessage `json:"opening_hours"`
+	WifiAvailable *bool            `json:"wifi_available"`
+	WifiSSID      *string          `json:"wifi_ssid"`
+	WifiPassword  *string          `json:"wifi_password"`
+	WifiAccess    *string          `json:"wifi_access"`
 }
 
 // normalize trims fields and validates whatever is present.
 func (in *venueInput) normalize() *APIError {
-	for _, f := range []*string{in.Name, in.Slug, in.Address, in.Phone, in.Currency, in.Timezone} {
+	// The Wi-Fi password is kept as typed: spaces can be part of it.
+	for _, f := range []*string{in.Name, in.Slug, in.Address, in.Phone, in.Currency, in.Timezone, in.WifiSSID, in.WifiAccess} {
 		if f != nil {
 			*f = trim(*f)
 		}
@@ -114,12 +118,13 @@ func (in *venueInput) normalize() *APIError {
 		}
 	}
 	if in.OpeningHours != nil {
-		b := bytes.TrimSpace(*in.OpeningHours)
-		if len(b) == 0 || b[0] != '{' {
-			return errValidation("opening_hours must be a JSON object")
+		hours, apiErr := normalizeOpeningHours(*in.OpeningHours)
+		if apiErr != nil {
+			return apiErr
 		}
+		*in.OpeningHours = hours
 	}
-	return nil
+	return validateWifi(in.WifiSSID, in.WifiPassword, in.WifiAccess)
 }
 
 func strOr(p *string, def string) string {
@@ -178,8 +183,14 @@ func (s *Server) handleCreateVenue(w http.ResponseWriter, r *http.Request) {
 			Name: *in.Name, Slug: *in.Slug,
 			Address: strOr(in.Address, ""), Phone: strOr(in.Phone, ""),
 			Currency: strOr(in.Currency, "RSD"), Timezone: strOr(in.Timezone, "Europe/Belgrade"),
-			OpeningHours: hours,
+			OpeningHours:  hours,
+			WifiAvailable: in.WifiAvailable != nil && *in.WifiAvailable,
+			WifiSsid:      strOr(in.WifiSSID, ""), WifiPassword: strOr(in.WifiPassword, ""),
+			WifiAccess: strOr(in.WifiAccess, wifiAccessStaff),
 		})
+		if err == nil && v.WifiAvailable && v.WifiSsid == "" {
+			return errWifiSSIDRequired
+		}
 		return err
 	})
 	if db.IsUniqueViolation(err, "venues_tenant_slug_key") {
@@ -244,6 +255,8 @@ func (s *Server) handleUpdateVenue(w http.ResponseWriter, r *http.Request) {
 		TenantID: p.TenantID, ID: id,
 		Name: in.Name, Slug: in.Slug, Address: in.Address, Phone: in.Phone,
 		Currency: in.Currency, Timezone: in.Timezone,
+		WifiAvailable: in.WifiAvailable, WifiSsid: in.WifiSSID,
+		WifiPassword: in.WifiPassword, WifiAccess: in.WifiAccess,
 	}
 	if in.OpeningHours != nil {
 		params.OpeningHours = *in.OpeningHours
@@ -251,6 +264,11 @@ func (s *Server) handleUpdateVenue(w http.ResponseWriter, r *http.Request) {
 	var v sqlc.Venue
 	err = s.db.Tx(r.Context(), p.Scope(), func(q *sqlc.Queries) (err error) {
 		v, err = q.UpdateVenue(r.Context(), params)
+		// Checked on the merged row: a PATCH may turn Wi-Fi on and set the
+		// name in separate requests, but never leave it on without a name.
+		if err == nil && v.WifiAvailable && v.WifiSsid == "" {
+			return errWifiSSIDRequired
+		}
 		return err
 	})
 	switch {

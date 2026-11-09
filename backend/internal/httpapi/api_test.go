@@ -350,7 +350,7 @@ func TestVenueValidationAndUpdate(t *testing.T) {
 
 	id := createVenue(t, a, "Bar")
 	r := call(t, "PATCH", "/v1/venues/"+id, a.access, map[string]any{
-		"phone": "+381 11 123", "currency": "eur", "opening_hours": map[string]any{"mon": []string{"08:00-23:00"}},
+		"phone": "+381 11 123", "currency": "eur", "opening_hours": map[string]any{"mon": [][]string{{"08:00", "23:00"}}},
 	})
 	expect(t, r, http.StatusOK)
 	if r.body["currency"] != "EUR" || r.body["phone"] != "+381 11 123" || r.body["name"] != "Bar" {
