@@ -56,8 +56,8 @@ Docker pokreće sve na http://localhost:8000. Web aplikacija se i dalje razvija 
 
 ## Demo server
 
-GitHub Actions (`.github/workflows/images.yml`) na svaki push na `main` pravi
-slike za amd64 i arm64, šalje ih na GHCR i proverava ih na arm64 mašini.
+GitHub Actions (`.github/workflows/images.yml`) na svaki push na granu `prod`
+(npr. `git push origin main:prod`) pravi slike za amd64 i arm64, šalje ih na GHCR i proverava ih na arm64 mašini.
 Server samo povlači slike i pokreće `deploy/demo/compose.yml` (oko 300 MB RAM-a).
 
 Automatski deploy se uključuje kad u *Settings → Secrets and variables → Actions*
