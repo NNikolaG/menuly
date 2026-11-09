@@ -73,6 +73,45 @@ func TestPublicMenu(t *testing.T) {
 		t.Fatal("public payload leaks admin fields")
 	}
 
+	// Only Serbian until the menu offers more: ?lang=en is served as sr.
+	if langs := r.body["languages"].([]any); len(langs) != 1 || langs[0].(map[string]any)["code"] != "sr" {
+		t.Fatalf("languages: %v", langs)
+	}
+	r = call(t, "GET", path+"?lang=en", "", nil)
+	expect(t, r, http.StatusOK)
+	if r.body["lang"] != "sr" || r.body["menu"].(map[string]any)["categories"].([]any)[0].(map[string]any)["name"] != "Pića" {
+		t.Fatalf("lang=en without en offered: %v", r.body["lang"])
+	}
+
+	// Languages: validated, sr is implicit.
+	for _, bad := range []any{
+		[]map[string]string{{"code": "sr", "name": "Srpski"}},
+		[]map[string]string{{"code": "EN!", "name": "English"}},
+		[]map[string]string{{"code": "en", "name": ""}},
+		[]map[string]string{{"code": "en", "name": "English"}, {"code": "en", "name": "Eng"}},
+	} {
+		expect(t, call(t, "PATCH", "/v1/menus/"+f.menu, tok, map[string]any{"languages": bad}), http.StatusUnprocessableEntity)
+	}
+	r = call(t, "PATCH", "/v1/menus/"+f.menu, tok, map[string]any{"languages": []map[string]string{
+		{"code": " EN ", "name": "English"}, {"code": "de", "name": "Deutsch"},
+	}})
+	expect(t, r, http.StatusOK)
+	if r.body["name"] == "" || len(r.body["languages"].([]any)) != 2 || r.body["languages"].([]any)[0].(map[string]any)["code"] != "en" {
+		t.Fatalf("update languages: %v", r.body)
+	}
+	expect(t, call(t, "PATCH", "/v1/menus/"+f.menu, tok, map[string]any{}), http.StatusUnprocessableEntity)
+
+	// A custom language with its own translation.
+	expect(t, call(t, "PATCH", "/v1/categories/"+f.drinks, tok, map[string]any{
+		"translations": map[string]any{"en": map[string]string{"name": "Drinks"}, "de": map[string]string{"name": "Getränke"}},
+	}), http.StatusOK)
+	r = call(t, "GET", path+"?lang=de", "", nil)
+	expect(t, r, http.StatusOK)
+	if r.body["lang"] != "de" || len(r.body["languages"].([]any)) != 3 ||
+		r.body["menu"].(map[string]any)["categories"].([]any)[0].(map[string]any)["name"] != "Getränke" {
+		t.Fatalf("lang=de: %v %v", r.body["lang"], r.body["languages"])
+	}
+
 	// English, with fallback to Serbian where nothing is translated.
 	r = call(t, "GET", path+"?lang=en", "", nil)
 	expect(t, r, http.StatusOK)

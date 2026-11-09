@@ -85,8 +85,10 @@ paths:
         Only visible categories and items are included. Unavailable items are included with
         `is_available: false`, after the available items of their category; otherwise `position` order.
 
-        With `lang` (e.g. `en`), `name`, `description` and `label` are translated where a translation
-        exists and fall back to Serbian; `translations` is included as well.
+        `languages` lists what the menu offers, Serbian first; with only one entry the guest UI shows
+        no language picker. With `lang` set to one of those codes (e.g. `en`, `de`), `name`,
+        `description` and `label` are translated where a translation exists and fall back to Serbian;
+        `translations` is included as well. A `lang` the menu does not offer is served as `sr`.
 
         Cached: `Cache-Control: public, max-age=30, stale-while-revalidate=60` and an `ETag`;
         send `If-None-Match` to get `304`. CORS allows any origin.
@@ -94,7 +96,7 @@ paths:
       parameters:
         - { name: tenantSlug, in: path, required: true, schema: { type: string } }
         - { name: venueSlug, in: path, required: true, schema: { type: string } }
-        - { name: lang, in: query, required: false, schema: { type: string, pattern: "^[a-z]{2}$", default: sr } }
+        - { name: lang, in: query, required: false, schema: { type: string, pattern: "^[a-z]{2,3}(-[a-z0-9]{2,8})?$", default: sr } }
         - { name: If-None-Match, in: header, required: false, schema: { type: string } }
       responses:
         "200":
@@ -823,16 +825,23 @@ paths:
     patch:
       operationId: updateMenu
       tags: [Menus]
-      summary: Rename a menu (owner, manager)
+      summary: Rename a menu or set its languages (owner, manager)
+      description: |
+        Send `name`, `languages` or both. `languages` replaces the whole list of languages offered
+        besides Serbian (`sr` is not allowed in it; at most 10; codes unique). Removing a language
+        keeps its translations, so adding it back restores them. Send `[]` for Serbian only.
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required: [name]
               properties:
                 name: { type: string, maxLength: 200 }
+                languages:
+                  type: array
+                  maxItems: 10
+                  items: { $ref: "#/components/schemas/MenuLanguage" }
       responses:
         "200":
           description: OK
@@ -1896,8 +1905,8 @@ components:
     Translations:
       type: object
       description: |
-        Translations keyed by 2-letter language code (not `sr`; Serbian is the base field).
-        Example: `{"en": {"name": "Drinks", "description": "..."}}`. Send `null` or `{}` to clear.
+        Translations keyed by language code (not `sr`; Serbian is the base field). Use the codes
+        in the menu's `languages`; text for other codes is kept but not shown to guests. Example: `{"en": {"name": "Drinks", "description": "..."}}`. Send `null` or `{}` to clear.
       additionalProperties:
         type: object
         additionalProperties: { type: string }
@@ -1917,8 +1926,22 @@ components:
         name: { type: string }
         status: { type: string, enum: [draft, published] }
         published_at: { type: [string, "null"], format: date-time }
+        languages:
+          type: array
+          description: Languages offered besides Serbian, which is the base and always offered.
+          items: { $ref: "#/components/schemas/MenuLanguage" }
         created_at: { type: string, format: date-time }
         updated_at: { type: string, format: date-time }
+    MenuLanguage:
+      type: object
+      required: [code, name]
+      properties:
+        code:
+          type: string
+          pattern: "^[a-z]{2,3}(-[a-z0-9]{2,8})?$"
+          description: Lowercase language code, e.g. `en`, `de`, `pt-br`. Keys `translations`.
+        name: { type: string, maxLength: 40, description: "How guests see it in the picker, e.g. Deutsch" }
+      example: { code: de, name: Deutsch }
     MenuTree:
       allOf:
         - $ref: "#/components/schemas/Menu"
@@ -2230,7 +2253,11 @@ components:
       type: object
       properties:
         theme: { $ref: "#/components/schemas/MenuTheme" }
-        lang: { type: string, description: "Language actually requested (sr when omitted)" }
+        lang: { type: string, description: "Language actually served: the requested one when the menu offers it, else sr" }
+        languages:
+          type: array
+          description: Languages the menu offers, Serbian (`sr`) first. One entry means no picker.
+          items: { $ref: "#/components/schemas/MenuLanguage" }
         tenant:
           type: object
           properties:

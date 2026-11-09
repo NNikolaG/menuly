@@ -111,14 +111,15 @@ type Membership struct {
 }
 
 type Menu struct {
-	ID          uuid.UUID  `json:"id"`
-	TenantID    uuid.UUID  `json:"tenant_id"`
-	VenueID     uuid.UUID  `json:"venue_id"`
-	Name        string     `json:"name"`
-	Status      string     `json:"status"`
-	PublishedAt *time.Time `json:"published_at"`
-	CreatedAt   time.Time  `json:"created_at"`
-	UpdatedAt   time.Time  `json:"updated_at"`
+	ID          uuid.UUID       `json:"id"`
+	TenantID    uuid.UUID       `json:"tenant_id"`
+	VenueID     uuid.UUID       `json:"venue_id"`
+	Name        string          `json:"name"`
+	Status      string          `json:"status"`
+	PublishedAt *time.Time      `json:"published_at"`
+	CreatedAt   time.Time       `json:"created_at"`
+	UpdatedAt   time.Time       `json:"updated_at"`
+	Languages   json.RawMessage `json:"languages"`
 }
 
 type MenuItem struct {

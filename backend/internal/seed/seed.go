@@ -164,6 +164,12 @@ func create(ctx context.Context, q *sqlc.Queries, tenantID, userID uuid.UUID, ha
 	if _, err := q.CreateMenu(ctx, sqlc.CreateMenuParams{ID: menuID, TenantID: tenantID, VenueID: venueID, Name: "Glavni meni"}); err != nil {
 		return uuid.Nil, fmt.Errorf("menu: %w", err)
 	}
+	// The seed's translations are English, so the guest gets a sr/en picker.
+	if _, err := q.UpdateMenu(ctx, sqlc.UpdateMenuParams{
+		TenantID: tenantID, ID: menuID, Languages: []byte(`[{"code":"en","name":"English"}]`),
+	}); err != nil {
+		return uuid.Nil, fmt.Errorf("menu languages: %w", err)
+	}
 	// A draft next to the published one, as when a venue prepares a new season.
 	if _, err := q.CreateMenu(ctx, sqlc.CreateMenuParams{ID: newID(), TenantID: tenantID, VenueID: venueID, Name: "Letnji meni (nacrt)"}); err != nil {
 		return uuid.Nil, fmt.Errorf("menu: %w", err)

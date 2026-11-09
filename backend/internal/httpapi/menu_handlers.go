@@ -1,6 +1,7 @@
 package httpapi
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -142,7 +143,7 @@ func (s *Server) handleGetMenu(w http.ResponseWriter, r *http.Request) {
 	writeResult(w, r, http.StatusOK, tree, err)
 }
 
-// PATCH /v1/menus/{menuID}
+// PATCH /v1/menus/{menuID} renames the menu and/or replaces its languages.
 func (s *Server) handleUpdateMenu(w http.ResponseWriter, r *http.Request) {
 	p := mustPrincipal(r)
 	menuID, err := urlID(r, "menuID")
@@ -151,23 +152,31 @@ func (s *Server) handleUpdateMenu(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var in struct {
-		Name *string `json:"name"`
+		Name      *string          `json:"name"`
+		Languages *json.RawMessage `json:"languages"`
 	}
 	if err := decodeJSON(w, r, &in); err != nil {
 		writeError(w, r, err)
 		return
 	}
-	if in.Name == nil {
-		writeError(w, r, errValidation("name is required"))
+	if in.Name == nil && in.Languages == nil {
+		writeError(w, r, errValidation("name or languages is required"))
 		return
 	}
-	if apiErr := requireName(in.Name, "name"); apiErr != nil {
+	if in.Name != nil {
+		if apiErr := requireName(in.Name, "name"); apiErr != nil {
+			writeError(w, r, apiErr)
+			return
+		}
+	}
+	langs, apiErr := normalizeLanguages(in.Languages)
+	if apiErr != nil {
 		writeError(w, r, apiErr)
 		return
 	}
 	var m sqlc.Menu
 	err = s.tx(r, func(q *sqlc.Queries) (err error) {
-		m, err = q.RenameMenu(r.Context(), sqlc.RenameMenuParams{TenantID: p.TenantID, ID: menuID, Name: *in.Name})
+		m, err = q.UpdateMenu(r.Context(), sqlc.UpdateMenuParams{TenantID: p.TenantID, ID: menuID, Name: in.Name, Languages: langs})
 		return err
 	})
 	writeResult(w, r, http.StatusOK, m, err)

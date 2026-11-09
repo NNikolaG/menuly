@@ -115,6 +115,7 @@ func TestPublicMenuPromotions(t *testing.T) {
 	f := newMenuFixture(t)
 	tok := f.owner.access
 	expect(t, call(t, "POST", "/v1/menus/"+f.menu+"/publish", tok, nil), http.StatusOK)
+	expect(t, call(t, "PATCH", "/v1/menus/"+f.menu, tok, map[string]any{"languages": []map[string]string{{"code": "en", "name": "English"}}}), http.StatusOK)
 	path := "/v1/public/menus/" + tenantSlug(t, f.owner) + "/" + venueSlug(t, f.owner, f.venue)
 
 	r := call(t, "POST", "/v1/venues/"+f.venue+"/promotions", tok, comboBody(f))
