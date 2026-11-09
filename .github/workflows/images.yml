@@ -92,13 +92,14 @@ jobs:
           cp ../postgres/init.sh postgres-init.sh
           cat > .env <<ENV
           DOMAIN=demo.test
-          WEB_PORT=8000
+          LOCAL_PORT=8000
           POSTGRES_PASSWORD=$(openssl rand -hex 16)
           APP_DB_PASSWORD=$(openssl rand -hex 16)
           JWT_SECRET=$(openssl rand -hex 32)
           IMAGE_TAG=$IMAGE_TAG
           ENV
           docker compose up -d --pull missing --wait --wait-timeout 180 web api
+          docker compose run --rm --no-deps caddy caddy validate --config /etc/caddy/Caddyfile
       - name: Smoke test
         run: |
           curl -fsS --retry 15 --retry-all-errors --retry-delay 2 http://localhost:8000/api/healthz
@@ -121,7 +122,9 @@ jobs:
   # Off until the repository variable DEPLOY_HOST and the secret DEPLOY_SSH_KEY
   # are set (Settings → Secrets and variables → Actions). Optional variables:
   # DEPLOY_USER (default ubuntu), DEPLOY_PATH (default menuly, in the user's
-  # home), DEMO_DOMAIN (default <DEPLOY_HOST>.nip.io), WEB_PORT (default 80).
+  # home), DEMO_DOMAIN (default <DEPLOY_HOST>.nip.io).
+  # The server must accept TCP 80 and 443 (and UDP 443 for HTTP/3): Caddy
+  # gets the HTTPS certificates itself.
   deploy:
     needs: smoke-arm64
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/prod' && vars.DEPLOY_HOST != ''
@@ -149,24 +152,23 @@ jobs:
         run: |
           ssh "$USER_AT_HOST" "mkdir -p '$DIR'"
           scp deploy/demo/compose.yml "$USER_AT_HOST:$DIR/compose.yml"
+          scp deploy/demo/Caddyfile "$USER_AT_HOST:$DIR/Caddyfile"
           scp deploy/postgres/init.sh "$USER_AT_HOST:$DIR/postgres-init.sh"
       - name: Pull and start
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ACTOR: ${{ github.actor }}
           DOMAIN: ${{ vars.DEMO_DOMAIN || format('{0}.nip.io', vars.DEPLOY_HOST) }}
-          WEB_PORT: ${{ vars.WEB_PORT || '80' }}
         run: |
-          ssh "$USER_AT_HOST" bash -s -- "$DIR" "$DOMAIN" "$WEB_PORT" "$ACTOR" "$TOKEN" <<'SCRIPT'
+          ssh "$USER_AT_HOST" bash -s -- "$DIR" "$DOMAIN" "$ACTOR" "$TOKEN" <<'SCRIPT'
           set -euo pipefail
-          dir=$1 domain=$2 port=$3 actor=$4 token=$5
+          dir=$1 domain=$2 actor=$3 token=$4
           cd "$dir"
           # First deploy: random secrets, kept on the server from then on.
           if [ ! -f .env ]; then
             umask 077
             cat > .env <<ENV
           DOMAIN=$domain
-          WEB_PORT=$port
           POSTGRES_PASSWORD=$(openssl rand -hex 16)
           APP_DB_PASSWORD=$(openssl rand -hex 16)
           JWT_SECRET=$(openssl rand -hex 32)
@@ -179,8 +181,12 @@ jobs:
           echo "$token" | docker login ghcr.io -u "$actor" --password-stdin
           trap 'docker logout ghcr.io >/dev/null' EXIT
           docker compose pull
-          docker compose up -d --remove-orphans --wait --wait-timeout 180 web api
+          # WEB_PORT was the public port before Caddy took 80/443.
+          sed -i '/^WEB_PORT=/d' .env
+          docker compose up -d --remove-orphans --wait --wait-timeout 180 web api caddy
           docker image prune -f
-          port=$(sed -n 's/^WEB_PORT=//p' .env); port=${port:-80}
-          curl -fsS --retry 10 --retry-all-errors --retry-delay 3 "http://localhost:$port/api/healthz"
+          port=$(sed -n 's/^LOCAL_PORT=//p' .env); port=${port:-8000}
+          curl -fsS --retry 10 --retry-all-errors --retry-delay 3 "http://127.0.0.1:$port/api/healthz"
+          # Through Caddy: plain HTTP must redirect to HTTPS.
+          curl -sS --retry 10 --retry-connrefused --retry-delay 2 -o /dev/null -w '%{http_code}\n' -H "Host: $domain" http://127.0.0.1/ | grep -qx 308
           SCRIPT
