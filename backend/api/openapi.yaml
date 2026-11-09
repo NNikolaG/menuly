@@ -7,6 +7,9 @@ info:
     carried by the access token (`tid` claim). Switch tenants with
     `POST /v1/auth/switch-tenant`.
 
+    The role is read from the database on every request, not from the token: a role change applies at once,
+    a member removed from the tenant gets 401, and a suspended tenant gets 403 `tenant_suspended`.
+
     Errors always have the shape `{"error": {"code": "...", "message": "..."}}`.
     Validation errors are 422 `validation_failed`; a resource of another tenant is always 404.
 

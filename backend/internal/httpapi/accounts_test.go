@@ -303,3 +303,42 @@ func TestPlatformAdmin(t *testing.T) {
 		t.Fatalf("admin venues: %v", r.body)
 	}
 }
+
+// A role change, removal or suspension applies to the next request, even
+// with an access token issued before it.
+func TestAccessChangesApplyAtOnce(t *testing.T) {
+	needDB(t)
+	owner := register(t, "Access Owner")
+	email := "staff-" + uuid.NewString()[:8] + "@example.com"
+	expect(t, call(t, "POST", "/v1/invitations", owner.access, map[string]string{"email": email, "role": "staff"}), http.StatusCreated)
+	r := call(t, "POST", "/v1/auth/accept-invite", "", map[string]string{"token": mailToken(t, email), "name": "Osoblje", "password": "secret123"})
+	expect(t, r, http.StatusOK)
+	member := r.body["access_token"].(string)
+	memberID := r.body["user"].(map[string]any)["id"].(string)
+	venue := map[string]string{"name": "Bašta"}
+
+	expect(t, call(t, "GET", "/v1/members", member, nil), http.StatusForbidden)
+	expect(t, call(t, "PATCH", "/v1/members/"+memberID, owner.access, map[string]string{"role": "manager"}), http.StatusNoContent)
+	expect(t, call(t, "GET", "/v1/members", member, nil), http.StatusOK) // same token, new role
+	if me := call(t, "GET", "/v1/me", member, nil); me.body["role"] != "manager" {
+		t.Fatalf("me role: %v", me.body["role"])
+	}
+	expect(t, call(t, "POST", "/v1/venues", member, venue), http.StatusForbidden) // still not owner
+
+	expect(t, call(t, "PATCH", "/v1/members/"+memberID, owner.access, map[string]string{"role": "staff"}), http.StatusNoContent)
+	expect(t, call(t, "GET", "/v1/members", member, nil), http.StatusForbidden)
+
+	admin := register(t, "Access Admin")
+	ownerExec(t, `UPDATE users SET is_platform_admin = true WHERE email = $1`, admin.email)
+	expect(t, call(t, "PATCH", "/v1/admin/tenants/"+owner.tenantID, admin.access, map[string]string{"status": "suspended"}), http.StatusOK)
+	r = call(t, "GET", "/v1/venues", owner.access, nil)
+	expect(t, r, http.StatusForbidden)
+	if r.body["error"].(map[string]any)["code"] != "tenant_suspended" {
+		t.Fatalf("suspended: %v", r.body)
+	}
+	expect(t, call(t, "PATCH", "/v1/admin/tenants/"+owner.tenantID, admin.access, map[string]string{"status": "active"}), http.StatusOK)
+
+	expect(t, call(t, "DELETE", "/v1/members/"+memberID, owner.access, nil), http.StatusNoContent)
+	expect(t, call(t, "GET", "/v1/venues", member, nil), http.StatusUnauthorized)
+	expect(t, call(t, "GET", "/v1/venues", owner.access, nil), http.StatusOK)
+}

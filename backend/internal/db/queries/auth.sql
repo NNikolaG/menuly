@@ -52,3 +52,11 @@ DELETE FROM tenants WHERE id = $1;
 
 -- name: DeleteUser :exec
 DELETE FROM users WHERE id = $1;
+
+-- name: GetMemberAccess :one
+-- Checked on every authenticated request, so a role change, removal or
+-- suspension applies at once rather than when the access token expires.
+SELECT m.role, t.status AS tenant_status
+FROM memberships m
+JOIN tenants t ON t.id = m.tenant_id
+WHERE m.tenant_id = $1 AND m.user_id = $2;

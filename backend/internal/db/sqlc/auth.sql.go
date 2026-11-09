@@ -149,6 +149,32 @@ func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	return err
 }
 
+const getMemberAccess = `-- name: GetMemberAccess :one
+SELECT m.role, t.status AS tenant_status
+FROM memberships m
+JOIN tenants t ON t.id = m.tenant_id
+WHERE m.tenant_id = $1 AND m.user_id = $2
+`
+
+type GetMemberAccessParams struct {
+	TenantID uuid.UUID `json:"tenant_id"`
+	UserID   uuid.UUID `json:"user_id"`
+}
+
+type GetMemberAccessRow struct {
+	Role         string `json:"role"`
+	TenantStatus string `json:"tenant_status"`
+}
+
+// Checked on every authenticated request, so a role change, removal or
+// suspension applies at once rather than when the access token expires.
+func (q *Queries) GetMemberAccess(ctx context.Context, arg GetMemberAccessParams) (GetMemberAccessRow, error) {
+	row := q.db.QueryRow(ctx, getMemberAccess, arg.TenantID, arg.UserID)
+	var i GetMemberAccessRow
+	err := row.Scan(&i.Role, &i.TenantStatus)
+	return i, err
+}
+
 const getMembership = `-- name: GetMembership :one
 SELECT tenant_id, user_id, role, venue_ids, created_at, updated_at FROM memberships WHERE tenant_id = $1 AND user_id = $2
 `
