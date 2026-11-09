@@ -228,10 +228,10 @@ Rezervna opcija ako LLM bude preskup ili nedostupan: Google Cloud Vision za teks
 - **Multi-tenancy:** jedna baza, deljena šema, `tenant_id` na svakoj tenant tabeli, plus Postgres Row Level Security (`SET app.tenant_id` po transakciji) kao druga linija odbrane uz filtriranje u kodu. Svaki upit van tenanta ide samo kroz eksplicitne platform rute.
 - **Javni meni:** jedan endpoint vraća ceo objavljeni meni objekta (kategorije, stavke, promocije, tema) kao jedan JSON, keširan (ETag + kratak TTL, invalidacija na izmenu).
 - **Auth:** kratkotrajan JWT access token + refresh token u bazi (moguće opozivanje).
-- **Fajlovi:** S3-kompatibilan storage (MinIO lokalno), potpisani URL-ovi za upload.
+- **Fajlovi:** S3-kompatibilan storage (lokalno folder u Docker volumenu), potpisani URL-ovi za upload.
 - **Pozadinski poslovi:** OCR ide u red poslova u Postgresu (npr. River), bez dodatne infrastrukture u MVP-u.
 - **Lokalizacija:** UI (admin i javni meni) na sr-Latn i en preko Angular i18n ključeva; kod i API na engleskom. Prevodivi sadržaj menija (`name`, `description` kategorija, stavki, varijanti, promocija) čuva se kao `translations jsonb`, npr. `{"en": {"name": "..."}}`, a osnovna polja su na srpskom. API prima `?lang=en`; vreme u UTC, prikaz po `venue.timezone`.
-- **Docker:** `docker compose up` diže API, Postgres, MinIO i web.
+- **Docker:** `docker compose up` diže API, Postgres i web, sa demo podacima.
 - **API:** REST + JSON, OpenAPI specifikacija u repou kao ugovor između BE i web/iOS.
 
 ## 9. Odluke (2026-11-05)
