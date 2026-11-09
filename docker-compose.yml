@@ -1,5 +1,8 @@
-# Local development stack: `docker compose up --build`
-# API: http://localhost:8080  (health: /healthz, /readyz)
+# Whole app with a demo account: `docker compose up --build`
+# App:  http://localhost:8000  (demo@menuly.app / demo1234)
+# Menu: http://demo.localhost:8000/mornar
+# API:  http://localhost:8080  (health: /healthz, /readyz, docs: /docs)
+# Developing the web app with `npm start` (:4200) works next to this stack.
 services:
   postgres:
     image: postgres:16-alpine
@@ -45,13 +48,17 @@ services:
       DATABASE_URL: postgres://menuly_app:menuly_app@postgres:5432/menuly?sslmode=disable
       MIGRATE_DATABASE_URL: postgres://menuly:menuly@postgres:5432/menuly?sslmode=disable
       JWT_SECRET: dev-only-secret-change-me-in-production-0123456789
-      CORS_ALLOWED_ORIGINS: http://localhost:4200
+      CORS_ALLOWED_ORIGINS: http://localhost:4200,http://localhost:8000
       S3_ENDPOINT: minio:9000
       S3_ACCESS_KEY: menuly
       S3_SECRET_KEY: menuly-minio-secret
       S3_BUCKET: menuly
       PUBLIC_API_URL: http://localhost:8080
-      APP_URL: http://localhost:4200
+      # Links in emails (invites, password reset) and QR codes point at the
+      # web container; set APP_URL=http://localhost:4200 in .env to get
+      # links for `npm start` instead.
+      APP_URL: ${APP_URL:-http://localhost:8000}
+      PUBLIC_MENU_URL: http://{tenant}.localhost:8000/{venue}
       # OCR import: put the key and options in .env next to this file (see
       # backend/.env.example). Without a key uploads work but pages fail as
       # "not configured".
@@ -67,6 +74,16 @@ services:
       postgres:
         condition: service_healthy
 
+  # Demo account (demo@menuly.app / demo1234). Leaves existing data alone;
+  # `docker compose run --rm seed seed --reset` starts the demo over.
+  seed:
+    build: ./backend
+    command: ["seed"]
+    environment: *api-env
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
   api:
     build: ./backend
     command: ["serve"]
@@ -74,10 +91,20 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      migrate:
+      seed:
         condition: service_completed_successfully
       minio:
         condition: service_healthy
+
+  # Web app (admin + guest menu) behind nginx, which proxies /api to the API.
+  web:
+    build: ./web
+    environment:
+      API_UPSTREAM: http://api:8080
+    ports:
+      - "8000:80"
+    depends_on:
+      - api
 
 volumes:
   pgdata:

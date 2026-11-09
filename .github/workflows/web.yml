@@ -1,0 +1,52 @@
+name: web
+
+on:
+  pull_request:
+    paths: ["web/**", "docker-compose.yml", ".github/workflows/web.yml"]
+  push:
+    branches: [main]
+    paths: ["web/**", "docker-compose.yml", ".github/workflows/web.yml"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Test
+        run: npm run test:ci
+      - name: Build
+        run: npm run build
+
+  # The whole stack the way README tells people to run it.
+  compose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Start
+        run: docker compose up -d --build --wait --wait-timeout 300 web api
+      - name: Smoke test
+        run: |
+          curl -fsS --retry 15 --retry-all-errors --retry-delay 2 http://localhost:8000/api/healthz
+          curl -fsS http://localhost:8000/ > /dev/null
+          curl -fsS http://localhost:8000/api/v1/auth/login \
+            -H 'content-type: application/json' \
+            -d '{"email":"demo@menuly.app","password":"demo1234"}' > /dev/null
+          curl -fsS -H 'Host: demo.localhost:8000' http://localhost:8000/mornar > /dev/null
+          curl -fsS http://localhost:8000/api/v1/public/menus/demo/mornar > /dev/null
+      - name: Logs
+        if: failure()
+        run: docker compose logs
+      - name: Stop
+        if: always()
+        run: docker compose down -v

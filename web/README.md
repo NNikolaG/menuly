@@ -23,6 +23,8 @@ Angular 22 (zoneless, signals) · Angular Aria + CDK · TypeScript · plain CSS 
 | `docker build -t menuly-web .`                                                           | Build the container image                                                               |
 | `docker run --rm -p 8081:80 -e API_UPSTREAM=http://host.docker.internal:8080 menuly-web` | Serve the image on http://localhost:8081                                                |
 
+The whole stack (database, API, this app on http://localhost:8000, demo data) starts with `docker compose up -d --build` from the repo root; see the root README.
+
 Admin and login run on `localhost`; a tenant's public menu runs on its subdomain, e.g. http://zora.localhost:4200/centar.
 
 ## Docs
