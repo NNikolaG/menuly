@@ -622,6 +622,10 @@
           <context context-type="linenumber">66</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="publicMenu.stampWord" datatype="html">
+        <source>MENI</source>
+        <target>MENU</target>
+      </trans-unit>
       <trans-unit id="theme.template.etiketa" datatype="html">
         <source>Etiketa</source>
         <target>Label</target>
