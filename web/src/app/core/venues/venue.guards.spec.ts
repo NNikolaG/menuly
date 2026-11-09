@@ -3,7 +3,8 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { singleVenueGuard } from './venue.guards';
+import { signInAs } from '../auth/auth.testing';
+import { singleVenueGuard, venueAccessGuard } from './venue.guards';
 import { venueFixture } from './venue.testing';
 
 @Component({ template: '' })
@@ -55,5 +56,42 @@ describe('singleVenueGuard', () => {
     await router.navigateByUrl('/objekti');
     http.expectNone('/api/v1/venues');
     expect(router.url).toBe('/objekti');
+  });
+});
+
+describe('venueAccessGuard', () => {
+  let http: HttpTestingController;
+  let router: Router;
+
+  beforeEach(() => {
+    localStorage.clear();
+    TestBed.configureTestingModule({
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([
+          { path: 'objekti', component: Blank },
+          { path: 'objekti/:venueId', canActivate: [venueAccessGuard], component: Blank },
+        ]),
+      ],
+    });
+    http = TestBed.inject(HttpTestingController);
+    router = TestBed.inject(Router);
+  });
+
+  afterEach(() => localStorage.clear());
+
+  it('lets a limited member open only their venues', async () => {
+    await signInAs(http, 'staff', {}, ['v1']);
+    await router.navigateByUrl('/objekti/v1');
+    expect(router.url).toBe('/objekti/v1');
+    await router.navigateByUrl('/objekti/v2');
+    expect(router.url).toBe('/objekti');
+  });
+
+  it('lets everyone else open any venue', async () => {
+    await signInAs(http, 'manager');
+    await router.navigateByUrl('/objekti/v2');
+    expect(router.url).toBe('/objekti/v2');
   });
 });

@@ -1,6 +1,6 @@
 import type { Routes } from '@angular/router';
 import { roleGuard } from '../../core/auth/auth.guards';
-import { singleVenueGuard } from '../../core/venues/venue.guards';
+import { singleVenueGuard, venueAccessGuard } from '../../core/venues/venue.guards';
 
 export default [
   {
@@ -18,12 +18,13 @@ export default [
   {
     path: ':venueId',
     title: $localize`:@@venue.pageTitle:Objekat`,
+    canActivate: [venueAccessGuard],
     loadComponent: () => import('./venue-page'),
   },
   {
     path: ':venueId/izmena',
     title: $localize`:@@venues.editPageTitle:Izmena objekta`,
-    canActivate: [roleGuard('owner', 'manager')],
+    canActivate: [roleGuard('owner', 'manager'), venueAccessGuard],
     loadComponent: () => import('./venue-form-page'),
   },
 ] satisfies Routes;

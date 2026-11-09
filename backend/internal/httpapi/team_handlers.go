@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net/http"
 	"net/url"
+	"slices"
 	"strings"
 	"time"
 
@@ -27,15 +28,71 @@ const (
 var errInvalidToken = &APIError{Status: http.StatusBadRequest, Code: "invalid_token", Message: "this link is invalid or has expired"}
 
 type invitationDTO struct {
-	ID        uuid.UUID `json:"id"`
-	Email     string    `json:"email"`
-	Role      string    `json:"role"`
-	ExpiresAt time.Time `json:"expires_at"`
-	CreatedAt time.Time `json:"created_at"`
+	ID        uuid.UUID   `json:"id"`
+	Email     string      `json:"email"`
+	Role      string      `json:"role"`
+	VenueIDs  []uuid.UUID `json:"venue_ids"`
+	ExpiresAt time.Time   `json:"expires_at"`
+	CreatedAt time.Time   `json:"created_at"`
 }
 
 func toInvitationDTO(i sqlc.Invitation) invitationDTO {
-	return invitationDTO{ID: i.ID, Email: i.Email, Role: i.Role, ExpiresAt: i.ExpiresAt, CreatedAt: i.CreatedAt}
+	return invitationDTO{ID: i.ID, Email: i.Email, Role: i.Role, VenueIDs: memberVenues(i.Role, i.VenueIds), ExpiresAt: i.ExpiresAt, CreatedAt: i.CreatedAt}
+}
+
+// memberVenues is what clients see of memberships.venue_ids: never null, and
+// empty for owners, who always reach every venue.
+func memberVenues(role string, ids []uuid.UUID) []uuid.UUID {
+	if role == auth.RoleOwner || ids == nil {
+		return []uuid.UUID{}
+	}
+	return ids
+}
+
+// callerVenueScope returns the venues the caller is limited to, or nil when
+// they reach every venue. Row-level security (policy venue_access) applies
+// the same rule to every query; handlers need it only to stop a limited
+// manager from handing out wider access than they have.
+func callerVenueScope(ctx context.Context, q *sqlc.Queries, p Principal) ([]uuid.UUID, error) {
+	if p.Role == auth.RoleOwner {
+		return nil, nil
+	}
+	m, err := q.GetMembership(ctx, sqlc.GetMembershipParams{TenantID: p.TenantID, UserID: p.UserID})
+	if err != nil {
+		return nil, err
+	}
+	if len(m.VenueIds) == 0 {
+		return nil, nil
+	}
+	return m.VenueIds, nil
+}
+
+var errUnknownVenues = errValidation("venue_ids contains a venue that does not exist or that you cannot access")
+
+// cleanVenueIDs removes duplicates and checks that every id is a venue the
+// caller can see (RLS hides the others, so a limited caller cannot name
+// venues outside their own).
+func cleanVenueIDs(ctx context.Context, q *sqlc.Queries, tenantID uuid.UUID, ids []uuid.UUID) ([]uuid.UUID, error) {
+	out := make([]uuid.UUID, 0, len(ids))
+	for _, id := range ids {
+		if !slices.Contains(out, id) {
+			out = append(out, id)
+		}
+	}
+	if len(out) == 0 {
+		return out, nil
+	}
+	if len(out) > 200 {
+		return nil, errValidation("venue_ids has too many entries")
+	}
+	n, err := q.CountVenuesIn(ctx, sqlc.CountVenuesInParams{TenantID: tenantID, Ids: out})
+	if err != nil {
+		return nil, err
+	}
+	if n != int64(len(out)) {
+		return nil, errUnknownVenues
+	}
+	return out, nil
 }
 
 // sendMail logs instead of failing the request: the action (invite, reset)
@@ -58,13 +115,17 @@ func (s *Server) handleListMembers(w http.ResponseWriter, r *http.Request) {
 	var rows []sqlc.ListTenantMembersRow
 	err := s.tx(r, func(q *sqlc.Queries) (err error) {
 		rows, err = q.ListTenantMembers(r.Context(), p.TenantID)
+		for i := range rows {
+			rows[i].VenueIds = memberVenues(rows[i].Role, rows[i].VenueIds)
+		}
 		return err
 	})
 	writeResult(w, r, http.StatusOK, map[string]any{"items": rows}, err)
 }
 
-// PATCH /v1/members/{userID} {"role": "manager"|"staff"} (owner). The
-// member's new role applies from their next login or token refresh.
+// PATCH /v1/members/{userID} {"role"?: "manager"|"staff", "venue_ids"?: [...]}
+// (owner). A new role applies from the member's next login or token
+// refresh; venue access applies to their next request.
 func (s *Server) handleUpdateMember(w http.ResponseWriter, r *http.Request) {
 	p := mustPrincipal(r)
 	userID, err := urlID(r, "userID")
@@ -73,18 +134,31 @@ func (s *Server) handleUpdateMember(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var in struct {
-		Role string `json:"role"`
+		Role     *string      `json:"role"`
+		VenueIDs *[]uuid.UUID `json:"venue_ids"`
 	}
 	if err := decodeJSON(w, r, &in); err != nil {
 		writeError(w, r, err)
 		return
 	}
-	if in.Role != auth.RoleManager && in.Role != auth.RoleStaff {
+	switch {
+	case in.Role == nil && in.VenueIDs == nil:
+		writeError(w, r, errValidation("send role or venue_ids"))
+		return
+	case in.Role != nil && *in.Role != auth.RoleManager && *in.Role != auth.RoleStaff:
 		writeError(w, r, errValidation("role must be manager or staff"))
 		return
 	}
 	err = s.tx(r, func(q *sqlc.Queries) error {
-		n, err := q.UpdateMembershipRole(r.Context(), sqlc.UpdateMembershipRoleParams{TenantID: p.TenantID, UserID: userID, Role: in.Role})
+		params := sqlc.UpdateMembershipParams{TenantID: p.TenantID, UserID: userID, Role: in.Role}
+		if in.VenueIDs != nil {
+			ids, err := cleanVenueIDs(r.Context(), q, p.TenantID, *in.VenueIDs)
+			if err != nil {
+				return err
+			}
+			params.VenueIds = ids
+		}
+		n, err := q.UpdateMembership(r.Context(), params)
 		if err == nil && n == 0 {
 			return errNotFound // not a member, or the owner
 		}
@@ -117,13 +191,16 @@ func (s *Server) handleRemoveMember(w http.ResponseWriter, r *http.Request) {
 
 // Invitations --------------------------------------------------------------------
 
-// POST /v1/invitations {"email", "role"}: owners invite managers and staff,
-// managers invite staff. A new invite replaces a pending one for the email.
+// POST /v1/invitations {"email", "role", "venue_ids"?}: owners invite
+// managers and staff, managers invite staff. A new invite replaces a pending
+// one for the email. A manager limited to some venues must name venues, and
+// only their own.
 func (s *Server) handleCreateInvitation(w http.ResponseWriter, r *http.Request) {
 	p := mustPrincipal(r)
 	var in struct {
-		Email string `json:"email"`
-		Role  string `json:"role"`
+		Email    string      `json:"email"`
+		Role     string      `json:"role"`
+		VenueIDs []uuid.UUID `json:"venue_ids"`
 	}
 	if err := decodeJSON(w, r, &in); err != nil {
 		writeError(w, r, err)
@@ -164,7 +241,17 @@ func (s *Server) handleCreateInvitation(w http.ResponseWriter, r *http.Request) 
 		} else if !db.IsNotFound(err) {
 			return err
 		}
-		var err error
+		scope, err := callerVenueScope(ctx, q, p)
+		if err != nil {
+			return err
+		}
+		venueIDs, err := cleanVenueIDs(ctx, q, p.TenantID, in.VenueIDs)
+		if err != nil {
+			return err
+		}
+		if scope != nil && len(venueIDs) == 0 {
+			return &APIError{Status: http.StatusUnprocessableEntity, Code: "venue_ids_required", Message: "you can only invite people to your own venues; pick at least one"}
+		}
 		if tenant, err = q.GetTenant(ctx, p.TenantID); err != nil {
 			return err
 		}
@@ -176,7 +263,7 @@ func (s *Server) handleCreateInvitation(w http.ResponseWriter, r *http.Request) 
 		}
 		inv, err = q.CreateInvitation(ctx, sqlc.CreateInvitationParams{
 			ID: uuid.Must(uuid.NewV7()), TenantID: p.TenantID, Email: in.Email, Role: in.Role,
-			TokenHash: hash, InvitedBy: &p.UserID, ExpiresAt: time.Now().Add(inviteTTL),
+			TokenHash: hash, InvitedBy: &p.UserID, ExpiresAt: time.Now().Add(inviteTTL), VenueIds: venueIDs,
 		})
 		return err
 	})
@@ -345,7 +432,7 @@ func (s *Server) handleAcceptInvitation(w http.ResponseWriter, r *http.Request) 
 		if err := db.SetTenant(ctx, tx, inv.TenantID); err != nil {
 			return err
 		}
-		if _, err := q.CreateMembership(ctx, sqlc.CreateMembershipParams{TenantID: inv.TenantID, UserID: user.ID, Role: inv.Role}); err != nil {
+		if _, err := q.CreateMembership(ctx, sqlc.CreateMembershipParams{TenantID: inv.TenantID, UserID: user.ID, Role: inv.Role, VenueIds: inv.VenueIds}); err != nil {
 			if db.IsUniqueViolation(err, "") {
 				return &APIError{Status: http.StatusConflict, Code: "already_member", Message: "you are already a member"}
 			}

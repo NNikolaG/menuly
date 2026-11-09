@@ -13,19 +13,25 @@ import (
 )
 
 const createMembership = `-- name: CreateMembership :one
-INSERT INTO memberships (tenant_id, user_id, role)
-VALUES ($1, $2, $3)
+INSERT INTO memberships (tenant_id, user_id, role, venue_ids)
+VALUES ($1, $2, $3, COALESCE($4::uuid[], '{}'))
 RETURNING tenant_id, user_id, role, venue_ids, created_at, updated_at
 `
 
 type CreateMembershipParams struct {
-	TenantID uuid.UUID `json:"tenant_id"`
-	UserID   uuid.UUID `json:"user_id"`
-	Role     string    `json:"role"`
+	TenantID uuid.UUID   `json:"tenant_id"`
+	UserID   uuid.UUID   `json:"user_id"`
+	Role     string      `json:"role"`
+	VenueIds []uuid.UUID `json:"venue_ids"`
 }
 
 func (q *Queries) CreateMembership(ctx context.Context, arg CreateMembershipParams) (Membership, error) {
-	row := q.db.QueryRow(ctx, createMembership, arg.TenantID, arg.UserID, arg.Role)
+	row := q.db.QueryRow(ctx, createMembership,
+		arg.TenantID,
+		arg.UserID,
+		arg.Role,
+		arg.VenueIds,
+	)
 	var i Membership
 	err := row.Scan(
 		&i.TenantID,
@@ -245,7 +251,7 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
 }
 
 const listUserMemberships = `-- name: ListUserMemberships :many
-SELECT m.tenant_id, m.role, t.name AS tenant_name, t.status AS tenant_status
+SELECT m.tenant_id, m.role, m.venue_ids, t.name AS tenant_name, t.status AS tenant_status
 FROM memberships m
 JOIN tenants t ON t.id = m.tenant_id
 WHERE m.user_id = $1
@@ -253,10 +259,11 @@ ORDER BY m.created_at, m.tenant_id
 `
 
 type ListUserMembershipsRow struct {
-	TenantID     uuid.UUID `json:"tenant_id"`
-	Role         string    `json:"role"`
-	TenantName   string    `json:"tenant_name"`
-	TenantStatus string    `json:"tenant_status"`
+	TenantID     uuid.UUID   `json:"tenant_id"`
+	Role         string      `json:"role"`
+	VenueIds     []uuid.UUID `json:"venue_ids"`
+	TenantName   string      `json:"tenant_name"`
+	TenantStatus string      `json:"tenant_status"`
 }
 
 // Relies on the memberships/tenants RLS policies that expose rows of the
@@ -273,6 +280,7 @@ func (q *Queries) ListUserMemberships(ctx context.Context, userID uuid.UUID) ([]
 		if err := rows.Scan(
 			&i.TenantID,
 			&i.Role,
+			&i.VenueIds,
 			&i.TenantName,
 			&i.TenantStatus,
 		); err != nil {

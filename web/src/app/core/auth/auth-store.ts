@@ -37,6 +37,20 @@ export class AuthStore {
   /** Current user, tenant and memberships; reloads when the tenant changes. */
   readonly me = this.authApi.meResource(this.tenantId);
   readonly isPlatformAdmin = computed(() => this.me.value()?.user.is_platform_admin === true);
+  /**
+   * Venues a manager or staff member is limited to, or null when they reach every venue (owners, unrestricted
+   * members, and until `/v1/me` loads). The API already leaves other venues out of every list and answers 404.
+   */
+  readonly venueScope = computed(() => {
+    const ids = this.me.hasValue() ? this.me.value()?.venue_ids : undefined;
+    return ids?.length ? ids : null;
+  });
+
+  /** Whether the caller may open this venue (always true until `/v1/me` says otherwise). */
+  canAccessVenue(venueId: string): boolean {
+    const scope = this.venueScope();
+    return scope === null || scope.includes(venueId);
+  }
 
   async login(request: LoginRequest): Promise<void> {
     this.setSession(await firstValueFrom(this.authApi.login(request)));

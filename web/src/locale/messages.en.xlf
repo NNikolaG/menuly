@@ -4087,8 +4087,8 @@
         </context-group>
       </trans-unit>
       <trans-unit id="team.intro" datatype="html">
-        <source> Menadžer uređuje menije i objekte, osoblje menja samo dostupnost stavki. Vlasnik menja uloge. </source>
-        <target> Managers edit menus and venues, staff only change item availability. The owner changes roles. </target>
+        <source> Menadžer uređuje menije i objekte, osoblje menja samo dostupnost stavki. Vlasnik menja uloge i bira u kojim objektima ko radi. </source>
+        <target> Managers edit menus and venues, staff only change item availability. The owner changes roles and picks who works in which venue. </target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/team/team-page.ts</context>
           <context context-type="linenumber">44,46</context>
@@ -5053,6 +5053,110 @@
       <trans-unit id="venues.hours.removeInterval" datatype="html">
         <source>Ukloni termin <x id="n" equiv-text="n"/> (<x id="day" equiv-text="name"/>)</source>
         <target>Remove slot <x id="n" equiv-text="n"/> (<x id="day" equiv-text="name"/>)</target>
+      </trans-unit>
+      <trans-unit id="team.col.venues" datatype="html">
+        <source>Objekti</source>
+        <target>Venues</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/team/team-page.ts</context>
+          <context context-type="linenumber">96,97</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/team/team-page.ts</context>
+          <context context-type="linenumber">259,260</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="team.venues.all" datatype="html">
+        <source>Svi objekti</source>
+        <target>All venues</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/team/team-page.ts</context>
+          <context context-type="linenumber">407</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="team.venues.none" datatype="html">
+        <source>Nijedan objekat</source>
+        <target>No venues</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/team/team-page.ts</context>
+          <context context-type="linenumber">411</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="team.venues.pickOne" datatype="html">
+        <source>Izaberi bar jedan objekat.</source>
+        <target>Pick at least one venue.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/team/team-page.ts</context>
+          <context context-type="linenumber">472</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/team/venue-access-dialog.ts</context>
+          <context context-type="linenumber">37,38</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="team.venues.change" datatype="html">
+        <source>, promeni objekte</source>
+        <target>, change venues</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/team/team-page.ts</context>
+          <context context-type="linenumber">142,143</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="team.venues.inviteLegend" datatype="html">
+        <source>Objekti</source>
+        <target>Venues</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/team/team-page.ts</context>
+          <context context-type="linenumber">221,222</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="team.venues.allSwitch" datatype="html">
+        <source>Svi objekti, i oni koji tek budu dodati</source>
+        <target>All venues, including ones added later</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/team/team-page.ts</context>
+          <context context-type="linenumber">231,233</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/team/venue-access-dialog.ts</context>
+          <context context-type="linenumber">30,32</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="team.venues.pickLabel" datatype="html">
+        <source>Objekti u kojima radi</source>
+        <target>Venues they work in</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/team/team-page.ts</context>
+          <context context-type="linenumber">359</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/team/venue-access-dialog.ts</context>
+          <context context-type="linenumber">71</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="team.venues.dialogTitle" datatype="html">
+        <source>Objekti: <x id="name" equiv-text="this.data.name"/></source>
+        <target>Venues: <x id="name" equiv-text="this.data.name"/></target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/team/venue-access-dialog.ts</context>
+          <context context-type="linenumber">70</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="team.error.venuesRequired" datatype="html">
+        <source>Izaberi bar jedan od svojih objekata.</source>
+        <target>Pick at least one of your venues.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/team/team-page.ts</context>
+          <context context-type="linenumber">510</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="team.error.venues" datatype="html">
+        <source>Neki od izabranih objekata više ne postoji ili ti nije dostupan.</source>
+        <target>One of the picked venues no longer exists or is not available to you.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/team/team-page.ts</context>
+          <context context-type="linenumber">512</context>
+        </context-group>
       </trans-unit>
     </body>
   </file>

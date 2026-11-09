@@ -1,6 +1,7 @@
 import type { Routes } from '@angular/router';
 import { authGuard, guestGuard, platformAdminGuard, roleGuard } from './core/auth/auth.guards';
 import { tenantHostGuard } from './core/host/host.guards';
+import { venueAccessGuard } from './core/venues/venue.guards';
 import { AdminShell } from './core/layout/admin-shell';
 
 export const routes: Routes = [
@@ -56,24 +57,25 @@ export const routes: Routes = [
       {
         path: 'objekti/:venueId/kombo',
         title: $localize`:@@promo.pageTitle:Kombo ponude`,
+        canActivate: [venueAccessGuard],
         loadComponent: () => import('./features/promotions/promotions-page'),
       },
       {
         path: 'objekti/:venueId/kombo/novi',
         title: $localize`:@@promo.newTitle:Nova kombo ponuda`,
-        canActivate: [roleGuard('owner', 'manager')],
+        canActivate: [roleGuard('owner', 'manager'), venueAccessGuard],
         loadComponent: () => import('./features/promotions/promotion-form-page'),
       },
       {
         path: 'objekti/:venueId/kombo/:promotionId',
         title: $localize`:@@promo.editTitle:Izmena kombo ponude`,
-        canActivate: [roleGuard('owner', 'manager')],
+        canActivate: [roleGuard('owner', 'manager'), venueAccessGuard],
         loadComponent: () => import('./features/promotions/promotion-form-page'),
       },
       {
         path: 'objekti/:venueId/uvoz',
         title: $localize`:@@import.pageTitle:Uvoz menija sa slike`,
-        canActivate: [roleGuard('owner', 'manager')],
+        canActivate: [roleGuard('owner', 'manager'), venueAccessGuard],
         loadComponent: () => import('./features/imports/import-upload-page'),
       },
       {

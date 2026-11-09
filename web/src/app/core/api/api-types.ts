@@ -32,12 +32,16 @@ export interface Membership {
   tenant_name: string;
   tenant_status: string;
   role: Role;
+  /** Venues this membership is limited to; empty = every venue (always empty for owners). */
+  venue_ids: string[];
 }
 
 export interface Me {
   user: User;
   tenant: Tenant;
   role: Role;
+  /** Venues the caller is limited to in the current tenant; empty = every venue. */
+  venue_ids: string[];
   memberships: Membership[];
 }
 

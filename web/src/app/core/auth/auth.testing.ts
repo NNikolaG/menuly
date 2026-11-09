@@ -23,6 +23,7 @@ export async function signInAs(
   http: HttpTestingController,
   role: Role,
   user: Partial<User> = {},
+  venueIds: string[] = [],
 ): Promise<void> {
   const done = TestBed.inject(AuthStore).login({ email: 'a@b.rs', password: 'secret123' });
   http.expectOne('/api/v1/auth/login').flush(tokenPair({ role }));
@@ -32,6 +33,7 @@ export async function signInAs(
     user: { id: 'u1', email: 'a@b.rs', name: 'Ana', locale: 'sr-Latn', ...user },
     tenant: { id: 'tenant-1', name: 'Zora', slug: 'zora', plan: 'free', status: 'active' },
     role,
+    venue_ids: venueIds,
     memberships: [],
   });
 }

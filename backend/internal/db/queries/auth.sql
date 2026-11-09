@@ -17,8 +17,8 @@ SELECT * FROM users WHERE email = $1;
 SELECT * FROM users WHERE id = $1;
 
 -- name: CreateMembership :one
-INSERT INTO memberships (tenant_id, user_id, role)
-VALUES ($1, $2, $3)
+INSERT INTO memberships (tenant_id, user_id, role, venue_ids)
+VALUES ($1, $2, $3, COALESCE(sqlc.narg('venue_ids')::uuid[], '{}'))
 RETURNING *;
 
 -- name: GetMembership :one
@@ -27,7 +27,7 @@ SELECT * FROM memberships WHERE tenant_id = $1 AND user_id = $2;
 -- name: ListUserMemberships :many
 -- Relies on the memberships/tenants RLS policies that expose rows of the
 -- current user (app.user_id) across tenants.
-SELECT m.tenant_id, m.role, t.name AS tenant_name, t.status AS tenant_status
+SELECT m.tenant_id, m.role, m.venue_ids, t.name AS tenant_name, t.status AS tenant_status
 FROM memberships m
 JOIN tenants t ON t.id = m.tenant_id
 WHERE m.user_id = $1
