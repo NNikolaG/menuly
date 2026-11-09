@@ -6,7 +6,7 @@ Angular 22 (zoneless, signals) · Angular Aria + CDK · TypeScript · plain CSS 
 
 ## Prerequisites
 
-- Node.js 22+ and npm
+- Node.js 26 (22.22+ / 24.15+ also work) and npm
 - Docker (optional, for the container image)
 
 ## Commands
