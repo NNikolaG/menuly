@@ -29,19 +29,30 @@ func TestMenuTheme(t *testing.T) {
 	}
 
 	for _, bad := range []map[string]any{
-		{"template": "neon"}, {"accent": "#ff0000"}, {"font": "comic"}, {"color_mode": "sepia"}, {"logo_url": "javascript:alert(1)"},
+		{"template": "neon"}, {"pattern": "zigzag"}, {"accent": "#ff0000"}, {"font": "comic"}, {"color_mode": "sepia"}, {"logo_url": "javascript:alert(1)"},
 	} {
 		r = call(t, "PUT", path, tok, bad)
 		expect(t, r, http.StatusUnprocessableEntity)
 	}
 
 	// Every template is accepted by the API and the table check.
-	for _, tpl := range []string{"racun", "tabla", "etiketa", "galerija"} {
+	for _, tpl := range []string{"racun", "tabla", "etiketa", "plakat", "galerija"} {
 		r = call(t, "PUT", path, tok, map[string]any{"template": tpl})
 		expect(t, r, http.StatusOK)
 		if r.body["template"] != tpl {
 			t.Fatalf("template = %v, want %s", r.body["template"], tpl)
 		}
+	}
+
+	// Pattern band: bauhaus by default, trake on request, kept by later partial updates.
+	if r.body["pattern"] != "bauhaus" {
+		t.Fatalf("default pattern = %v", r.body["pattern"])
+	}
+	r = call(t, "PUT", path, tok, map[string]any{"pattern": "trake"})
+	expect(t, r, http.StatusOK)
+	r = call(t, "PUT", path, tok, map[string]any{"accent": "bordo"})
+	if r.body["pattern"] != "trake" || r.body["template"] != "galerija" {
+		t.Fatalf("pattern kept = %v", r.body)
 	}
 
 	// Staff reads, cannot write; another tenant sees nothing.

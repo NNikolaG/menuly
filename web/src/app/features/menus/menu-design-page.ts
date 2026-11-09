@@ -10,6 +10,7 @@ import {
   DEFAULT_MENU_THEME,
   MENU_ACCENTS,
   MENU_COLOR_MODES,
+  MENU_PATTERNS,
   MENU_FONTS,
   MENU_TEMPLATES,
   type MenuTemplate,
@@ -170,8 +171,17 @@ const URL_PATTERN = /^(https?:\/\/\S+)?$/;
               </label>
               <label class="row" data-gap="3">
                 <input type="checkbox" appSwitch [formField]="themeForm.show_pattern" />
-                <span i18n="@@menuDesign.showPattern">Bauhaus uzorak lokala u zaglavlju</span>
+                <span i18n="@@menuDesign.showPattern">Uzorak lokala u zaglavlju</span>
               </label>
+              @if (draft().show_pattern) {
+                <app-segmented
+                  i18n-label="@@menuDesign.pattern"
+                  label="Uzorak"
+                  [options]="patterns"
+                  [value]="draft().pattern"
+                  (valueChange)="patch({ pattern: $any($event) })"
+                />
+              }
             </fieldset>
 
             <fieldset class="stack" data-gap="4" [disabled]="!canEdit()">
@@ -374,6 +384,7 @@ export default class MenuDesignPage {
   protected readonly accents = MENU_ACCENTS;
   protected readonly fonts = MENU_FONTS.map(({ value, label }) => ({ value, label }));
   protected readonly modes = MENU_COLOR_MODES;
+  protected readonly patterns = MENU_PATTERNS;
 
   /** Last saved theme (from the API, then from each save). */
   private readonly savedTheme = linkedSignal<MenuTheme>(

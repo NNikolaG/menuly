@@ -26,7 +26,7 @@ import {
 import { ALLERGENS, DIET_TAGS, isHighlight, labelOf } from '../menus/menu-labels';
 import { hasOpeningHours } from '../venues/opening-hours';
 import { DEFAULT_MENU_THEME, MENU_FONTS, type MenuTheme } from '../menus/menu-theme';
-import { AppButton, AppChipGroup, AppPattern } from '../../shared/ui';
+import { AppButton, AppChipGroup, AppPattern, AppStripes } from '../../shared/ui';
 import {
   activeFilterCount,
   filterMenu,
@@ -57,6 +57,7 @@ let stampCount = 0;
     AppButton,
     AppChipGroup,
     AppPattern,
+    AppStripes,
     LucideMapPin,
     LucideMoon,
     LucidePhone,
@@ -81,7 +82,11 @@ let stampCount = 0;
           <img class="cover" [src]="t.cover_url" alt="" />
         } @else if (t.show_pattern) {
           <div class="art">
-            <app-pattern [seed]="data.venue.name" [cols]="8" [rows]="2" [fluid]="true" />
+            @if (t.pattern === 'trake') {
+              <app-stripes [seed]="data.venue.name" />
+            } @else {
+              <app-pattern [seed]="data.venue.name" [cols]="8" [rows]="2" [fluid]="true" />
+            }
           </div>
         }
         <div class="title-row">
@@ -319,6 +324,11 @@ let stampCount = 0;
             @if (label) {
               <span class="menu-cat__stripes" aria-hidden="true"></span>
             }
+            @if (t.template === 'plakat') {
+              <span class="menu-cat__num" aria-hidden="true">{{
+                labels().numbers.get(category.id)
+              }}</span>
+            }
             <h2 class="menu-cat__title" [id]="'cat-' + category.id">{{ category.name }}</h2>
             @if (columns) {
               <span class="menu-cat__cols" aria-hidden="true">
@@ -347,6 +357,7 @@ let stampCount = 0;
                 class="menu-item"
                 [attr.data-status]="item.is_available ? null : 'unavailable'"
                 [attr.data-photo]="showPhoto(item) ? '' : null"
+                [attr.data-highlight]="item.tags.some(isHighlight) ? '' : null"
               >
                 @if (label) {
                   <span class="menu-item__code" aria-hidden="true"
@@ -618,18 +629,21 @@ export class PublicMenuView {
     })),
   );
   /**
-   * "Etiketa": a stable code per item (category.item, "02.05") and a stripe color per category,
+   * "Etiketa" and "Plakat": a stable code per item (category.item, "02.05"), a stripe color and a
+   * two-digit number per category,
    * both from the menu's order, so filtering never renumbers what a guest might quote to staff.
    */
   protected readonly labels = computed(() => {
     const codes = new Map<string, string>();
     const stripes = new Map<string, number>();
+    const numbers = new Map<string, string>();
     const pad = (n: number) => String(n).padStart(2, '0');
     this.menu().menu.categories.forEach((category, c) => {
       stripes.set(category.id, (c % 4) + 1);
+      numbers.set(category.id, pad(c + 1));
       category.items.forEach((item, i) => codes.set(item.id, `${pad(c + 1)}.${pad(i + 1)}`));
     });
-    return { codes, stripes };
+    return { codes, stripes, numbers };
   });
   // ---- "Racun" stamp ----
   protected readonly stampId = `menu-stamp-${++stampCount}`;

@@ -728,6 +728,117 @@ app-public-menu-view[data-template='racun'] .page {
   }
 }
 
+/* ---------- "Plakat": black capsule heads, one accent dot, a primary-color ribbon ---------- */
+[data-template='plakat'] .menu-cat {
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-5) var(--space-2) var(--space-2);
+  border-radius: var(--radius-pill) var(--radius-pill) var(--radius-pill) 0;
+  background: var(--color-text);
+  color: var(--color-text-inverse);
+}
+
+[data-template='plakat'] .menu-cat:not(:has(.menu-cat__num)) {
+  padding-inline-start: var(--space-5);
+}
+
+.menu-cat__num {
+  display: grid;
+  flex: none;
+  place-items: center;
+  inline-size: var(--size-poster-num);
+  block-size: var(--size-poster-num);
+  border-radius: var(--radius-pill);
+  background: var(--color-poster-paper);
+  color: var(--color-text);
+  font: var(--type-eyebrow);
+  font-weight: 700;
+}
+
+[data-template='plakat'] .menu-cat__title {
+  flex: 1;
+  min-inline-size: 0;
+  font-weight: 700;
+}
+
+[data-template='plakat'] .menu-cat__count {
+  color: inherit;
+  opacity: 0.7;
+}
+
+[data-template='plakat'] .menu-item {
+  border-block-end-style: solid;
+}
+
+[data-template='plakat'] .menu-item__name {
+  font-weight: 700;
+}
+
+/* The one dot of color: recommended, new, house special. */
+[data-template='plakat'] .menu-item[data-highlight] .menu-item__name::before {
+  content: '';
+  display: inline-block;
+  inline-size: var(--size-poster-dot);
+  block-size: var(--size-poster-dot);
+  margin-inline-end: var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--color-accent);
+  vertical-align: 0.05em;
+}
+
+[data-template='plakat'] .promo {
+  border: 0;
+  border-radius: var(--radius-poster) var(--radius-poster) var(--radius-poster) 0;
+  background: var(--color-text);
+  box-shadow: none;
+  color: var(--color-text-inverse);
+}
+
+[data-template='plakat'] .promo :is(.menu-item__desc, .meta, .menu-item__variant, .promo__savings) {
+  color: inherit;
+  opacity: 0.8;
+}
+
+[data-template='plakat'] .promo__strike {
+  color: inherit;
+}
+
+[data-template='plakat'] .foot {
+  position: relative;
+}
+
+[data-template='plakat'] .foot::before {
+  content: '';
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  inline-size: calc(var(--size-poster-ribbon) * 3);
+  block-size: var(--space-6);
+  background: linear-gradient(
+    to right,
+    var(--color-brand-orange) 0 33.33%,
+    var(--color-brand-amber) 0 66.66%,
+    var(--color-brand-cobalt) 0
+  );
+}
+
+/* ---------- "Trake": the color-bar alternative to the Bauhaus band ---------- */
+.stripes {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--rows), minmax(0, 1fr));
+  column-gap: var(--stroke-rule);
+  inline-size: 100cqi;
+  block-size: 100cqb;
+  padding: var(--space-2);
+  background: var(--color-brand-paper);
+}
+
+.stripes__cell {
+  background: var(--bg);
+}
+
 /* ---------- Combos ---------- */
 .promo {
   display: flex;

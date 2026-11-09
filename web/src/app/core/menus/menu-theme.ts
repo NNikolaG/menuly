@@ -3,7 +3,7 @@
  * Every value is a key of the Receipt design system, never a raw color or font,
  * so any combination a venue picks stays readable.
  */
-export type MenuTemplate = 'racun' | 'galerija' | 'tabla' | 'etiketa';
+export type MenuTemplate = 'racun' | 'galerija' | 'tabla' | 'etiketa' | 'plakat';
 export type MenuAccent =
   | 'tinta'
   | 'narandza'
@@ -17,6 +17,8 @@ export type MenuAccent =
   | 'roze';
 export type MenuFont = 'onest' | 'manrope' | 'plex';
 export type MenuColorMode = 'auto' | 'light' | 'dark';
+/** Generated header band: Bauhaus shapes or "trake" (color bars). */
+export type MenuPattern = 'bauhaus' | 'trake';
 
 export interface MenuTheme {
   template: MenuTemplate;
@@ -26,6 +28,7 @@ export interface MenuTheme {
   show_images: boolean;
   show_descriptions: boolean;
   show_pattern: boolean;
+  pattern: MenuPattern;
   logo_url: string;
   cover_url: string;
 }
@@ -39,6 +42,7 @@ export const DEFAULT_MENU_THEME: MenuTheme = {
   show_images: true,
   show_descriptions: true,
   show_pattern: true,
+  pattern: 'bauhaus',
   logo_url: '',
   cover_url: '',
 };
@@ -70,6 +74,11 @@ export const MENU_TEMPLATES: readonly MenuTemplateOption[] = [
     label: $localize`:@@theme.template.etiketa:Etiketa`,
     description: $localize`:@@theme.template.etiketaBody:Svaka stavka kao etiketa sa šifrom i bojom kategorije, kombo kao ulaznica. Za moderne barove i bistroe.`,
   },
+  {
+    value: 'plakat',
+    label: $localize`:@@theme.template.plakat:Plakat`,
+    description: $localize`:@@theme.template.plakatBody:Crne kapsule za kategorije, krem papir i jedna tačka boje za preporuke. Za lokale sa jakim karakterom.`,
+  },
 ];
 
 export const MENU_ACCENTS: readonly { value: MenuAccent; label: string }[] = [
@@ -90,6 +99,11 @@ export const MENU_FONTS: readonly { value: MenuFont; label: string; family: stri
   { value: 'onest', label: 'Onest', family: 'Onest' },
   { value: 'manrope', label: 'Manrope', family: 'Manrope' },
   { value: 'plex', label: 'IBM Plex Sans', family: 'IBM Plex Sans' },
+];
+
+export const MENU_PATTERNS: readonly { value: MenuPattern; label: string }[] = [
+  { value: 'bauhaus', label: $localize`:@@theme.pattern.bauhaus:Bauhaus` },
+  { value: 'trake', label: $localize`:@@theme.pattern.trake:Trake` },
 ];
 
 export const MENU_COLOR_MODES: readonly { value: MenuColorMode; label: string }[] = [
