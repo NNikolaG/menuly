@@ -2,21 +2,16 @@ name: images
 
 # Builds the API and web images for amd64 + arm64 and pushes them to GHCR, so a
 # server only pulls and runs them (deploy/demo/compose.yml). The API image also
-# runs `migrate` and `seed`. Pull requests build and smoke-test without pushing.
+# runs `migrate` and `seed`. Pull requests into prod build and smoke-test
+# without pushing.
+# Runs only for the `prod` branch, so everyday pushes to main build nothing.
+# Ship: `git push origin main:prod` (or merge main into prod). Also runnable by
+# hand from the Actions tab.
 on:
   pull_request:
-    paths:
-      - "backend/**"
-      - "web/**"
-      - "deploy/**"
-      - ".github/workflows/images.yml"
+    branches: [prod]
   push:
-    branches: [main]
-    paths:
-      - "backend/**"
-      - "web/**"
-      - "deploy/**"
-      - ".github/workflows/images.yml"
+    branches: [prod]
   workflow_dispatch:
 
 concurrency:
@@ -56,7 +51,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ matrix.image }}
           tags: |
             type=sha,format=long,prefix=
-            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/prod' }}
       # Build stages cross-compile on the runner's platform (see the
       # Dockerfiles), so arm64 needs no QEMU and costs about the same as amd64.
       - uses: docker/build-push-action@v6
@@ -129,7 +124,7 @@ jobs:
   # home), DEMO_DOMAIN (default <DEPLOY_HOST>.nip.io), WEB_PORT (default 80).
   deploy:
     needs: smoke-arm64
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.DEPLOY_HOST != ''
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/prod' && vars.DEPLOY_HOST != ''
     runs-on: ubuntu-latest
     permissions:
       contents: read
