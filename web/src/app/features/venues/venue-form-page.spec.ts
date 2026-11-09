@@ -43,6 +43,11 @@ describe('VenueFormPage', () => {
       address: '',
       phone: '',
       currency: 'RSD',
+      opening_hours: {},
+      wifi_available: false,
+      wifi_ssid: '',
+      wifi_password: '',
+      wifi_access: 'staff',
     });
     request.flush(venueFixture());
     await tick();
@@ -84,5 +89,54 @@ describe('VenueFormPage', () => {
     expect(fixture.nativeElement.querySelector('[role="alert"]').textContent).toContain(
       'Ovaj slug već koristi drugi objekat.',
     );
+  });
+
+  it('edits opening hours and Wi-Fi', async () => {
+    const fixture = TestBed.createComponent(VenueFormPage);
+    fixture.componentRef.setInput('venueId', 'v1');
+    fixture.detectChanges();
+    http
+      .expectOne('/api/v1/venues/v1')
+      .flush(venueFixture({ opening_hours: { mon: [['08:00', '23:00']] } }));
+    await fixture.whenStable();
+    const root: HTMLElement = fixture.nativeElement;
+
+    // Monday is open; copy it to every day, then close Sunday.
+    const copy = [...root.querySelectorAll('button')].find((b) =>
+      b.textContent!.includes('Kao ponedeljak'),
+    )!;
+    copy.click();
+    await fixture.whenStable();
+    const switches = root.querySelectorAll<HTMLInputElement>('.day input[type="checkbox"]');
+    expect(switches).toHaveLength(7);
+    switches[6].click();
+    await fixture.whenStable();
+
+    // Wi-Fi on without a name does not submit.
+    root.querySelector<HTMLInputElement>('#venue-wifi-available')!.click();
+    await fixture.whenStable();
+    submit(root);
+    await fixture.whenStable();
+    http.expectNone('/api/v1/venues/v1');
+    expect(root.textContent).toContain('Upiši naziv mreže.');
+
+    fill(root, '#venue-wifi-ssid', 'Zora-Gost');
+    fill(root, '#venue-wifi-password', 'kafa123');
+    submit(root);
+    await tick();
+    const request = http.expectOne('/api/v1/venues/v1');
+    const week = Object.fromEntries(
+      ['mon', 'tue', 'wed', 'thu', 'fri', 'sat'].map((day) => [day, [['08:00', '23:00']]]),
+    );
+    expect(request.request.body).toEqual(
+      expect.objectContaining({
+        opening_hours: week,
+        wifi_available: true,
+        wifi_ssid: 'Zora-Gost',
+        wifi_password: 'kafa123',
+        wifi_access: 'staff',
+      }),
+    );
+    request.flush(venueFixture());
   });
 });

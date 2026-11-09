@@ -1811,7 +1811,7 @@ components:
         Weekly opening hours: up to 3 `[open, close]` intervals per weekday, times as `HH:MM` (00:00-23:59)
         in the venue's `timezone`. A missing or empty day is closed. A close at or before the open time means
         the interval runs past midnight (`["17:00", "01:00"]`). `{}` means the hours are not set (do not show them).
-        The server returns days in weekday order and drops empty ones.
+        The server drops empty days; key order is not meaningful.
       properties:
         mon: { $ref: "#/components/schemas/DayHours" }
         tue: { $ref: "#/components/schemas/DayHours" }

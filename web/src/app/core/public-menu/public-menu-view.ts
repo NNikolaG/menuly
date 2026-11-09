@@ -25,6 +25,7 @@ import {
   LucideX,
 } from '@lucide/angular';
 import { ALLERGENS, DIET_TAGS, isHighlight, labelOf } from '../menus/menu-labels';
+import { hasOpeningHours } from '../venues/opening-hours';
 import { DEFAULT_MENU_THEME, MENU_FONTS, type MenuTheme } from '../menus/menu-theme';
 import { AppButton, AppChipGroup, AppPattern } from '../../shared/ui';
 import {
@@ -36,6 +37,7 @@ import {
   type MenuFilter,
 } from './menu-filter';
 import { ItemSheet, type ItemSheetData } from './item-sheet';
+import { VenueInfo } from './venue-info';
 import type { PublicCategory, PublicItem, PublicMenu, PublicPromotion } from './public-menu';
 
 type Mode = 'light' | 'dark';
@@ -63,6 +65,7 @@ let stampCount = 0;
     LucideSlidersHorizontal,
     LucideSun,
     LucideX,
+    VenueInfo,
   ],
   host: {
     '[attr.data-template]': 'theme().template',
@@ -129,6 +132,9 @@ let stampCount = 0;
               </a>
             }
           </div>
+        }
+        @if (hasVenueInfo()) {
+          <app-venue-info [venue]="data.venue" />
         }
       </header>
 
@@ -652,6 +658,11 @@ export class PublicMenuView {
   protected readonly mapHref = computed(() => {
     const venue = this.menu().venue;
     return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${venue.name}, ${venue.address}`)}`;
+  });
+
+  protected readonly hasVenueInfo = computed(() => {
+    const venue = this.menu().venue;
+    return !!venue.wifi || hasOpeningHours(venue.opening_hours);
   });
 
   protected readonly telHref = computed(

@@ -27,7 +27,7 @@ func TestVenueOpeningHoursValidation(t *testing.T) {
 		}
 	}
 
-	// Days come back in weekday order, closed days dropped; past midnight is fine.
+	// Closed days are dropped; past midnight is fine.
 	r := patch(map[string]any{
 		"sun": [][]string{{"10:00", "22:00"}},
 		"fri": [][]string{{"08:00", "15:00"}, {"17:00", "01:00"}},

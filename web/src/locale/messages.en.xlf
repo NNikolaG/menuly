@@ -4918,6 +4918,142 @@
           <context context-type="linenumber">168,170</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="publicMenu.wifi.label" datatype="html">
+        <source>Wi-Fi:</source>
+        <target>Wi-Fi:</target>
+      </trans-unit>
+      <trans-unit id="publicMenu.wifi.password" datatype="html">
+        <source>lozinka:</source>
+        <target>password:</target>
+      </trans-unit>
+      <trans-unit id="publicMenu.wifi.askStaff" datatype="html">
+        <source>Lozinku pitaj osoblje</source>
+        <target>Ask the staff for the password</target>
+      </trans-unit>
+      <trans-unit id="publicMenu.wifi.open" datatype="html">
+        <source>Otvorena mreža</source>
+        <target>Open network</target>
+      </trans-unit>
+      <trans-unit id="publicMenu.wifi.copy" datatype="html">
+        <source>Kopiraj lozinku</source>
+        <target>Copy password</target>
+      </trans-unit>
+      <trans-unit id="publicMenu.wifi.copied" datatype="html">
+        <source>Lozinka je kopirana.</source>
+        <target>Password copied.</target>
+      </trans-unit>
+      <trans-unit id="publicMenu.hours.openUntil" datatype="html">
+        <source>Otvoreno · do <x id="time" equiv-text="status.until"/></source>
+        <target>Open · until <x id="time" equiv-text="status.until"/></target>
+      </trans-unit>
+      <trans-unit id="publicMenu.hours.closed" datatype="html">
+        <source>Zatvoreno</source>
+        <target>Closed</target>
+      </trans-unit>
+      <trans-unit id="publicMenu.hours.opensAt" datatype="html">
+        <source>Zatvoreno · otvara u <x id="time" equiv-text="next.time"/></source>
+        <target>Closed · opens at <x id="time" equiv-text="next.time"/></target>
+      </trans-unit>
+      <trans-unit id="publicMenu.hours.opensOn" datatype="html">
+        <source>Zatvoreno · otvara <x id="day" equiv-text="day"/> u <x id="time" equiv-text="next.time"/></source>
+        <target>Closed · opens <x id="day" equiv-text="day"/> at <x id="time" equiv-text="next.time"/></target>
+      </trans-unit>
+      <trans-unit id="publicMenu.hours.closedDay" datatype="html">
+        <source>Zatvoreno</source>
+        <target>Closed</target>
+      </trans-unit>
+      <trans-unit id="venues.section.basics" datatype="html">
+        <source>Osnovno</source>
+        <target>Basics</target>
+      </trans-unit>
+      <trans-unit id="venues.section.hours" datatype="html">
+        <source> Radno vreme </source>
+        <target> Opening hours </target>
+      </trans-unit>
+      <trans-unit id="venues.hours.hint" datatype="html">
+        <source> Gosti ga vide na meniju. Rad posle ponoći upiši kao npr. 17:00 – 01:00. </source>
+        <target> Guests see them on the menu. For hours past midnight enter e.g. 17:00 – 01:00. </target>
+      </trans-unit>
+      <trans-unit id="venues.hours.copyMonday" datatype="html">
+        <source> Kao ponedeljak, svaki dan </source>
+        <target> Same as Monday, every day </target>
+      </trans-unit>
+      <trans-unit id="venues.hours.invalid" datatype="html">
+        <source> Upiši početak i kraj; ne smeju biti isti. </source>
+        <target> Enter a start and an end; they can't be the same. </target>
+      </trans-unit>
+      <trans-unit id="venues.hours.addInterval" datatype="html">
+        <source>Još jedan termin</source>
+        <target>Add another time slot</target>
+      </trans-unit>
+      <trans-unit id="venues.hours.closed" datatype="html">
+        <source>Zatvoreno</source>
+        <target>Closed</target>
+      </trans-unit>
+      <trans-unit id="venues.section.wifi" datatype="html">
+        <source>Wi-Fi</source>
+        <target>Wi-Fi</target>
+      </trans-unit>
+      <trans-unit id="venues.wifi.available" datatype="html">
+        <source>Objekat ima Wi-Fi za goste</source>
+        <target>The venue has Wi-Fi for guests</target>
+      </trans-unit>
+      <trans-unit id="venues.wifi.ssid" datatype="html">
+        <source>Naziv mreže</source>
+        <target>Network name</target>
+      </trans-unit>
+      <trans-unit id="venues.wifi.password" datatype="html">
+        <source>Lozinka</source>
+        <target>Password</target>
+      </trans-unit>
+      <trans-unit id="venues.wifi.passwordHint" datatype="html">
+        <source>Prazno ako je mreža otvorena.</source>
+        <target>Leave empty for an open network.</target>
+      </trans-unit>
+      <trans-unit id="venues.wifi.access" datatype="html">
+        <source>Kako gosti dobijaju lozinku</source>
+        <target>How guests get the password</target>
+      </trans-unit>
+      <trans-unit id="venues.wifi.ssidRequired" datatype="html">
+        <source>Upiši naziv mreže.</source>
+        <target>Enter the network name.</target>
+      </trans-unit>
+      <trans-unit id="venues.wifi.ssidTooLong" datatype="html">
+        <source>Naziv mreže može imati najviše 32 znaka.</source>
+        <target>The network name can be at most 32 characters.</target>
+      </trans-unit>
+      <trans-unit id="venues.wifi.passwordTooLong" datatype="html">
+        <source>Lozinka može imati najviše 63 znaka.</source>
+        <target>The password can be at most 63 characters.</target>
+      </trans-unit>
+      <trans-unit id="venues.wifi.accessMenu" datatype="html">
+        <source>Piše u meniju</source>
+        <target>Shown on the menu</target>
+      </trans-unit>
+      <trans-unit id="venues.wifi.accessStaff" datatype="html">
+        <source>Pitaju osoblje</source>
+        <target>Ask the staff</target>
+      </trans-unit>
+      <trans-unit id="venues.wifi.accessMenuHint" datatype="html">
+        <source>Gosti vide naziv mreže i lozinku, uz dugme za kopiranje.</source>
+        <target>Guests see the network name and password, with a copy button.</target>
+      </trans-unit>
+      <trans-unit id="venues.wifi.accessStaffHint" datatype="html">
+        <source>Gosti vide naziv mreže i poruku da lozinku traže od osoblja.</source>
+        <target>Guests see the network name and a note to ask the staff for the password.</target>
+      </trans-unit>
+      <trans-unit id="venues.hours.fromLabel" datatype="html">
+        <source><x id="day" equiv-text="name"/>, termin <x id="n" equiv-text="n"/>, od</source>
+        <target><x id="day" equiv-text="name"/>, slot <x id="n" equiv-text="n"/>, from</target>
+      </trans-unit>
+      <trans-unit id="venues.hours.toLabel" datatype="html">
+        <source><x id="day" equiv-text="name"/>, termin <x id="n" equiv-text="n"/>, do</source>
+        <target><x id="day" equiv-text="name"/>, slot <x id="n" equiv-text="n"/>, to</target>
+      </trans-unit>
+      <trans-unit id="venues.hours.removeInterval" datatype="html">
+        <source>Ukloni termin <x id="n" equiv-text="n"/> (<x id="day" equiv-text="name"/>)</source>
+        <target>Remove slot <x id="n" equiv-text="n"/> (<x id="day" equiv-text="name"/>)</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

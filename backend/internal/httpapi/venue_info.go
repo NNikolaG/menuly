@@ -18,8 +18,8 @@ var hhmmRe = regexp.MustCompile(`^([01][0-9]|2[0-3]):[0-5][0-9]$`)
 
 const maxIntervalsPerDay = 3
 
-// normalizeOpeningHours validates raw and returns it with weekdays in order
-// and closed days left out.
+// normalizeOpeningHours validates raw and returns it with closed days left
+// out. (jsonb does not keep key order, so readers must not rely on it.)
 func normalizeOpeningHours(raw json.RawMessage) (json.RawMessage, *APIError) {
 	b := bytes.TrimSpace(raw)
 	if len(b) == 0 || b[0] != '{' {
@@ -49,7 +49,6 @@ func normalizeOpeningHours(raw json.RawMessage) (json.RawMessage, *APIError) {
 			}
 		}
 	}
-	// Write days in weekday order so the stored JSON is stable.
 	var out bytes.Buffer
 	out.WriteByte('{')
 	first := true
