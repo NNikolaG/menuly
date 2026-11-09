@@ -57,7 +57,7 @@ curl -s -XPOST localhost:8080/v1/auth/register \
 | ID-jevi | UUID v7 | Sortirani po vremenu, dobri za indekse, generišu se u Go-u. |
 
 | Red poslova | [River](https://riverqueue.com) | Poslovi u istom Postgresu; posao se upisuje u istoj transakciji kao uvoz, pa nema izgubljenih ni duplih poslova. |
-| Fajlovi | S3 / [MinIO](https://min.io) (`minio-go`) | Lokalno MinIO u compose-u, u produkciji bilo koji S3. Bez `S3_ENDPOINT` fajlovi idu u folder. |
+| Fajlovi | S3 / [MinIO](https://min.io) (`minio-go`) | U produkciji bilo koji S3 (`S3_ENDPOINT`). Bez njega fajlovi idu u folder; compose koristi folder u volumenu `uploads` (MinIO slike više nisu javno dostupne). |
 | OCR | Claude (`anthropic-sdk-go`) | Čita fotografiju ili PDF i vraća strukturu menija (JSON šema), ne samo tekst. |
 
 ## Multi-tenancy
@@ -146,7 +146,7 @@ Provajder i modeli: `OCR_PROVIDER` bira ko čita menije, a svaki ima svoj ključ
 
 Tokeni i procenjen trošak (provajder, model, `cost_micros`) se čuvaju po stranici, a ukupno po tenantu i modelu vidi se u `GET /v1/admin/ocr-usage`. Cene su proverene 2026-11-06; menjaju se, pa ih treba proveriti pri promeni modela. Bez ijednog ključa upload radi, ali stranice padaju sa "OCR is not configured".
 
-Docker compose podiže MinIO (konzola http://localhost:9001, `menuly` / `menuly-minio-secret`); ključ se prosleđuje iz shell-a, npr. `MISTRAL_API_KEY=... docker compose up --build`.
+Docker compose čuva otpremljene fajlove u volumenu `uploads`; ključ se prosleđuje iz shell-a, npr. `MISTRAL_API_KEY=... docker compose up --build`.
 
 ## Slike (stavke, logo, naslovna, promocije)
 

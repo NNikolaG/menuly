@@ -47,9 +47,9 @@ Uvoz menija sa fotografije traži API ključ (npr. OpenAI). Napravi kopiju fajla
 
 ### Ako nešto ne radi
 
-- **"port is already allocated"**: neki drugi program koristi port 8000, 8080, 5432, 9000 ili 9001. Ugasi ga ili ugasi drugi Docker projekat, pa pokreni ponovo.
+- **"port is already allocated"**: neki drugi program koristi port 8000, 8080 ili 5432. Ugasi ga ili ugasi drugi Docker projekat, pa pokreni ponovo.
 - **Meni za goste se ne otvara u Safariju**: Safari ne zna za adrese `*.localhost`, otvori ga u Chrome-u ili Firefox-u.
 
 ### Za razvoj
 
-Docker pokreće sve na http://localhost:8000. Web aplikacija se i dalje razvija lokalno sa `cd web && npm start` (http://localhost:4200, `/api` ide na API iz Dockera na :8080); oba rade istovremeno. Ako ti web kontejner ne treba: `docker compose up postgres minio migrate seed api`. Detalji: [web/README.md](web/README.md), [backend/README.md](backend/README.md).
+Docker pokreće sve na http://localhost:8000. Web aplikacija se i dalje razvija lokalno sa `cd web && npm start` (http://localhost:4200, `/api` ide na API iz Dockera na :8080); oba rade istovremeno. Ako ti web kontejner ne treba: `docker compose up postgres migrate seed api`. Detalji: [web/README.md](web/README.md), [backend/README.md](backend/README.md).

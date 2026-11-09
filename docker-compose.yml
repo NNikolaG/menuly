@@ -22,24 +22,6 @@ services:
       timeout: 3s
       retries: 30
 
-  # S3-compatible storage for uploaded menus. Console: http://localhost:9001
-  minio:
-    image: quay.io/minio/minio:RELEASE.2025-04-22T22-12-26Z
-    command: ["server", "/data", "--console-address", ":9001"]
-    environment:
-      MINIO_ROOT_USER: menuly
-      MINIO_ROOT_PASSWORD: menuly-minio-secret
-    ports:
-      - "9000:9000"
-      - "9001:9001"
-    volumes:
-      - miniodata:/data
-    healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
-      interval: 2s
-      timeout: 3s
-      retries: 30
-
   migrate:
     build: ./backend
     command: ["migrate", "up"]
@@ -49,10 +31,9 @@ services:
       MIGRATE_DATABASE_URL: postgres://menuly:menuly@postgres:5432/menuly?sslmode=disable
       JWT_SECRET: dev-only-secret-change-me-in-production-0123456789
       CORS_ALLOWED_ORIGINS: http://localhost:4200,http://localhost:8000
-      S3_ENDPOINT: minio:9000
-      S3_ACCESS_KEY: menuly
-      S3_SECRET_KEY: menuly-minio-secret
-      S3_BUCKET: menuly
+      # Uploaded menus and images live in the `uploads` volume. Production
+      # sets S3_ENDPOINT (any S3-compatible storage) instead.
+      STORAGE_DIR: /data/uploads
       PUBLIC_API_URL: http://localhost:8080
       # Links in emails (invites, password reset) and QR codes point at the
       # web container; set APP_URL=http://localhost:4200 in .env to get
@@ -90,11 +71,11 @@ services:
     environment: *api-env
     ports:
       - "8080:8080"
+    volumes:
+      - uploads:/data/uploads
     depends_on:
       seed:
         condition: service_completed_successfully
-      minio:
-        condition: service_healthy
 
   # Web app (admin + guest menu) behind nginx, which proxies /api to the API.
   web:
@@ -108,4 +89,4 @@ services:
 
 volumes:
   pgdata:
-  miniodata:
+  uploads:
