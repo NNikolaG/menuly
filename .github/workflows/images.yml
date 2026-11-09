@@ -103,7 +103,7 @@ jobs:
           JWT_SECRET=$(openssl rand -hex 32)
           IMAGE_TAG=$IMAGE_TAG
           ENV
-          docker compose up -d --pull never --wait --wait-timeout 180 web api
+          docker compose up -d --pull missing --wait --wait-timeout 180 web api
       - name: Smoke test
         run: |
           curl -fsS --retry 15 --retry-all-errors --retry-delay 2 http://localhost:8000/api/healthz
