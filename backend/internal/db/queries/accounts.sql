@@ -20,8 +20,8 @@ ORDER BY day;
 -- Invitations -------------------------------------------------------------------
 
 -- name: CreateInvitation :one
-INSERT INTO invitations (id, tenant_id, email, role, token_hash, invited_by, expires_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7)
+INSERT INTO invitations (id, tenant_id, email, role, token_hash, invited_by, expires_at, venue_ids)
+VALUES ($1, $2, $3, $4, $5, $6, $7, COALESCE(sqlc.narg('venue_ids')::uuid[], '{}'))
 RETURNING *;
 
 -- name: ListPendingInvitations :many
@@ -47,13 +47,20 @@ WHERE i.token_hash = $1;
 UPDATE invitations SET accepted_at = now() WHERE tenant_id = $1 AND id = $2;
 
 -- name: ListTenantMembers :many
-SELECT m.user_id, m.role, m.created_at, u.name, u.email
+SELECT m.user_id, m.role, m.venue_ids, m.created_at, u.name, u.email
 FROM memberships m JOIN users u ON u.id = m.user_id
 WHERE m.tenant_id = $1
 ORDER BY m.created_at, m.user_id;
 
--- name: UpdateMembershipRole :execrows
-UPDATE memberships SET role = $3 WHERE tenant_id = $1 AND user_id = $2 AND role <> 'owner';
+-- name: UpdateMembership :execrows
+UPDATE memberships SET
+    role      = COALESCE(sqlc.narg('role'), role),
+    venue_ids = COALESCE(sqlc.narg('venue_ids')::uuid[], venue_ids)
+WHERE tenant_id = sqlc.arg('tenant_id') AND user_id = sqlc.arg('user_id') AND role <> 'owner';
+
+-- name: CountVenuesIn :one
+-- Counts the given venues the caller can see (RLS narrows it to their own).
+SELECT count(*) FROM venues WHERE tenant_id = $1 AND id = ANY (sqlc.arg('ids')::uuid[]);
 
 -- name: DeleteMembership :execrows
 DELETE FROM memberships WHERE tenant_id = $1 AND user_id = $2 AND role <> 'owner';

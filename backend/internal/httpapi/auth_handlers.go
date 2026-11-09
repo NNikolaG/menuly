@@ -380,6 +380,9 @@ type membershipDTO struct {
 	TenantName   string    `json:"tenant_name"`
 	TenantStatus string    `json:"tenant_status"`
 	Role         string    `json:"role"`
+	// VenueIDs limits a manager or staff member to these venues; empty
+	// means every venue. Always empty for owners.
+	VenueIDs []uuid.UUID `json:"venue_ids"`
 }
 
 // GET /v1/me
@@ -389,6 +392,7 @@ func (s *Server) handleMe(w http.ResponseWriter, r *http.Request) {
 		User        userDTO         `json:"user"`
 		Tenant      tenantDTO       `json:"tenant"`
 		Role        string          `json:"role"`
+		VenueIDs    []uuid.UUID     `json:"venue_ids"`
 		Memberships []membershipDTO `json:"memberships"`
 	}
 	err := s.db.Tx(r.Context(), p.Scope(), func(q *sqlc.Queries) error {
@@ -405,11 +409,17 @@ func (s *Server) handleMe(w http.ResponseWriter, r *http.Request) {
 			return err
 		}
 		out.User, out.Tenant, out.Role = toUserDTO(u), toTenantDTO(t), p.Role
+		out.VenueIDs = []uuid.UUID{}
 		out.Memberships = make([]membershipDTO, 0, len(ms))
 		for _, m := range ms {
-			out.Memberships = append(out.Memberships, membershipDTO{
+			dto := membershipDTO{
 				TenantID: m.TenantID, TenantName: m.TenantName, TenantStatus: m.TenantStatus, Role: m.Role,
-			})
+				VenueIDs: memberVenues(m.Role, m.VenueIds),
+			}
+			if m.TenantID == p.TenantID {
+				out.VenueIDs = dto.VenueIDs
+			}
+			out.Memberships = append(out.Memberships, dto)
 		}
 		return nil
 	})

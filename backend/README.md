@@ -22,7 +22,8 @@ docker compose run --rm api seed
 `api seed` pravi demo nalog za lokalni razvoj: tenant `demo` (Kafana Mornar d.o.o.),
 vlasnika **demo@menuly.app / demo1234**, dva objekta (`mornar` sa objavljenim menijem i
 nacrtom, `basta` bez menija) i meni sa 6 kategorija, stavkama, veličinama, cenama u RSD,
-engleskim prevodima i jednom nedostupnom stavkom. Ponovno pokretanje ne menja ništa;
+engleskim prevodima i jednom nedostupnom stavkom. Tu je i konobar **osoblje@menuly.app / demo1234**
+(uloga staff) koji vidi samo objekat `mornar`, za probu ograničenja po objektu. Ponovno pokretanje ne menja ništa;
 `api seed --reset` briše demo nalog i pravi ga iz početka. Odbija da radi sa `APP_ENV=production`.
 
 Bez Dockera (Go 1.26, Postgres 16):

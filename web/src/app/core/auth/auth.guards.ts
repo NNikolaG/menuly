@@ -33,7 +33,8 @@ export const platformAdminGuard: CanActivateFn = async () => {
   return me?.user.is_platform_admin ? true : router.createUrlTree(['/']);
 };
 
-function waitForMe(auth: AuthStore, injector: Injector) {
+/** `/v1/me` once loaded (cached value right away); undefined when it failed. */
+export function waitForMe(auth: AuthStore, injector: Injector) {
   if (!auth.me.isLoading())
     return Promise.resolve(auth.me.hasValue() ? auth.me.value() : undefined);
   return new Promise<ReturnType<typeof auth.me.value>>((resolve) => {

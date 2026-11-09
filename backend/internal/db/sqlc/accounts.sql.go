@@ -317,6 +317,23 @@ func (q *Queries) CountRecentPasswordResets(ctx context.Context, userID uuid.UUI
 	return count, err
 }
 
+const countVenuesIn = `-- name: CountVenuesIn :one
+SELECT count(*) FROM venues WHERE tenant_id = $1 AND id = ANY ($2::uuid[])
+`
+
+type CountVenuesInParams struct {
+	TenantID uuid.UUID   `json:"tenant_id"`
+	Ids      []uuid.UUID `json:"ids"`
+}
+
+// Counts the given venues the caller can see (RLS narrows it to their own).
+func (q *Queries) CountVenuesIn(ctx context.Context, arg CountVenuesInParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countVenuesIn, arg.TenantID, arg.Ids)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createImageFile = `-- name: CreateImageFile :one
 
 INSERT INTO media_files (id, tenant_id, storage_key, mime, size_bytes, filename, created_by, purpose)
@@ -364,19 +381,20 @@ func (q *Queries) CreateImageFile(ctx context.Context, arg CreateImageFileParams
 
 const createInvitation = `-- name: CreateInvitation :one
 
-INSERT INTO invitations (id, tenant_id, email, role, token_hash, invited_by, expires_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING id, tenant_id, email, role, token_hash, invited_by, expires_at, accepted_at, revoked_at, created_at
+INSERT INTO invitations (id, tenant_id, email, role, token_hash, invited_by, expires_at, venue_ids)
+VALUES ($1, $2, $3, $4, $5, $6, $7, COALESCE($8::uuid[], '{}'))
+RETURNING id, tenant_id, email, role, token_hash, invited_by, expires_at, accepted_at, revoked_at, created_at, venue_ids
 `
 
 type CreateInvitationParams struct {
-	ID        uuid.UUID  `json:"id"`
-	TenantID  uuid.UUID  `json:"tenant_id"`
-	Email     string     `json:"email"`
-	Role      string     `json:"role"`
-	TokenHash []byte     `json:"token_hash"`
-	InvitedBy *uuid.UUID `json:"invited_by"`
-	ExpiresAt time.Time  `json:"expires_at"`
+	ID        uuid.UUID   `json:"id"`
+	TenantID  uuid.UUID   `json:"tenant_id"`
+	Email     string      `json:"email"`
+	Role      string      `json:"role"`
+	TokenHash []byte      `json:"token_hash"`
+	InvitedBy *uuid.UUID  `json:"invited_by"`
+	ExpiresAt time.Time   `json:"expires_at"`
+	VenueIds  []uuid.UUID `json:"venue_ids"`
 }
 
 // Invitations -------------------------------------------------------------------
@@ -389,6 +407,7 @@ func (q *Queries) CreateInvitation(ctx context.Context, arg CreateInvitationPara
 		arg.TokenHash,
 		arg.InvitedBy,
 		arg.ExpiresAt,
+		arg.VenueIds,
 	)
 	var i Invitation
 	err := row.Scan(
@@ -402,6 +421,7 @@ func (q *Queries) CreateInvitation(ctx context.Context, arg CreateInvitationPara
 		&i.AcceptedAt,
 		&i.RevokedAt,
 		&i.CreatedAt,
+		&i.VenueIds,
 	)
 	return i, err
 }
@@ -447,25 +467,26 @@ func (q *Queries) DeleteMembership(ctx context.Context, arg DeleteMembershipPara
 }
 
 const getInvitationByTokenHash = `-- name: GetInvitationByTokenHash :one
-SELECT i.id, i.tenant_id, i.email, i.role, i.token_hash, i.invited_by, i.expires_at, i.accepted_at, i.revoked_at, i.created_at, t.name AS tenant_name, t.slug AS tenant_slug, t.status AS tenant_status
+SELECT i.id, i.tenant_id, i.email, i.role, i.token_hash, i.invited_by, i.expires_at, i.accepted_at, i.revoked_at, i.created_at, i.venue_ids, t.name AS tenant_name, t.slug AS tenant_slug, t.status AS tenant_status
 FROM invitations i JOIN tenants t ON t.id = i.tenant_id
 WHERE i.token_hash = $1
 `
 
 type GetInvitationByTokenHashRow struct {
-	ID           uuid.UUID  `json:"id"`
-	TenantID     uuid.UUID  `json:"tenant_id"`
-	Email        string     `json:"email"`
-	Role         string     `json:"role"`
-	TokenHash    []byte     `json:"token_hash"`
-	InvitedBy    *uuid.UUID `json:"invited_by"`
-	ExpiresAt    time.Time  `json:"expires_at"`
-	AcceptedAt   *time.Time `json:"accepted_at"`
-	RevokedAt    *time.Time `json:"revoked_at"`
-	CreatedAt    time.Time  `json:"created_at"`
-	TenantName   string     `json:"tenant_name"`
-	TenantSlug   string     `json:"tenant_slug"`
-	TenantStatus string     `json:"tenant_status"`
+	ID           uuid.UUID   `json:"id"`
+	TenantID     uuid.UUID   `json:"tenant_id"`
+	Email        string      `json:"email"`
+	Role         string      `json:"role"`
+	TokenHash    []byte      `json:"token_hash"`
+	InvitedBy    *uuid.UUID  `json:"invited_by"`
+	ExpiresAt    time.Time   `json:"expires_at"`
+	AcceptedAt   *time.Time  `json:"accepted_at"`
+	RevokedAt    *time.Time  `json:"revoked_at"`
+	CreatedAt    time.Time   `json:"created_at"`
+	VenueIds     []uuid.UUID `json:"venue_ids"`
+	TenantName   string      `json:"tenant_name"`
+	TenantSlug   string      `json:"tenant_slug"`
+	TenantStatus string      `json:"tenant_status"`
 }
 
 // Runs under the invite_lookup policy (app.invite_token_hash).
@@ -483,6 +504,7 @@ func (q *Queries) GetInvitationByTokenHash(ctx context.Context, tokenHash []byte
 		&i.AcceptedAt,
 		&i.RevokedAt,
 		&i.CreatedAt,
+		&i.VenueIds,
 		&i.TenantName,
 		&i.TenantSlug,
 		&i.TenantStatus,
@@ -509,7 +531,7 @@ func (q *Queries) GetPasswordResetForUpdate(ctx context.Context, tokenHash []byt
 }
 
 const listPendingInvitations = `-- name: ListPendingInvitations :many
-SELECT id, tenant_id, email, role, token_hash, invited_by, expires_at, accepted_at, revoked_at, created_at FROM invitations
+SELECT id, tenant_id, email, role, token_hash, invited_by, expires_at, accepted_at, revoked_at, created_at, venue_ids FROM invitations
 WHERE tenant_id = $1 AND accepted_at IS NULL AND revoked_at IS NULL AND expires_at > now()
 ORDER BY created_at DESC
 `
@@ -534,6 +556,7 @@ func (q *Queries) ListPendingInvitations(ctx context.Context, tenantID uuid.UUID
 			&i.AcceptedAt,
 			&i.RevokedAt,
 			&i.CreatedAt,
+			&i.VenueIds,
 		); err != nil {
 			return nil, err
 		}
@@ -546,18 +569,19 @@ func (q *Queries) ListPendingInvitations(ctx context.Context, tenantID uuid.UUID
 }
 
 const listTenantMembers = `-- name: ListTenantMembers :many
-SELECT m.user_id, m.role, m.created_at, u.name, u.email
+SELECT m.user_id, m.role, m.venue_ids, m.created_at, u.name, u.email
 FROM memberships m JOIN users u ON u.id = m.user_id
 WHERE m.tenant_id = $1
 ORDER BY m.created_at, m.user_id
 `
 
 type ListTenantMembersRow struct {
-	UserID    uuid.UUID `json:"user_id"`
-	Role      string    `json:"role"`
-	CreatedAt time.Time `json:"created_at"`
-	Name      string    `json:"name"`
-	Email     string    `json:"email"`
+	UserID    uuid.UUID   `json:"user_id"`
+	Role      string      `json:"role"`
+	VenueIds  []uuid.UUID `json:"venue_ids"`
+	CreatedAt time.Time   `json:"created_at"`
+	Name      string      `json:"name"`
+	Email     string      `json:"email"`
 }
 
 func (q *Queries) ListTenantMembers(ctx context.Context, tenantID uuid.UUID) ([]ListTenantMembersRow, error) {
@@ -572,6 +596,7 @@ func (q *Queries) ListTenantMembers(ctx context.Context, tenantID uuid.UUID) ([]
 		if err := rows.Scan(
 			&i.UserID,
 			&i.Role,
+			&i.VenueIds,
 			&i.CreatedAt,
 			&i.Name,
 			&i.Email,
@@ -684,18 +709,27 @@ func (q *Queries) SetUserPassword(ctx context.Context, arg SetUserPasswordParams
 	return err
 }
 
-const updateMembershipRole = `-- name: UpdateMembershipRole :execrows
-UPDATE memberships SET role = $3 WHERE tenant_id = $1 AND user_id = $2 AND role <> 'owner'
+const updateMembership = `-- name: UpdateMembership :execrows
+UPDATE memberships SET
+    role      = COALESCE($1, role),
+    venue_ids = COALESCE($2::uuid[], venue_ids)
+WHERE tenant_id = $3 AND user_id = $4 AND role <> 'owner'
 `
 
-type UpdateMembershipRoleParams struct {
-	TenantID uuid.UUID `json:"tenant_id"`
-	UserID   uuid.UUID `json:"user_id"`
-	Role     string    `json:"role"`
+type UpdateMembershipParams struct {
+	Role     *string     `json:"role"`
+	VenueIds []uuid.UUID `json:"venue_ids"`
+	TenantID uuid.UUID   `json:"tenant_id"`
+	UserID   uuid.UUID   `json:"user_id"`
 }
 
-func (q *Queries) UpdateMembershipRole(ctx context.Context, arg UpdateMembershipRoleParams) (int64, error) {
-	result, err := q.db.Exec(ctx, updateMembershipRole, arg.TenantID, arg.UserID, arg.Role)
+func (q *Queries) UpdateMembership(ctx context.Context, arg UpdateMembershipParams) (int64, error) {
+	result, err := q.db.Exec(ctx, updateMembership,
+		arg.Role,
+		arg.VenueIds,
+		arg.TenantID,
+		arg.UserID,
+	)
 	if err != nil {
 		return 0, err
 	}

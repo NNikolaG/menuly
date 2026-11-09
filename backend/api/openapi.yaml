@@ -10,6 +10,13 @@ info:
     Errors always have the shape `{"error": {"code": "...", "message": "..."}}`.
     Validation errors are 422 `validation_failed`; a resource of another tenant is always 404.
 
+    Venue access: a manager or staff member can be limited to some venues (`venue_ids` on the member,
+    see `PATCH /v1/members/{userID}`). Empty `venue_ids` means every venue; owners always reach every venue.
+    For a limited member, other venues and everything in them (menus, categories, items, variants,
+    themes, promotions, imports, stats) behave as if they did not exist: lists leave them out and
+    direct requests answer 404. Changes apply to the member's next request (no new login needed).
+    `GET /v1/me` returns the caller's `venue_ids`.
+
     Prices are integers in the minor unit of the venue currency (`price_minor`: 35000 = 350,00 RSD).
     Text fields are Serbian; other languages go in `translations`.
 
@@ -239,6 +246,10 @@ paths:
                   user: { $ref: "#/components/schemas/User" }
                   tenant: { $ref: "#/components/schemas/Tenant" }
                   role: { $ref: "#/components/schemas/Role" }
+                  venue_ids:
+                    type: array
+                    items: { type: string, format: uuid }
+                    description: Venues the caller is limited to in the current tenant; empty = every venue (always empty for owners).
                   memberships:
                     type: array
                     items:
@@ -248,6 +259,10 @@ paths:
                         tenant_name: { type: string }
                         tenant_status: { type: string }
                         role: { $ref: "#/components/schemas/Role" }
+                        venue_ids:
+                          type: array
+                          items: { type: string, format: uuid }
+                          description: Empty = every venue of that tenant.
         "401": { $ref: "#/components/responses/Error" }
 
   /v1/venues:
@@ -1436,17 +1451,24 @@ paths:
     patch:
       tags: [Team]
       operationId: updateMember
-      summary: Change a member's role (owner)
-      description: The owner's own role cannot change (404). The new role applies from the member's next login or token refresh.
+      summary: Change a member's role or venues (owner)
+      description: |
+        Send `role`, `venue_ids` or both (422 if neither). The owner cannot be changed (404).
+        A new role applies from the member's next login or token refresh; new `venue_ids` apply to their next request.
+        `venue_ids` must be venues of this tenant (422 otherwise); duplicates are dropped; `[]` gives access to every venue.
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required: [role]
               properties:
                 role: { type: string, enum: [manager, staff] }
+                venue_ids:
+                  type: array
+                  maxItems: 200
+                  items: { type: string, format: uuid }
+                  description: Venues the member may work in; empty = every venue.
       responses:
         "204": { description: Updated }
         "403": { $ref: "#/components/responses/Error" }
@@ -1486,6 +1508,10 @@ paths:
         Owners invite managers or staff, managers invite staff only (403 otherwise). The email holds a link to
         `{APP_URL}/invite?token=...`, valid for 7 days. A new invitation replaces a pending one for the same email.
         409 `already_member` if the person is already in the tenant.
+
+        `venue_ids` limits the new member to those venues once they accept (empty or missing = every venue).
+        A manager who is limited to some venues must pick at least one (422 `venue_ids_required`) and can
+        only pick their own (422 `validation_failed` for any other).
       requestBody:
         required: true
         content:
@@ -1496,6 +1522,10 @@ paths:
               properties:
                 email: { type: string, format: email }
                 role: { type: string, enum: [manager, staff] }
+                venue_ids:
+                  type: array
+                  maxItems: 200
+                  items: { type: string, format: uuid }
       responses:
         "201":
           description: Sent
@@ -1757,6 +1787,10 @@ components:
         name: { type: string }
         email: { type: string }
         role: { $ref: "#/components/schemas/Role" }
+        venue_ids:
+          type: array
+          items: { type: string, format: uuid }
+          description: Venues the member is limited to; empty = every venue (always empty for the owner). May name a deleted venue, which clients should ignore.
         created_at: { type: string, format: date-time, description: "When they joined" }
     Invitation:
       type: object
@@ -1764,6 +1798,10 @@ components:
         id: { type: string, format: uuid }
         email: { type: string }
         role: { type: string, enum: [manager, staff] }
+        venue_ids:
+          type: array
+          items: { type: string, format: uuid }
+          description: Venues the person gets on accept; empty = every venue.
         expires_at: { type: string, format: date-time }
         created_at: { type: string, format: date-time }
     AdminTenantSummary:

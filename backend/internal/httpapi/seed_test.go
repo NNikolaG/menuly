@@ -39,6 +39,14 @@ func TestDemoSeed(t *testing.T) {
 		t.Fatalf("venues = %v, want 2", venues.body)
 	}
 
+	// The demo staff member works in one venue only.
+	staff := call(t, "POST", "/v1/auth/login", "", map[string]string{"email": seed.StaffEmail, "password": seed.Password})
+	expect(t, staff, http.StatusOK)
+	venues = call(t, "GET", "/v1/venues", staff.body["access_token"].(string), nil)
+	if items, _ := venues.body["items"].([]any); len(items) != 1 {
+		t.Fatalf("staff venues = %v, want 1", venues.body)
+	}
+
 	menu := call(t, "GET", "/v1/menus/"+first.MenuID.String(), tok, nil)
 	expect(t, menu, http.StatusOK)
 	if menu.body["status"] != "published" {

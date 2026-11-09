@@ -20,6 +20,9 @@ const (
 	Email      = "demo@menuly.app"
 	Password   = "demo1234"
 	TenantSlug = "demo"
+	// StaffEmail is a staff member limited to the "mornar" venue (same
+	// password), to try per-venue access.
+	StaffEmail = "osoblje@menuly.app"
 )
 
 // Result describes what Run did.
@@ -102,6 +105,13 @@ func remove(ctx context.Context, d *db.DB, a account) error {
 				return err
 			}
 		}
+		if staff, err := q.GetUserByEmail(ctx, StaffEmail); err == nil {
+			if err := q.DeleteUser(ctx, staff.ID); err != nil {
+				return err
+			}
+		} else if !db.IsNotFound(err) {
+			return err
+		}
 		return q.DeleteUser(ctx, a.userID)
 	})
 }
@@ -128,6 +138,18 @@ func create(ctx context.Context, q *sqlc.Queries, tenantID, userID uuid.UUID, ha
 		WifiAvailable: true, WifiSsid: "Mornar-Gost", WifiPassword: "mornar2026", WifiAccess: "menu",
 	}); err != nil {
 		return uuid.Nil, fmt.Errorf("venue: %w", err)
+	}
+	// A staff member who works in Mornar only.
+	staffID := newID()
+	if _, err := q.CreateUser(ctx, sqlc.CreateUserParams{
+		ID: staffID, Email: StaffEmail, PasswordHash: hash, Name: "Demo Konobar", Locale: "sr-Latn",
+	}); err != nil {
+		return uuid.Nil, fmt.Errorf("staff user: %w", err)
+	}
+	if _, err := q.CreateMembership(ctx, sqlc.CreateMembershipParams{
+		TenantID: tenantID, UserID: staffID, Role: auth.RoleStaff, VenueIds: []uuid.UUID{venueID},
+	}); err != nil {
+		return uuid.Nil, fmt.Errorf("staff membership: %w", err)
 	}
 	// A second venue without a menu, so the lists and empty states have data.
 	if _, err := q.CreateVenue(ctx, sqlc.CreateVenueParams{

@@ -192,7 +192,7 @@ func runSeed(ctx context.Context, cfg config.Config, reset bool) error {
 		return fmt.Errorf("seed: %w", err)
 	}
 	if res.Created {
-		slog.Info("demo account created", "email", seed.Email, "password", seed.Password, "tenant", seed.TenantSlug, "menu_id", res.MenuID)
+		slog.Info("demo account created", "email", seed.Email, "password", seed.Password, "staff_email", seed.StaffEmail, "tenant", seed.TenantSlug, "menu_id", res.MenuID)
 	} else {
 		slog.Info("demo account already exists, nothing changed (use --reset to recreate)", "email", seed.Email, "password", seed.Password)
 	}

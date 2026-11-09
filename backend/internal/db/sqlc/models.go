@@ -64,16 +64,17 @@ type ImportPage struct {
 }
 
 type Invitation struct {
-	ID         uuid.UUID  `json:"id"`
-	TenantID   uuid.UUID  `json:"tenant_id"`
-	Email      string     `json:"email"`
-	Role       string     `json:"role"`
-	TokenHash  []byte     `json:"token_hash"`
-	InvitedBy  *uuid.UUID `json:"invited_by"`
-	ExpiresAt  time.Time  `json:"expires_at"`
-	AcceptedAt *time.Time `json:"accepted_at"`
-	RevokedAt  *time.Time `json:"revoked_at"`
-	CreatedAt  time.Time  `json:"created_at"`
+	ID         uuid.UUID   `json:"id"`
+	TenantID   uuid.UUID   `json:"tenant_id"`
+	Email      string      `json:"email"`
+	Role       string      `json:"role"`
+	TokenHash  []byte      `json:"token_hash"`
+	InvitedBy  *uuid.UUID  `json:"invited_by"`
+	ExpiresAt  time.Time   `json:"expires_at"`
+	AcceptedAt *time.Time  `json:"accepted_at"`
+	RevokedAt  *time.Time  `json:"revoked_at"`
+	CreatedAt  time.Time   `json:"created_at"`
+	VenueIds   []uuid.UUID `json:"venue_ids"`
 }
 
 type ItemVariant struct {
