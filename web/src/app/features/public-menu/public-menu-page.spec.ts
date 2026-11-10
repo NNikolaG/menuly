@@ -111,6 +111,31 @@ describe('PublicMenuPage', () => {
     expect(root.querySelector('app-pattern')).toBeNull();
   });
 
+  it('draws the "mozaik" band and turns only the featured combo into a mosaic card', async () => {
+    const menu = publicMenuFixture();
+    menu.theme = { ...DEFAULT_MENU_THEME, template: 'plakat', pattern: 'mozaik' };
+    const promo = {
+      id: 'p1',
+      name: 'Doručak za dvoje',
+      description: '',
+      image_url: '',
+      price_minor: 69000,
+      regular_price_minor: 84000,
+      savings_minor: 15000,
+      ends_at: null,
+      is_featured: true,
+      is_available: true,
+      slots: [],
+    };
+    menu.promotions = [promo, { ...promo, id: 'p2', is_featured: false }];
+    const fixture = await render((url) => http.expectOne(url).flush(menu));
+    const root: HTMLElement = fixture.nativeElement;
+    expect(root.querySelector('.art app-mosaic')).not.toBeNull();
+    const cards = [...root.querySelectorAll<HTMLElement>('.promo')];
+    expect(cards.map((card) => card.hasAttribute('data-mosaic'))).toEqual([true, false]);
+    expect(cards[0].querySelector('.promo__pill')!.textContent!.trim()).toBe('Kombo');
+  });
+
   it('signs the "racun" receipt with a stamp of the venue name', async () => {
     const menu = publicMenuFixture();
     menu.theme = { ...DEFAULT_MENU_THEME, template: 'racun' };

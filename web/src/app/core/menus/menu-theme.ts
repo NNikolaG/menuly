@@ -17,8 +17,8 @@ export type MenuAccent =
   | 'roze';
 export type MenuFont = 'onest' | 'manrope' | 'plex';
 export type MenuColorMode = 'auto' | 'light' | 'dark';
-/** Generated header band: Bauhaus shapes or "trake" (color bars). */
-export type MenuPattern = 'bauhaus' | 'trake';
+/** Generated header band: Bauhaus shapes, "trake" (color bars) or "mozaik" (animated glyph tiles). */
+export type MenuPattern = 'bauhaus' | 'trake' | 'mozaik';
 
 export interface MenuTheme {
   template: MenuTemplate;
@@ -104,6 +104,7 @@ export const MENU_FONTS: readonly { value: MenuFont; label: string; family: stri
 export const MENU_PATTERNS: readonly { value: MenuPattern; label: string }[] = [
   { value: 'bauhaus', label: $localize`:@@theme.pattern.bauhaus:Bauhaus` },
   { value: 'trake', label: $localize`:@@theme.pattern.trake:Trake` },
+  { value: 'mozaik', label: $localize`:@@theme.pattern.mozaik:Mozaik` },
 ];
 
 export const MENU_COLOR_MODES: readonly { value: MenuColorMode; label: string }[] = [

@@ -48,6 +48,8 @@ func TestMenuTheme(t *testing.T) {
 	if r.body["pattern"] != "bauhaus" {
 		t.Fatalf("default pattern = %v", r.body["pattern"])
 	}
+	r = call(t, "PUT", path, tok, map[string]any{"pattern": "mozaik"})
+	expect(t, r, http.StatusOK)
 	r = call(t, "PUT", path, tok, map[string]any{"pattern": "trake"})
 	expect(t, r, http.StatusOK)
 	r = call(t, "PUT", path, tok, map[string]any{"accent": "bordo"})
