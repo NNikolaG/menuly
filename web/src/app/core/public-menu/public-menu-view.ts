@@ -26,7 +26,7 @@ import {
 import { ALLERGENS, DIET_TAGS, isHighlight, labelOf } from '../menus/menu-labels';
 import { hasOpeningHours } from '../venues/opening-hours';
 import { DEFAULT_MENU_THEME, MENU_FONTS, type MenuTheme } from '../menus/menu-theme';
-import { AppButton, AppChipGroup, AppPattern, AppStripes } from '../../shared/ui';
+import { AppButton, AppChipGroup, AppMosaic, AppPattern, AppStripes } from '../../shared/ui';
 import {
   activeFilterCount,
   filterMenu,
@@ -58,6 +58,7 @@ let stampCount = 0;
     AppChipGroup,
     AppPattern,
     AppStripes,
+    AppMosaic,
     LucideMapPin,
     LucideMoon,
     LucidePhone,
@@ -84,6 +85,8 @@ let stampCount = 0;
           <div class="art">
             @if (t.pattern === 'trake') {
               <app-stripes [seed]="data.venue.name" />
+            } @else if (t.pattern === 'mozaik') {
+              <app-mosaic [seed]="data.venue.name" />
             } @else {
               <app-pattern [seed]="data.venue.name" [cols]="8" [rows]="2" [fluid]="true" />
             }
@@ -493,12 +496,19 @@ let stampCount = 0;
     </div>
 
     <ng-template #promoCard let-promo let-featured="featured">
+      @let mosaicCard = featured && t.pattern === 'mozaik';
       <article
         class="promo"
         [attr.data-featured]="featured ? '' : null"
+        [attr.data-mosaic]="mosaicCard ? '' : null"
         [attr.data-status]="promo.is_available ? null : 'unavailable'"
       >
-        @if (promo.image_url && t.show_images) {
+        @if (mosaicCard) {
+          <div class="promo__mosaic">
+            <app-mosaic [seed]="promo.name" [cell]="10" />
+            <span class="promo__pill" i18n="@@publicMenu.combo">Kombo</span>
+          </div>
+        } @else if (promo.image_url && t.show_images) {
           <img class="promo__photo" [src]="promo.image_url" alt="" loading="lazy" />
         } @else if (t.template === 'etiketa') {
           <!-- Two items overlap into one combo: the shared part is striped. -->
@@ -529,7 +539,11 @@ let stampCount = 0;
         }
         <div class="promo__body">
           <div class="row" data-gap="2">
-            <span class="badge" data-tone="accent" data-plain i18n="@@publicMenu.combo">Kombo</span>
+            @if (!mosaicCard) {
+              <span class="badge" data-tone="accent" data-plain i18n="@@publicMenu.combo"
+                >Kombo</span
+              >
+            }
             @if (!promo.is_available) {
               <span class="badge" data-tone="danger" i18n="@@publicMenu.unavailable"
                 >Nema danas</span

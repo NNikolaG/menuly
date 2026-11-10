@@ -18,7 +18,7 @@ var (
 	themeAccents    = []string{"tinta", "narandza", "espresso", "bordo", "maslina", "teget", "kobalt", "smaragd", "senf", "roze"}
 	themeFonts      = []string{"onest", "manrope", "plex"}
 	themeColorModes = []string{"auto", "light", "dark"}
-	themePatterns   = []string{"bauhaus", "trake"}
+	themePatterns   = []string{"bauhaus", "trake", "mozaik"}
 )
 
 // themeDTO is the theme as admin and public clients see it.

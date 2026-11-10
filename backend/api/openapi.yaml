@@ -2250,7 +2250,7 @@ components:
         show_images: { type: boolean }
         show_descriptions: { type: boolean }
         show_pattern: { type: boolean, description: "Venue's generated pattern band in the header" }
-        pattern: { type: string, enum: [bauhaus, trake], description: "Which generated band: bauhaus shapes or trake (color bars)" }
+        pattern: { type: string, enum: [bauhaus, trake, mozaik], description: "Which generated band: bauhaus shapes, trake (color bars) or mozaik (animated glyph tiles; featured combos become a dark mosaic card)" }
         logo_url: { type: string, description: "Empty or an http(s) URL" }
         cover_url: { type: string, description: "Empty or an http(s) URL" }
     PublicMenu:

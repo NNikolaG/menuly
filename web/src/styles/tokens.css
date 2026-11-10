@@ -47,6 +47,10 @@
   --bone-200: #e6e2d6;
   /* "Plakat" menu template: poster paper. */
   --cream-100: #f4efe4;
+  /* "Mozaik" header band: tile colors next to the brand orange and amber. */
+  --teal-400: #1fb98c;
+  --sky-400: #2b9cf0;
+  --sand-200: #e6dcc6;
 
   /* ---------- Semantic colors (light, dark) ---------- */
   --color-bg: light-dark(var(--n-25), var(--n-900));
@@ -90,6 +94,13 @@
   /* "Racun" menu template: paper grain, a fine grey noise that reads on light and dark paper. */
   /* "Plakat": cream poster paper; shapes use --color-text, so dark mode inverts them. */
   --color-poster-paper: light-dark(var(--cream-100), var(--n-950));
+  /* "Mozaik": tiles on brand ink, the same in both themes (read by the canvas). */
+  --color-mosaic-1: var(--color-brand-orange);
+  --color-mosaic-2: var(--teal-400);
+  --color-mosaic-3: var(--sky-400);
+  --color-mosaic-4: var(--color-brand-amber);
+  --color-mosaic-5: var(--sand-200);
+  --color-mosaic-ground: var(--color-brand-ink);
   --color-receipt-backdrop: light-dark(var(--n-200), var(--n-950));
   --texture-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 
@@ -252,6 +263,8 @@
   --size-label-venn: 96px;
   --size-receipt-zigzag: 8px;
   --size-poster-num: 40px;
+  --size-mosaic-card: 132px;
+  --size-mosaic-title: 34px;
   --size-poster-ribbon: 8px;
   --size-poster-dot: 0.55em;
   --radius-poster: 40px;

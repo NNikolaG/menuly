@@ -638,6 +638,10 @@
         <source>Bauhaus</source>
         <target>Bauhaus</target>
       </trans-unit>
+      <trans-unit id="theme.pattern.mozaik" datatype="html">
+        <source>Mozaik</source>
+        <target>Mosaic</target>
+      </trans-unit>
       <trans-unit id="theme.pattern.trake" datatype="html">
         <source>Trake</source>
         <target>Stripes</target>

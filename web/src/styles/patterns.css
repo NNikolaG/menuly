@@ -911,6 +911,67 @@ app-public-menu-view[data-template='racun'] .page {
   text-decoration: line-through;
 }
 
+/* ---------- "Mozaik": the header band and the featured combo as a dark mosaic card ---------- */
+.mosaic {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  background: var(--color-mosaic-ground);
+}
+
+.mosaic__canvas {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+/* Beats every template's combo look: the card is the same everywhere. */
+:is([data-template]) .promo[data-mosaic] {
+  flex-direction: column;
+  align-items: stretch;
+  border: 0;
+  border-radius: var(--radius-lg);
+  outline: var(--stroke-hairline) solid var(--color-border);
+  background: var(--color-mosaic-ground);
+  box-shadow: var(--shadow-lg);
+  color: var(--color-on-brand-ink);
+  mask: none;
+}
+
+.promo__mosaic {
+  position: relative;
+  block-size: var(--size-mosaic-card);
+}
+
+.promo__pill {
+  position: absolute;
+  inset-block-start: var(--space-4);
+  inset-inline-start: var(--space-4);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--color-mosaic-5);
+  color: var(--color-mosaic-ground);
+  font: var(--type-label);
+}
+
+:is([data-template]) .promo[data-mosaic] .promo__body {
+  padding: var(--space-2) var(--space-5) var(--space-6);
+}
+
+:is([data-template]) .promo[data-mosaic] .promo__name {
+  font: var(--type-display-md);
+  font-size: var(--size-mosaic-title);
+  font-weight: 400;
+  letter-spacing: var(--tracking-display-md);
+}
+
+:is([data-template])
+  .promo[data-mosaic]
+  :is(.menu-item__desc, .meta, .menu-item__variant, .promo__savings, .promo__strike) {
+  color: inherit;
+  opacity: 0.75;
+}
+
 /* ---------- Pill button: round icon or short-label control on the public menu ---------- */
 .pill-btn {
   position: relative;
