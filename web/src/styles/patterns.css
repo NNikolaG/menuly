@@ -248,6 +248,16 @@
   color: var(--color-text-subtle);
 }
 
+/* Geometric category illustration sits before the title in every template. */
+.menu-cat:has(.category-art) {
+  align-items: center;
+  gap: var(--space-3);
+}
+.menu-cat:has(.category-art) .menu-cat__title {
+  flex: 1;
+  min-inline-size: 0;
+}
+
 .menu-item {
   display: grid;
   grid-template-columns: 1fr auto;
@@ -753,6 +763,13 @@ app-public-menu-view[data-template='racun'] .page {
   color: var(--color-text);
   font: var(--type-eyebrow);
   font-weight: 700;
+}
+
+/* On the black capsule the drawing gets its own paper disc, like the number. */
+[data-template='plakat'] .category-art {
+  padding: var(--space-1);
+  border-radius: var(--radius-pill);
+  background: var(--color-poster-paper);
 }
 
 [data-template='plakat'] .menu-cat__title {

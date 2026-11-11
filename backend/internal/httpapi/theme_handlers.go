@@ -23,16 +23,17 @@ var (
 
 // themeDTO is the theme as admin and public clients see it.
 type themeDTO struct {
-	Template         string `json:"template"`
-	Accent           string `json:"accent"`
-	Font             string `json:"font"`
-	ColorMode        string `json:"color_mode"`
-	ShowImages       bool   `json:"show_images"`
-	ShowDescriptions bool   `json:"show_descriptions"`
-	ShowPattern      bool   `json:"show_pattern"`
-	LogoURL          string `json:"logo_url"`
-	CoverURL         string `json:"cover_url"`
-	Pattern          string `json:"pattern"`
+	Template          string `json:"template"`
+	Accent            string `json:"accent"`
+	Font              string `json:"font"`
+	ColorMode         string `json:"color_mode"`
+	ShowImages        bool   `json:"show_images"`
+	ShowDescriptions  bool   `json:"show_descriptions"`
+	ShowPattern       bool   `json:"show_pattern"`
+	LogoURL           string `json:"logo_url"`
+	CoverURL          string `json:"cover_url"`
+	Pattern           string `json:"pattern"`
+	ShowIllustrations bool   `json:"show_illustrations"`
 }
 
 // defaultTheme matches the column defaults of menu_themes.
@@ -48,6 +49,7 @@ func themeFromRow(t sqlc.MenuTheme) themeDTO {
 		Template: t.Template, Accent: t.Accent, Font: t.Font, ColorMode: t.ColorMode,
 		ShowImages: t.ShowImages, ShowDescriptions: t.ShowDescriptions, ShowPattern: t.ShowPattern,
 		LogoURL: t.LogoUrl, CoverURL: t.CoverUrl, Pattern: t.Pattern,
+		ShowIllustrations: t.ShowIllustrations,
 	}
 }
 
@@ -92,16 +94,17 @@ func (s *Server) handlePutMenuTheme(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var in struct {
-		Template         *string `json:"template"`
-		Accent           *string `json:"accent"`
-		Font             *string `json:"font"`
-		ColorMode        *string `json:"color_mode"`
-		ShowImages       *bool   `json:"show_images"`
-		ShowDescriptions *bool   `json:"show_descriptions"`
-		ShowPattern      *bool   `json:"show_pattern"`
-		LogoURL          *string `json:"logo_url"`
-		CoverURL         *string `json:"cover_url"`
-		Pattern          *string `json:"pattern"`
+		Template          *string `json:"template"`
+		Accent            *string `json:"accent"`
+		Font              *string `json:"font"`
+		ColorMode         *string `json:"color_mode"`
+		ShowImages        *bool   `json:"show_images"`
+		ShowDescriptions  *bool   `json:"show_descriptions"`
+		ShowPattern       *bool   `json:"show_pattern"`
+		LogoURL           *string `json:"logo_url"`
+		CoverURL          *string `json:"cover_url"`
+		Pattern           *string `json:"pattern"`
+		ShowIllustrations *bool   `json:"show_illustrations"`
 	}
 	if err := decodeJSON(w, r, &in); err != nil {
 		writeError(w, r, err)
@@ -152,11 +155,13 @@ func (s *Server) handlePutMenuTheme(w http.ResponseWriter, r *http.Request) {
 		set(&cur.LogoURL, in.LogoURL)
 		set(&cur.CoverURL, in.CoverURL)
 		set(&cur.Pattern, in.Pattern)
+		set(&cur.ShowIllustrations, in.ShowIllustrations)
 		row, err := q.UpsertMenuTheme(ctx, sqlc.UpsertMenuThemeParams{
 			MenuID: menuID, TenantID: p.TenantID,
 			Template: cur.Template, Accent: cur.Accent, Font: cur.Font, ColorMode: cur.ColorMode,
 			ShowImages: cur.ShowImages, ShowDescriptions: cur.ShowDescriptions, ShowPattern: cur.ShowPattern,
 			LogoUrl: cur.LogoURL, CoverUrl: cur.CoverURL, Pattern: cur.Pattern,
+			ShowIllustrations: cur.ShowIllustrations,
 		})
 		if err != nil {
 			return err

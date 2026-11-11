@@ -29,6 +29,7 @@ export interface MenuTheme {
   show_descriptions: boolean;
   show_pattern: boolean;
   pattern: MenuPattern;
+  show_illustrations: boolean;
   logo_url: string;
   cover_url: string;
 }
@@ -43,6 +44,7 @@ export const DEFAULT_MENU_THEME: MenuTheme = {
   show_descriptions: true,
   show_pattern: true,
   pattern: 'bauhaus',
+  show_illustrations: false,
   logo_url: '',
   cover_url: '',
 };

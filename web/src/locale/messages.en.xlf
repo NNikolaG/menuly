@@ -3166,6 +3166,14 @@
           <context context-type="linenumber">173,175</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="menuDesign.showIllustrations" datatype="html">
+        <source>Ilustracije kategorija</source>
+        <target>Category illustrations</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/menus/menu-design-page.ts</context>
+          <context context-type="linenumber">174,176</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="menuDesign.images" datatype="html">
         <source>Logo i naslovna slika</source>
         <target>Logo and cover image</target>

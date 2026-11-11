@@ -12,7 +12,7 @@ import (
 )
 
 const getMenuTheme = `-- name: GetMenuTheme :one
-SELECT menu_id, tenant_id, template, accent, font, color_mode, show_images, show_descriptions, show_pattern, logo_url, cover_url, created_at, updated_at, pattern FROM menu_themes WHERE tenant_id = $1 AND menu_id = $2
+SELECT menu_id, tenant_id, template, accent, font, color_mode, show_images, show_descriptions, show_pattern, logo_url, cover_url, created_at, updated_at, pattern, show_illustrations FROM menu_themes WHERE tenant_id = $1 AND menu_id = $2
 `
 
 type GetMenuThemeParams struct {
@@ -38,6 +38,7 @@ func (q *Queries) GetMenuTheme(ctx context.Context, arg GetMenuThemeParams) (Men
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Pattern,
+		&i.ShowIllustrations,
 	)
 	return i, err
 }
@@ -45,8 +46,8 @@ func (q *Queries) GetMenuTheme(ctx context.Context, arg GetMenuThemeParams) (Men
 const upsertMenuTheme = `-- name: UpsertMenuTheme :one
 INSERT INTO menu_themes (
     menu_id, tenant_id, template, accent, font, color_mode,
-    show_images, show_descriptions, show_pattern, logo_url, cover_url, pattern
-) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+    show_images, show_descriptions, show_pattern, logo_url, cover_url, pattern, show_illustrations
+) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
 ON CONFLICT (menu_id) DO UPDATE SET
     template = EXCLUDED.template,
     accent = EXCLUDED.accent,
@@ -57,24 +58,26 @@ ON CONFLICT (menu_id) DO UPDATE SET
     show_pattern = EXCLUDED.show_pattern,
     logo_url = EXCLUDED.logo_url,
     cover_url = EXCLUDED.cover_url,
-    pattern = EXCLUDED.pattern
+    pattern = EXCLUDED.pattern,
+    show_illustrations = EXCLUDED.show_illustrations
 WHERE menu_themes.tenant_id = EXCLUDED.tenant_id
-RETURNING menu_id, tenant_id, template, accent, font, color_mode, show_images, show_descriptions, show_pattern, logo_url, cover_url, created_at, updated_at, pattern
+RETURNING menu_id, tenant_id, template, accent, font, color_mode, show_images, show_descriptions, show_pattern, logo_url, cover_url, created_at, updated_at, pattern, show_illustrations
 `
 
 type UpsertMenuThemeParams struct {
-	MenuID           uuid.UUID `json:"menu_id"`
-	TenantID         uuid.UUID `json:"tenant_id"`
-	Template         string    `json:"template"`
-	Accent           string    `json:"accent"`
-	Font             string    `json:"font"`
-	ColorMode        string    `json:"color_mode"`
-	ShowImages       bool      `json:"show_images"`
-	ShowDescriptions bool      `json:"show_descriptions"`
-	ShowPattern      bool      `json:"show_pattern"`
-	LogoUrl          string    `json:"logo_url"`
-	CoverUrl         string    `json:"cover_url"`
-	Pattern          string    `json:"pattern"`
+	MenuID            uuid.UUID `json:"menu_id"`
+	TenantID          uuid.UUID `json:"tenant_id"`
+	Template          string    `json:"template"`
+	Accent            string    `json:"accent"`
+	Font              string    `json:"font"`
+	ColorMode         string    `json:"color_mode"`
+	ShowImages        bool      `json:"show_images"`
+	ShowDescriptions  bool      `json:"show_descriptions"`
+	ShowPattern       bool      `json:"show_pattern"`
+	LogoUrl           string    `json:"logo_url"`
+	CoverUrl          string    `json:"cover_url"`
+	Pattern           string    `json:"pattern"`
+	ShowIllustrations bool      `json:"show_illustrations"`
 }
 
 func (q *Queries) UpsertMenuTheme(ctx context.Context, arg UpsertMenuThemeParams) (MenuTheme, error) {
@@ -91,6 +94,7 @@ func (q *Queries) UpsertMenuTheme(ctx context.Context, arg UpsertMenuThemeParams
 		arg.LogoUrl,
 		arg.CoverUrl,
 		arg.Pattern,
+		arg.ShowIllustrations,
 	)
 	var i MenuTheme
 	err := row.Scan(
@@ -108,6 +112,7 @@ func (q *Queries) UpsertMenuTheme(ctx context.Context, arg UpsertMenuThemeParams
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Pattern,
+		&i.ShowIllustrations,
 	)
 	return i, err
 }
