@@ -192,3 +192,9 @@ Why: Nikola wanted the looping "wow" motion of the original; canvas keeps ~400 c
 
 From poster inspiration (project files `inspiracija/posteri-2/`, the geometric ice cream), our own take: with `show_illustrations` (migration 00015, off by default, on in the demo) every category head gets a small drawing built only from circles, half circles and capsules (`AppCategoryArt`): cup, cone, beer, wine, cocktail, juice, pan, cake, pizza, burger, salad, fish, bowl, plate. `artKindFor` picks it from the category name (folded, sr + en keywords, first match wins, plate otherwise); "pić" is read before folding so drinks never become pizza. Colors are the venue accent plus brand amber/periwinkle/pink/teal; on the black "plakat" capsule the drawing sits on a paper disc. Steam and bubbles loop gently and stop with reduced motion.
 Why: most menus have no photos; a drawing per category gives them the same character without any upload, and the client picks it, so the API stores only the switch.
+
+## #40 — Guest menu in the initial bundle, boot mark in index.html (2026-11-11)
+
+Measured on throttled 3G (Chrome's Slow 3G and Fast 3G, 4x CPU) the guest menu was blank for 19.8 s / 6.2 s: after the initial bundle came a chain of four lazy chunks (routes file, page, view, shared venue helpers), each one round trip, and only then the menu request. The tenant routes now sit inline in `app.routes.ts` and `PublicMenuPage` (with `PublicMenuView`) is imported eagerly, so the menu request starts right after the initial bundle: 11 s / 4.1 s. Admins pay about 22 kB gzipped more on their first load. `index.html` shows the Menuly mark until the app starts (`app-config.js` is `defer`, so it no longer holds up the first paint), and nginx gzips JS/CSS.
+
+Why: guests open the menu from a QR code on mobile data; that path matters more than a slightly larger admin bundle.

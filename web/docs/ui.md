@@ -130,3 +130,5 @@ A lazy page with every token (both themes), pattern and primitive variant. Nothi
 ## Feature components
 
 Compose primitives, patterns and utilities; style only what is screen-specific, with semantic tokens. Reused elsewhere → move it down a layer.
+
+Signed-in pages sit in the `page` size container (the shell's `main`): size rules for tables and columns use `@container page (...)`, not `@media`, because the sidebar takes part of the window. A `.table` gets tighter cells under 560px; add `data-stack` to turn its rows into cards there (first cell on its own line).

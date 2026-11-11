@@ -3,6 +3,7 @@ import { authGuard, guestGuard, platformAdminGuard, roleGuard } from './core/aut
 import { tenantHostGuard } from './core/host/host.guards';
 import { venueAccessGuard } from './core/venues/venue.guards';
 import { AdminShell } from './core/layout/admin-shell';
+import PublicMenuPage from './features/public-menu/public-menu-page';
 
 export const routes: Routes = [
   // Tenant subdomain: only the public menu, no sign-in.
@@ -10,7 +11,19 @@ export const routes: Routes = [
     path: '',
     canMatch: [tenantHostGuard],
     data: { preload: false },
-    loadChildren: () => import('./features/public-menu/public-menu.routes'),
+    // Guest menu ships in the initial bundle: no lazy chunk chain before the menu on 3G (decision #40).
+    children: [
+      {
+        path: ':venueSlug',
+        title: $localize`:@@publicMenu.pageTitle:Meni`,
+        component: PublicMenuPage,
+      },
+      {
+        path: '**',
+        title: $localize`:@@notFound.pageTitle:Stranica nije pronađena`,
+        loadComponent: () => import('./core/layout/not-found-page'),
+      },
+    ],
   },
   {
     path: 'prijava',

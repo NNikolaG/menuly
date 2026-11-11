@@ -1,4 +1,6 @@
+import { BreakpointObserver } from '@angular/cdk/layout';
 import { Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import {
   LucideArrowLeftRight,
@@ -16,6 +18,7 @@ import {
   LucideUsers,
   type LucideIcon,
 } from '@lucide/angular';
+import { map } from 'rxjs';
 import { AppMenu, type AppMenuItem } from '../../shared/ui/menu/menu';
 import { AppPattern } from '../../shared/ui/pattern/pattern';
 import { AuthStore } from '../auth/auth-store';
@@ -92,7 +95,8 @@ const NEXT_THEME: Record<ThemePreference, ThemePreference> = {
           [routerLink]="item.path"
           routerLinkActive
           ariaCurrentWhenActive="page"
-          [attr.title]="collapsed() ? item.label : null"
+          [attr.aria-label]="item.label"
+          [attr.title]="collapsed() || narrow() ? item.label : null"
         >
           <svg [lucideIcon]="item.icon" aria-hidden="true"></svg>
           <span class="expanded-only">{{ item.label }}</span>
@@ -115,8 +119,8 @@ const NEXT_THEME: Record<ThemePreference, ThemePreference> = {
             [label]="me.user.name"
             [icon]="userIcon"
             look="nav"
-            [compact]="collapsed()"
-            [above]="true"
+            [compact]="collapsed() || mobile()"
+            [above]="!mobile()"
             [items]="accountItems()"
             (selected)="onAccountAction($event)"
           />
@@ -275,7 +279,9 @@ const NEXT_THEME: Record<ThemePreference, ThemePreference> = {
       align-items: center;
     }
 
+    /* Pages size their tables by the space they get, not the window (the sidebar takes some). */
     main {
+      container: page / inline-size;
       inline-size: 100%;
       min-inline-size: 0;
       padding: var(--space-8) var(--space-6);
@@ -333,6 +339,19 @@ const NEXT_THEME: Record<ThemePreference, ThemePreference> = {
         padding: var(--space-6) var(--space-4);
       }
     }
+
+    /* Phones: icons only, so theme and account stay on screen instead of behind a scroll. */
+    @media (max-width: 520px) {
+      .nav-item .expanded-only {
+        display: none;
+      }
+
+      .nav-item {
+        justify-content: center;
+        inline-size: var(--control-md);
+        padding-inline: 0;
+      }
+    }
   `,
 })
 export class AdminShell {
@@ -346,6 +365,17 @@ export class AdminShell {
   protected readonly openIcon = LucidePanelLeftOpen;
   protected readonly closeIcon = LucidePanelLeftClose;
   protected readonly userIcon = LucideUserRound;
+
+  private readonly breakpoints = inject(BreakpointObserver);
+  /** Same breakpoints as the styles: top bar instead of sidebar, then icon-only items. */
+  protected readonly mobile = toSignal(
+    this.breakpoints.observe('(max-width: 720px)').pipe(map((state) => state.matches)),
+    { initialValue: false },
+  );
+  protected readonly narrow = toSignal(
+    this.breakpoints.observe('(max-width: 520px)').pipe(map((state) => state.matches)),
+    { initialValue: false },
+  );
 
   /** Remembered per browser. */
   protected readonly collapsed = signal(readCollapsed());

@@ -358,6 +358,14 @@
   outline: none;
 }
 
+/* Touch feedback: the page turns tap highlight off, so a pressed row tints itself. */
+.menu-item__open::after {
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+.menu-item__open:active::after {
+  background: color-mix(in oklab, currentColor 8%, transparent);
+}
+
 .menu-item__open:focus-visible::after {
   outline: var(--stroke-focus) solid var(--color-focus);
   outline-offset: var(--focus-offset);
@@ -1208,6 +1216,51 @@ app-public-menu-view[data-template='racun'] .page {
   display: block;
   font: var(--type-body-sm);
   color: var(--color-text-muted);
+}
+
+/* Narrow page: tighter cells; with data-stack each row becomes a card (first cell on its own line, the rest wrap below). */
+@container page (max-width: 560px) {
+  .table :is(th, td) {
+    padding-inline: var(--space-2);
+  }
+  .table :is(th, td):first-child {
+    padding-inline-start: var(--space-3);
+  }
+  .table :is(th, td):last-child {
+    padding-inline-end: var(--space-3);
+  }
+  .table[data-stack] thead {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .table[data-stack],
+  .table[data-stack] tbody {
+    display: block;
+  }
+  .table[data-stack] tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border-block-end: var(--stroke-hairline) solid var(--color-border);
+  }
+  .table[data-stack] tr:last-child {
+    border-block-end: 0;
+  }
+  .table[data-stack] td {
+    padding: 0;
+    border: 0;
+  }
+  .table[data-stack] td:first-child {
+    flex-basis: 100%;
+  }
+  .table[data-stack] td[data-num]:last-child {
+    margin-inline-start: auto;
+  }
 }
 
 /* ---------- Stat ---------- */

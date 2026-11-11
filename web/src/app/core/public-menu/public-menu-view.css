@@ -75,6 +75,8 @@
 }
 
 .info {
+  /* The links already have touch height; wrapped lines need no extra gap. */
+  row-gap: 0;
   color: var(--color-text-muted);
 }
 
@@ -177,6 +179,8 @@
 .filters {
   display: flex;
   flex-direction: column;
+  /* The global .filters pattern centres its items; here each group starts at the edge. */
+  align-items: stretch;
   gap: var(--space-4);
   padding-block: var(--space-3);
 }
