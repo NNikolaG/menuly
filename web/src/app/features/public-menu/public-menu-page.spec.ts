@@ -174,6 +174,20 @@ describe('PublicMenuPage', () => {
     expect(codeOf('Kapućino')).toBe(before);
   });
 
+  it('draws a geometric illustration per category only when the theme asks', async () => {
+    const menu = publicMenuFixture();
+    menu.theme = { ...DEFAULT_MENU_THEME, show_illustrations: true };
+    const fixture = await render((url) => http.expectOne(url).flush(menu));
+    const root: HTMLElement = fixture.nativeElement;
+    expect(root.querySelectorAll('section.category .menu-cat app-category-art svg').length).toBe(
+      menu.menu.categories.length,
+    );
+
+    menu.theme = { ...menu.theme, show_illustrations: false };
+    const off = await render((url) => http.expectOne(url).flush(menu));
+    expect((off.nativeElement as HTMLElement).querySelector('app-category-art')).toBeNull();
+  });
+
   it('filters out sold-out items and allergens', async () => {
     const fixture = await render((url) => http.expectOne(url).flush(publicMenuFixture()));
     const root: HTMLElement = fixture.nativeElement;

@@ -37,6 +37,7 @@ import {
 } from './menu-filter';
 import { ItemSheet, type ItemSheetData } from './item-sheet';
 import { VenueInfo } from './venue-info';
+import { AppCategoryArt, artKindFor } from './category-art';
 import type { PublicCategory, PublicItem, PublicMenu, PublicPromotion } from './public-menu';
 
 type Mode = 'light' | 'dark';
@@ -59,6 +60,7 @@ let stampCount = 0;
     AppPattern,
     AppStripes,
     AppMosaic,
+    AppCategoryArt,
     LucideMapPin,
     LucideMoon,
     LucidePhone,
@@ -326,6 +328,9 @@ let stampCount = 0;
           <div class="menu-cat">
             @if (label) {
               <span class="menu-cat__stripes" aria-hidden="true"></span>
+            }
+            @if (t.show_illustrations) {
+              <app-category-art [kind]="artKindFor(category.name)" />
             }
             @if (t.template === 'plakat') {
               <span class="menu-cat__num" aria-hidden="true">{{
@@ -612,6 +617,7 @@ export class PublicMenuView {
   );
   protected readonly labelOf = labelOf;
   protected readonly isHighlight = isHighlight;
+  protected readonly artKindFor = artKindFor;
 
   // ---- Light / dark: the menu's setting, until the guest switches ----
   private readonly guestMode = signal<Mode | null>(null);

@@ -170,6 +170,10 @@ const URL_PATTERN = /^(https?:\/\/\S+)?$/;
                 <span i18n="@@menuDesign.showDescriptions">Opisi stavki i kategorija</span>
               </label>
               <label class="row" data-gap="3">
+                <input type="checkbox" appSwitch [formField]="themeForm.show_illustrations" />
+                <span i18n="@@menuDesign.showIllustrations">Ilustracije kategorija</span>
+              </label>
+              <label class="row" data-gap="3">
                 <input type="checkbox" appSwitch [formField]="themeForm.show_pattern" />
                 <span i18n="@@menuDesign.showPattern">Uzorak lokala u zaglavlju</span>
               </label>
