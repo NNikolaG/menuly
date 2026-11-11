@@ -493,7 +493,7 @@ import { toMajor, toMinor } from './price';
       display: none;
     }
 
-    @media (max-width: 720px) {
+    @container page (max-width: 720px) {
       .wide-only {
         display: none;
       }
@@ -504,6 +504,25 @@ import { toMajor, toMinor } from './price';
 
       .price-line {
         text-align: start;
+      }
+    }
+
+    /* Phone: the columns explain themselves; their headers would push the table off screen. */
+    @container page (max-width: 400px) {
+      thead {
+        display: none;
+      }
+
+      .handle-cell {
+        padding-inline-end: 0;
+      }
+
+      td strong {
+        overflow-wrap: anywhere;
+      }
+
+      td .price-line {
+        white-space: normal;
       }
     }
 

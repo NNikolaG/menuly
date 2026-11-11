@@ -162,7 +162,7 @@ import { VenueQr } from './venue-qr';
                   </button>
                 </div>
               } @else if (items.length) {
-                <table class="table">
+                <table class="table" data-stack>
                   <thead>
                     <tr>
                       <th i18n="@@venue.col.menu">Meni</th>
@@ -319,6 +319,7 @@ import { VenueQr } from './venue-qr';
 
     .profile {
       display: grid;
+      grid-template-columns: minmax(0, 1fr);
       padding: var(--space-5);
       border-radius: var(--radius-lg);
     }

@@ -16,8 +16,8 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Onest:wght@400;500;600;700&display=swap"
     />
-    <!-- Runtime settings (base domain); nginx fills them from the container env. -->
-    <script src="/app-config.js"></script>
+    <!-- Runtime settings (base domain); nginx fills them from the container env. Deferred: still runs before the app's module scripts, without holding up the first paint. -->
+    <script src="/app-config.js" defer></script>
     <!-- Applies the saved theme before first paint; keep the key in sync with ThemeStore. -->
     <script>
       try {
@@ -25,8 +25,57 @@
         if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
       } catch {}
     </script>
+    <!-- Boot mark while the app downloads (seconds on 3G); the app replaces it when it starts. -->
+    <style>
+      :root {
+        color-scheme: light dark;
+      }
+      :root[data-theme='light'] {
+        color-scheme: light;
+      }
+      :root[data-theme='dark'] {
+        color-scheme: dark;
+      }
+      body {
+        margin: 0;
+      }
+      .boot {
+        display: grid;
+        place-items: center;
+        min-block-size: 100dvh;
+        background: light-dark(#fafaf8, #141414);
+        animation: boot-in 0.3s 0.4s both;
+      }
+      .boot svg {
+        inline-size: 48px;
+        block-size: 48px;
+        animation: boot-pulse 1.4s 0.7s ease-in-out infinite alternate;
+      }
+      @keyframes boot-in {
+        from {
+          opacity: 0;
+        }
+      }
+      @keyframes boot-pulse {
+        to {
+          opacity: 0.4;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .boot svg {
+          animation: none;
+        }
+      }
+    </style>
   </head>
   <body>
-    <app-root></app-root>
+    <app-root
+      ><div class="boot" role="progressbar" aria-label="Menuly">
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+          <rect width="64" height="64" rx="14" fill="#141414" />
+          <path d="M14 48V30a9 9 0 0 1 18 0v18" fill="none" stroke="#ffaf1f" stroke-width="9" />
+          <path d="M32 30a9 9 0 0 1 18 0v18" fill="none" stroke="#8a9cff" stroke-width="9" />
+        </svg></div
+    ></app-root>
   </body>
 </html>

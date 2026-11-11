@@ -88,7 +88,7 @@ import { VenueAccessDialog, type VenueAccessDialogData } from './venue-access-di
               </button>
             </div>
           } @else {
-            <table class="table">
+            <table class="table" data-stack>
               <thead>
                 <tr>
                   <th i18n="@@team.col.person">Osoba</th>
@@ -251,7 +251,7 @@ import { VenueAccessDialog, type VenueAccessDialogData } from './venue-access-di
 
         @if (invitations(); as items) {
           @if (items.length) {
-            <table class="table">
+            <table class="table" data-stack>
               <thead>
                 <tr>
                   <th i18n="@@team.col.invited">Pozvan</th>
@@ -321,7 +321,7 @@ import { VenueAccessDialog, type VenueAccessDialogData } from './venue-access-di
       white-space: nowrap;
     }
 
-    @media (max-width: 720px) {
+    @container page (max-width: 720px) {
       .wide-only {
         display: none;
       }

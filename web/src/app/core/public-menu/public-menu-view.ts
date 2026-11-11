@@ -12,6 +12,7 @@ import {
   Injector,
   input,
   signal,
+  viewChild,
   viewChildren,
 } from '@angular/core';
 import {
@@ -264,7 +265,12 @@ let stampCount = 0;
         }
 
         @if (!filtering() && categories().length > 1) {
-          <nav class="chips" i18n-aria-label="@@publicMenu.categories" aria-label="Kategorije">
+          <nav
+            #chips
+            class="chips"
+            i18n-aria-label="@@publicMenu.categories"
+            aria-label="Kategorije"
+          >
             @for (category of categories(); track category.id) {
               <a
                 class="chip"
@@ -717,6 +723,7 @@ export class PublicMenuView {
   // ---- Category chips + scroll-spy ----
   protected readonly active = signal<string | null>(null);
   private readonly sections = viewChildren<ElementRef<HTMLElement>>('section');
+  private readonly chips = viewChild<ElementRef<HTMLElement>>('chips');
 
   // ---- Languages: a picker only when the menu offers more than one ----
   protected readonly languageLabel = $localize`:@@publicMenu.language:Jezik menija`;
@@ -778,6 +785,20 @@ export class PublicMenuView {
       for (const section of sections) observer.observe(section.nativeElement);
     });
     destroyRef.onDestroy(() => observer?.disconnect());
+
+    // The chip strip scrolls sideways; keep the current chip in view as the page scrolls.
+    afterRenderEffect(() => {
+      const strip = this.chips()?.nativeElement;
+      if (!strip?.scrollTo || !this.active()) return;
+      const chip = strip.querySelector<HTMLElement>('[aria-current]');
+      if (!chip) return;
+      const box = strip.getBoundingClientRect();
+      const rect = chip.getBoundingClientRect();
+      const left = strip.scrollLeft + rect.left - box.left - (box.width - rect.width) / 2;
+      const reduce =
+        typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+      strip.scrollTo({ left, behavior: reduce ? 'auto' : 'smooth' });
+    });
   }
 
   protected toggleMode(): void {

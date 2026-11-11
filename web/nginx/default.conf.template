@@ -2,6 +2,14 @@ server {
   listen 80;
   root /usr/share/nginx/html;
 
+  # Compressed JS/CSS: about a fifth of the bytes, which is what a phone on 3G waits for.
+  gzip on;
+  gzip_comp_level 6;
+  gzip_min_length 1024;
+  gzip_vary on;
+  gzip_proxied any;
+  gzip_types application/javascript text/css application/json image/svg+xml application/manifest+json;
+
   # /api/v1/... -> ${API_UPSTREAM}/v1/...
   location /api/ {
     proxy_pass ${API_UPSTREAM}/;
