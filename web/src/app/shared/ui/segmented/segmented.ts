@@ -28,6 +28,7 @@ export interface AppSegmentedOption {
   styles: `
     [ngListbox] {
       display: inline-flex;
+      flex-wrap: wrap;
       gap: var(--space-half);
       padding: calc(var(--space-1) - var(--stroke-hairline));
       background: var(--color-surface-sunken);

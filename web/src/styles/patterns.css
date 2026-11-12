@@ -997,6 +997,121 @@ app-public-menu-view[data-template='racun'] .page {
   opacity: 0.75;
 }
 
+/* ---------- "Zrno": drifting grain waves (header band, card ground, featured combo) ---------- */
+.grain {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  background: var(--color-grain-cool-ground);
+}
+
+.grain[data-mood='warm'] {
+  background: var(--color-grain-warm-ground);
+}
+
+.grain__canvas {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+/* Beats every template's combo look: a white card resting on grain, the same everywhere. */
+:is([data-template]) .promo[data-grain] {
+  position: relative;
+  border: 0;
+  border-radius: var(--radius-lg);
+  outline: var(--stroke-hairline) solid var(--color-border);
+  background: var(--color-grain-cool-ground);
+  box-shadow: var(--shadow-md);
+  color: var(--color-text);
+  mask: none;
+  rotate: none;
+}
+
+:is([data-template]) .promo[data-grain] .promo__body {
+  position: relative;
+  z-index: 1;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5) var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
+}
+
+:is([data-template]) .promo[data-grain] .promo__name {
+  font: var(--type-display-md);
+  font-size: var(--size-mosaic-title);
+  font-weight: 400;
+  letter-spacing: var(--tracking-display-md);
+  text-transform: lowercase;
+}
+
+.promo__grain {
+  block-size: var(--size-grain-card);
+  margin-block-start: calc(-1 * var(--size-grain-tuck));
+}
+
+/* ---------- "Pastel": airy cream paper, light type, notebook-page combos ---------- */
+[data-template='pastel'] .menu-cat {
+  padding-block-end: var(--space-3);
+  border-block-end: var(--stroke-hairline) solid var(--color-pastel-line);
+}
+
+[data-template='pastel'] .menu-cat__title {
+  font: var(--type-display-md);
+  font-size: var(--size-mosaic-title);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+}
+
+[data-template='pastel'] .menu-item {
+  padding-block: var(--space-5);
+  border-block-end-style: solid;
+  border-block-end-color: color-mix(in oklab, var(--color-pastel-line) 50%, transparent);
+}
+
+[data-template='pastel'] .menu-item__name {
+  font-weight: 400;
+}
+
+[data-template='pastel'] .menu-item__price {
+  font-weight: 400;
+}
+
+/* A page torn from a ring notebook, slightly askew; the rings punch the left edge. */
+[data-template='pastel'] .promo:not([data-mosaic], [data-grain]) {
+  position: relative;
+  padding-inline-start: var(--size-pastel-holes);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--color-pastel-sheet);
+  box-shadow: var(--shadow-md);
+  rotate: -1.2deg;
+}
+
+[data-template='pastel'] .promo:not([data-mosaic], [data-grain]) .promo__body {
+  padding-inline-start: var(--space-2);
+}
+
+[data-template='pastel'] .promo:not([data-mosaic], [data-grain]) .promo__name {
+  font-weight: 300;
+  font-size: var(--size-mosaic-title);
+  line-height: 1.05;
+}
+
+.promo__holes {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  inline-size: var(--size-pastel-holes);
+  background: radial-gradient(
+      circle at 50% 50%,
+      var(--color-pastel-hole) calc(var(--size-pastel-hole) / 2),
+      transparent calc(var(--size-pastel-hole) / 2 + 0.5px)
+    )
+    50% 0 / 100% var(--size-pastel-holes) no-repeat space;
+}
+
 /* ---------- Pill button: round icon or short-label control on the public menu ---------- */
 .pill-btn {
   position: relative;

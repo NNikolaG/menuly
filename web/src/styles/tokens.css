@@ -51,6 +51,16 @@
   --teal-400: #1fb98c;
   --sky-400: #2b9cf0;
   --sand-200: #e6dcc6;
+  /* "Zrno" grain waves and the "Pastel" template. */
+  --navy-500: #345a9a;
+  --rose-400: #ec6f7e;
+  --lilac-300: #9fa9ea;
+  --pine-600: #2a7a50;
+  --mist-200: #c9d6ee;
+  --ember-500: #ee4a1c;
+  --sun-400: #f5c92c;
+  --sky-100: #dfe8f6;
+  --sky-300: #a9c1e8;
 
   /* ---------- Semantic colors (light, dark) ---------- */
   --color-bg: light-dark(var(--n-25), var(--n-900));
@@ -101,6 +111,33 @@
   --color-mosaic-4: var(--color-brand-amber);
   --color-mosaic-5: var(--sand-200);
   --color-mosaic-ground: var(--color-brand-ink);
+  /* "Zrno": stippled waves, cool or warm from the venue accent. Dots are the same in both themes
+     (read by the canvas); the ground behind them follows the theme. */
+  --color-grain-cool-1: var(--navy-500);
+  --color-grain-cool-2: var(--rose-400);
+  --color-grain-cool-3: var(--lilac-300);
+  --color-grain-cool-4: var(--pine-600);
+  --color-grain-cool-5: var(--mist-200);
+  --color-grain-cool-6: var(--sun-400);
+  --color-grain-warm-1: var(--navy-500);
+  --color-grain-warm-2: var(--rose-400);
+  --color-grain-warm-3: var(--sun-400);
+  --color-grain-warm-4: var(--ember-500);
+  --color-grain-warm-5: var(--n-900);
+  --color-grain-warm-6: var(--ember-500);
+  --color-grain-cool-ground: light-dark(#e9ecf0, #1a1d23);
+  --color-grain-warm-ground: light-dark(#ede8de, #1f1b16);
+  /* "Pastel": cream paper under a soft sky; butterflies in crayon colors. */
+  --color-pastel-paper: light-dark(#f8f5ee, #15171c);
+  --color-pastel-sky-top: light-dark(var(--sky-300), #22314d);
+  --color-pastel-sky-bottom: light-dark(var(--sky-100), #15171c);
+  --color-pastel-line: light-dark(var(--sky-300), #33415a);
+  --color-pastel-sheet: light-dark(var(--n-0), #1e2026);
+  --color-pastel-hole: light-dark(var(--sky-100), #2c3242);
+  --color-butterfly-1: var(--orange-300);
+  --color-butterfly-2: var(--sky-300);
+  --color-butterfly-3: var(--amber-300);
+  --color-butterfly-4: var(--coral-400);
   --color-receipt-backdrop: light-dark(var(--n-200), var(--n-950));
   --texture-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 
@@ -266,6 +303,13 @@
   --size-category-art: 44px;
   --size-mosaic-card: 132px;
   --size-mosaic-title: 34px;
+  --size-grain-reveal: 180px;
+  --size-grain-tuck: 40px;
+  --size-grain-card: 120px;
+  --size-pastel-sky: 180px;
+  --size-pastel-holes: 28px;
+  --size-pastel-hole: 9px;
+  --size-butterfly: 44px;
   --size-poster-ribbon: 8px;
   --size-poster-dot: 0.55em;
   --radius-poster: 40px;

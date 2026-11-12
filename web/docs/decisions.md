@@ -198,3 +198,11 @@ Why: most menus have no photos; a drawing per category gives them the same chara
 Measured on throttled 3G (Chrome's Slow 3G and Fast 3G, 4x CPU) the guest menu was blank for 19.8 s / 6.2 s: after the initial bundle came a chain of four lazy chunks (routes file, page, view, shared venue helpers), each one round trip, and only then the menu request. The tenant routes now sit inline in `app.routes.ts` and `PublicMenuPage` (with `PublicMenuView`) is imported eagerly, so the menu request starts right after the initial bundle: 11 s / 4.1 s. Admins pay about 22 kB gzipped more on their first load. `index.html` shows the Menuly mark until the app starts (`app-config.js` is `defer`, so it no longer holds up the first paint), and nginx gzips JS/CSS.
 
 Why: guests open the menu from a QR code on mobile data; that path matters more than a slightly larger admin bundle.
+
+## #40 — "Zrno" grain card and the "Pastel" template with "Leptiri" (2026-11-12)
+
+From two references Nikola found (project files `inspiracija/zrno/` and `inspiracija/pastel/`), our own take, all in migration 00016:
+- `pattern: zrno`: waves and clouds of sprayed dots (`AppGrain`, `grain.generator`) that roll, swell and tremble in a loop, painted pixel by pixel on a canvas at 24 fps, still with reduced motion and paused off screen. The header becomes a white card (small "menu • address" line, lowercase venue name) resting on the grain, and the featured combo becomes the same card. Warm waves for warm accents (narandza, espresso, bordo, senf, roze), cool for the rest, so there is no extra setting. Dot colors are `--color-grain-<mood>-1..6`, the same in both themes; the ground behind them follows the theme.
+- `pattern: leptiri`: a pastel sky with a seeded flock of seven crayon butterflies (`AppButterflies`), pure CSS animation with container units, paused with reduced motion.
+- `template: pastel`: cream paper with grain, light (300) large type, airy rows with soft sky rules, combos as a slightly askew ring-notebook page, and the cover photo redrawn as a pastel print by an inline SVG filter (wobble plus a few flat tones). Weight 300 is now loaded for every menu font.
+Why: Nikola wanted the looping "wow" motion of the references; canvas keeps ~30k moving dots cheap, butterflies need no JS per frame, and the pastel cover needs no extra upload.
