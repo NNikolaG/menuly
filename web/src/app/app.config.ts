@@ -2,6 +2,11 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideLucideConfig } from '@lucide/angular';
 import {
+  provideClientHydration,
+  withEventReplay,
+  withIncrementalHydration,
+} from '@angular/platform-browser';
+import {
   provideRouter,
   TitleStrategy,
   withComponentInputBinding,
@@ -28,5 +33,7 @@ export const appConfig: ApplicationConfig = {
     { provide: TitleStrategy, useClass: AppTitleStrategy },
     { provide: API_BASE_URL, useValue: environment.apiBaseUrl },
     provideLucideConfig({ strokeWidth: 1.5, size: 18 }),
+    // Guest pages come server-rendered (app.routes.server.ts); the rest renders on the client as before.
+    provideClientHydration(withIncrementalHydration(), withEventReplay()),
   ],
 };

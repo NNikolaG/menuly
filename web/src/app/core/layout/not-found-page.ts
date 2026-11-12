@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject, RESPONSE_INIT } from '@angular/core';
 
 @Component({
   selector: 'app-not-found-page',
@@ -7,4 +7,10 @@ import { Component } from '@angular/core';
     <p i18n="@@notFound.body">Proverite adresu ili se vratite na početnu stranu.</p>
   `,
 })
-export default class NotFoundPage {}
+export default class NotFoundPage {
+  constructor() {
+    // Server-rendered (tenant host): a real 404, so search engines drop the URL.
+    const response = inject(RESPONSE_INIT, { optional: true });
+    if (response) response.status = 404;
+  }
+}

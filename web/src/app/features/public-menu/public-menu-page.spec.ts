@@ -1,5 +1,6 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { PLATFORM_ID, RESPONSE_INIT, type Provider } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Title } from '@angular/platform-browser';
 import { APP_HOST } from '../../core/host/app-host';
@@ -14,15 +15,22 @@ describe('PublicMenuPage', () => {
 
   let http: HttpTestingController;
 
-  beforeEach(() => {
+  /** `extra`: what a server render adds (RESPONSE_INIT, the server PLATFORM_ID). */
+  function setup(extra: Provider[] = []) {
+    TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
         { provide: APP_HOST, useValue: { kind: 'tenant', tenantSlug: 'zora' } },
+        ...extra,
       ],
     });
     http = TestBed.inject(HttpTestingController);
+  }
+
+  beforeEach(() => {
+    setup();
     sessionStorage.clear();
   });
 
@@ -215,6 +223,37 @@ describe('PublicMenuPage', () => {
     expect(fixture.nativeElement.querySelector('[role="alert"]').textContent).toContain(
       'Meni nije dostupan',
     );
+  });
+
+  it('gives a server render the right status: 404 for a missing menu, 503 for a failed API', async () => {
+    const response: ResponseInit = {};
+    setup([{ provide: RESPONSE_INIT, useValue: response }]);
+    await render((url) =>
+      http
+        .expectOne(url)
+        .flush(
+          { error: { code: 'not_found', message: '' } },
+          { status: 404, statusText: 'Not Found' },
+        ),
+    );
+    expect(response.status).toBe(404);
+  });
+
+  it('asks crawlers to come back when the API fails during a server render', async () => {
+    const response: ResponseInit = {};
+    setup([{ provide: RESPONSE_INIT, useValue: response }]);
+    await render((url) =>
+      http.expectOne(url).flush(null, { status: 502, statusText: 'Bad Gateway' }),
+    );
+    expect(response.status).toBe(503);
+    expect(response.headers).toEqual({ 'Retry-After': '30' });
+  });
+
+  it('does not count a server render as a menu open', async () => {
+    setup([{ provide: PLATFORM_ID, useValue: 'server' }]);
+    const fixture = await render((url) => http.expectOne(url).flush(publicMenuFixture()));
+    fixture.detectChanges();
+    http.expectNone('/api/v1/public/menus/zora/centar/views');
   });
 
   it('counts one menu open per tab session', async () => {
