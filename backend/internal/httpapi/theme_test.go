@@ -36,7 +36,7 @@ func TestMenuTheme(t *testing.T) {
 	}
 
 	// Every template is accepted by the API and the table check.
-	for _, tpl := range []string{"racun", "tabla", "etiketa", "plakat", "galerija"} {
+	for _, tpl := range []string{"racun", "tabla", "etiketa", "plakat", "pastel", "galerija"} {
 		r = call(t, "PUT", path, tok, map[string]any{"template": tpl})
 		expect(t, r, http.StatusOK)
 		if r.body["template"] != tpl {
@@ -56,8 +56,10 @@ func TestMenuTheme(t *testing.T) {
 	if r.body["show_illustrations"] != true {
 		t.Fatalf("illustrations = %v", r.body["show_illustrations"])
 	}
-	r = call(t, "PUT", path, tok, map[string]any{"pattern": "mozaik"})
-	expect(t, r, http.StatusOK)
+	for _, pattern := range []string{"mozaik", "zrno", "leptiri"} {
+		r = call(t, "PUT", path, tok, map[string]any{"pattern": pattern})
+		expect(t, r, http.StatusOK)
+	}
 	r = call(t, "PUT", path, tok, map[string]any{"pattern": "trake"})
 	expect(t, r, http.StatusOK)
 	r = call(t, "PUT", path, tok, map[string]any{"accent": "bordo"})
