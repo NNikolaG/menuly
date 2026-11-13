@@ -251,7 +251,10 @@ describe('MenuSeo', () => {
     expect(meta.getTag('property="og:url"')!.content).toBe(`${origin}/centar`);
     expect(meta.getTag('property="og:locale"')!.content).toBe('sr_RS');
     expect(links('canonical')).toEqual([`${origin}/centar`]);
-    expect(links('alternate')).toHaveLength(4);
+    // Three languages, x-default, plus the Markdown and JSON forms for agents.
+    expect(links('alternate')).toHaveLength(6);
+    expect(links('alternate')).toContain(`${origin}/centar.md`);
+    expect(links('alternate')).toContain(`${origin}/api/v1/public/menus/zora/centar`);
     const jsonLd = JSON.parse(head().querySelector('#menu-jsonld')!.textContent!);
     expect(jsonLd['@graph'][1]['@type']).toBe('Menu');
 
@@ -259,7 +262,8 @@ describe('MenuSeo', () => {
     german.lang = 'de';
     seo.apply(german);
     expect(links('canonical')).toEqual([`${origin}/en/centar?lang=de`]);
-    expect(links('alternate')).toHaveLength(4);
+    expect(links('alternate')).toHaveLength(6);
+    expect(links('alternate')).toContain(`${origin}/en/centar.md?lang=de`);
     expect(meta.getTag('property="og:locale"')).toBeNull();
     expect(TestBed.inject(DOCUMENT).documentElement.lang).toBe('de');
     expect(head().querySelectorAll('#menu-jsonld')).toHaveLength(1);

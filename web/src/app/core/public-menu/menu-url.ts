@@ -14,3 +14,15 @@ export function menuUrl(origin: string, venueSlug: string, lang: string): string
     ? `${origin}/en/${slug}`
     : `${origin}/en/${slug}?lang=${encodeURIComponent(lang)}`;
 }
+
+/** The same menu as Markdown, for AI agents: `/{venue}.md`, same language rule as `menuUrl`. */
+export function menuMarkdownUrl(origin: string, venueSlug: string, lang: string): string {
+  const [path, query] = menuUrl(origin, venueSlug, lang).split('?');
+  return query ? `${path}.md?${query}` : `${path}.md`;
+}
+
+/** The menu as JSON, straight from the public API (CORS open, cached 30 s). */
+export function menuJsonUrl(origin: string, tenantSlug: string, venueSlug: string, lang: string) {
+  const url = `${origin}/api/v1/public/menus/${encodeURIComponent(tenantSlug)}/${encodeURIComponent(venueSlug)}`;
+  return lang === 'sr' ? url : `${url}?lang=${encodeURIComponent(lang)}`;
+}

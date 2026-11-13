@@ -1,7 +1,7 @@
 import { DOCUMENT, inject, Injectable } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { labelOf } from '../menus/menu-labels';
-import { DEMO_TENANT_SLUG, menuUrl } from './menu-url';
+import { DEMO_TENANT_SLUG, menuJsonUrl, menuMarkdownUrl, menuUrl } from './menu-url';
 import { type VenueType, WEEKDAYS, type Weekday } from '../venues/venue';
 import type { PublicItem, PublicMenu, PublicPromotion } from './public-menu';
 
@@ -295,7 +295,15 @@ export class MenuSeo {
     });
 
     this.links('canonical', [{ href: head.canonical }]);
-    this.links('alternate', head.alternates);
+    this.links('alternate', [
+      ...head.alternates,
+      // The same menu for AI agents: Markdown and the API's JSON.
+      { type: 'text/markdown', href: menuMarkdownUrl(origin, menu.venue.slug, menu.lang) },
+      {
+        type: 'application/json',
+        href: menuJsonUrl(origin, menu.tenant.slug, menu.venue.slug, menu.lang),
+      },
+    ]);
     // The English build also serves menu languages it has no texts for (`?lang=de`).
     if (menu.lang !== 'sr' && menu.lang !== 'en') {
       this.document.documentElement.setAttribute('lang', menu.lang);
@@ -317,14 +325,15 @@ export class MenuSeo {
   }
 
   /** Replaces this service's `<link rel>` tags of one kind. */
-  private links(rel: string, links: { href: string; hreflang?: string }[]): void {
+  private links(rel: string, links: { href: string; hreflang?: string; type?: string }[]): void {
     const head = this.document.head;
     head.querySelectorAll(`link[rel="${rel}"][data-seo]`).forEach((link) => link.remove());
-    for (const { href, hreflang } of links) {
+    for (const { href, hreflang, type } of links) {
       // Attributes, not properties: the server's DOM has no `dataset` or `hreflang`.
       const link = this.document.createElement('link');
       link.setAttribute('rel', rel);
       if (hreflang) link.setAttribute('hreflang', hreflang);
+      if (type) link.setAttribute('type', type);
       link.setAttribute('href', href);
       link.setAttribute('data-seo', '');
       head.appendChild(link);
