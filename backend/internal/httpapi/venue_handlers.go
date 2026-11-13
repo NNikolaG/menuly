@@ -84,12 +84,25 @@ type venueInput struct {
 	WifiSSID      *string          `json:"wifi_ssid"`
 	WifiPassword  *string          `json:"wifi_password"`
 	WifiAccess    *string          `json:"wifi_access"`
+	VenueType     *string          `json:"venue_type"`
+	City          *string          `json:"city"`
+	PostalCode    *string          `json:"postal_code"`
+	Country       *string          `json:"country"`
+	// Sent together: two numbers, or two nulls to clear. Absent = unchanged.
+	Latitude    json.RawMessage `json:"latitude"`
+	Longitude   json.RawMessage `json:"longitude"`
+	Cuisine     *[]string       `json:"cuisine"`
+	Description *string         `json:"description"`
+
+	setLocation bool
+	lat, lng    *float64
 }
 
 // normalize trims fields and validates whatever is present.
 func (in *venueInput) normalize() *APIError {
 	// The Wi-Fi password is kept as typed: spaces can be part of it.
-	for _, f := range []*string{in.Name, in.Slug, in.Address, in.Phone, in.Currency, in.Timezone, in.WifiSSID, in.WifiAccess} {
+	for _, f := range []*string{in.Name, in.Slug, in.Address, in.Phone, in.Currency, in.Timezone, in.WifiSSID, in.WifiAccess,
+		in.VenueType, in.City, in.PostalCode, in.Country, in.Description} {
 		if f != nil {
 			*f = trim(*f)
 		}
@@ -123,6 +136,9 @@ func (in *venueInput) normalize() *APIError {
 			return apiErr
 		}
 		*in.OpeningHours = hours
+	}
+	if apiErr := in.normalizeSEO(); apiErr != nil {
+		return apiErr
 	}
 	return validateWifi(in.WifiSSID, in.WifiPassword, in.WifiAccess)
 }
@@ -187,6 +203,10 @@ func (s *Server) handleCreateVenue(w http.ResponseWriter, r *http.Request) {
 			WifiAvailable: in.WifiAvailable != nil && *in.WifiAvailable,
 			WifiSsid:      strOr(in.WifiSSID, ""), WifiPassword: strOr(in.WifiPassword, ""),
 			WifiAccess: strOr(in.WifiAccess, wifiAccessStaff),
+			VenueType:  strOr(in.VenueType, venueTypeOther), City: strOr(in.City, ""),
+			PostalCode: strOr(in.PostalCode, ""), Country: strOr(in.Country, "RS"),
+			Latitude: in.lat, Longitude: in.lng,
+			Cuisine: cuisineOr(in.Cuisine), Description: strOr(in.Description, ""),
 		})
 		if err == nil && v.WifiAvailable && v.WifiSsid == "" {
 			return errWifiSSIDRequired
@@ -257,6 +277,12 @@ func (s *Server) handleUpdateVenue(w http.ResponseWriter, r *http.Request) {
 		Currency: in.Currency, Timezone: in.Timezone,
 		WifiAvailable: in.WifiAvailable, WifiSsid: in.WifiSSID,
 		WifiPassword: in.WifiPassword, WifiAccess: in.WifiAccess,
+		VenueType: in.VenueType, City: in.City, PostalCode: in.PostalCode, Country: in.Country,
+		SetLocation: in.setLocation, Latitude: in.lat, Longitude: in.lng,
+		Description: in.Description,
+	}
+	if in.Cuisine != nil {
+		params.Cuisine = *in.Cuisine
 	}
 	if in.OpeningHours != nil {
 		params.OpeningHours = *in.OpeningHours

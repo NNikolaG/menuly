@@ -41,8 +41,16 @@ describe('VenueFormPage', () => {
       name: 'Kafana Zora',
       slug: undefined,
       address: '',
+      city: '',
+      postal_code: '',
+      country: 'RS',
       phone: '',
       currency: 'RSD',
+      description: '',
+      venue_type: 'other',
+      cuisine: [],
+      latitude: null,
+      longitude: null,
       opening_hours: {},
       wifi_available: false,
       wifi_ssid: '',
@@ -52,6 +60,39 @@ describe('VenueFormPage', () => {
     request.flush(venueFixture());
     await tick();
     expect(TestBed.inject(Router).navigate).toHaveBeenCalledWith(['/objekti', 'v1']);
+  });
+
+  it('sends cuisine as a list and coordinates as two numbers, and clears them when emptied', async () => {
+    const fixture = TestBed.createComponent(VenueFormPage);
+    fixture.componentRef.setInput('venueId', 'v1');
+    fixture.detectChanges();
+    http
+      .expectOne('/api/v1/venues/v1')
+      .flush(venueFixture({ latitude: 44.8176, longitude: 20.4569, cuisine: ['Roštilj'] }));
+    await fixture.whenStable();
+    const root: HTMLElement = fixture.nativeElement;
+    expect(root.querySelector<HTMLInputElement>('#venue-coordinates')!.value).toBe(
+      '44.8176, 20.4569',
+    );
+
+    fill(root, '#venue-coordinates', 'kod mosta');
+    submit(root);
+    await tick();
+    http.expectNone('/api/v1/venues/v1');
+
+    fill(root, '#venue-coordinates', '');
+    fill(root, '#venue-cuisine', 'Srpska kuhinja,  Roštilj, ');
+    fill(root, '#venue-city', 'Beograd');
+    submit(root);
+    await tick();
+    const request = http.expectOne('/api/v1/venues/v1');
+    expect(request.request.body).toMatchObject({
+      city: 'Beograd',
+      cuisine: ['Srpska kuhinja', 'Roštilj'],
+      latitude: null,
+      longitude: null,
+    });
+    request.flush(venueFixture());
   });
 
   it('does not submit an invalid slug', async () => {

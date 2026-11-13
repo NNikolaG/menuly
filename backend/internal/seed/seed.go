@@ -131,11 +131,15 @@ func create(ctx context.Context, q *sqlc.Queries, tenantID, userID uuid.UUID, ha
 
 	hours := json.RawMessage(`{"mon":[["08:00","23:00"]],"tue":[["08:00","23:00"]],"wed":[["08:00","23:00"]],"thu":[["08:00","23:00"]],"fri":[["08:00","01:00"]],"sat":[["09:00","01:00"]],"sun":[["10:00","22:00"]]}`)
 	venueID := newID()
+	lat, lng := 44.8153, 20.4521
 	if _, err := q.CreateVenue(ctx, sqlc.CreateVenueParams{
 		ID: venueID, TenantID: tenantID, Name: "Kafana Mornar", Slug: "mornar",
-		Address: "Karađorđeva 12, Beograd", Phone: "+381 11 123 4567",
+		Address: "Karađorđeva 12", Phone: "+381 11 123 4567",
 		Currency: "RSD", Timezone: "Europe/Belgrade", OpeningHours: hours,
 		WifiAvailable: true, WifiSsid: "Mornar-Gost", WifiPassword: "mornar2026", WifiAccess: "menu",
+		VenueType: "restaurant", City: "Beograd", PostalCode: "11000", Country: "RS",
+		Latitude: &lat, Longitude: &lng, Cuisine: []string{"Srpska kuhinja", "Roštilj"},
+		Description: "Kafana na Savi sa domaćom kuhinjom, roštiljem i točenim pivom.",
 	}); err != nil {
 		return uuid.Nil, fmt.Errorf("venue: %w", err)
 	}
@@ -154,8 +158,9 @@ func create(ctx context.Context, q *sqlc.Queries, tenantID, userID uuid.UUID, ha
 	// A second venue without a menu, so the lists and empty states have data.
 	if _, err := q.CreateVenue(ctx, sqlc.CreateVenueParams{
 		ID: newID(), TenantID: tenantID, Name: "Mornar Bašta", Slug: "basta",
-		Address: "Strahinjića Bana 5, Beograd", Currency: "RSD", Timezone: "Europe/Belgrade",
+		Address: "Strahinjića Bana 5", Currency: "RSD", Timezone: "Europe/Belgrade",
 		OpeningHours: json.RawMessage(`{}`), WifiAccess: "staff",
+		VenueType: "bar", City: "Beograd", Country: "RS", Cuisine: []string{},
 	}); err != nil {
 		return uuid.Nil, fmt.Errorf("venue: %w", err)
 	}

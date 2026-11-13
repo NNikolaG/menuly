@@ -829,7 +829,7 @@ export class PublicMenuView {
 
   protected readonly mapHref = computed(() => {
     const venue = this.menu().venue;
-    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${venue.name}, ${venue.address}`)}`;
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([venue.name, venue.address, venue.city].filter(Boolean).join(', '))}`;
   });
 
   protected readonly hasVenueInfo = computed(() => {

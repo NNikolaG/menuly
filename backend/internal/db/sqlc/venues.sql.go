@@ -15,9 +15,11 @@ import (
 const createVenue = `-- name: CreateVenue :one
 
 INSERT INTO venues (id, tenant_id, name, slug, address, phone, currency, timezone, opening_hours,
-                    wifi_available, wifi_ssid, wifi_password, wifi_access)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-RETURNING id, tenant_id, name, slug, address, phone, currency, timezone, opening_hours, ocr_import_limit, created_at, updated_at, active_menu_id, wifi_available, wifi_ssid, wifi_password, wifi_access
+                    wifi_available, wifi_ssid, wifi_password, wifi_access,
+                    venue_type, city, postal_code, country, latitude, longitude, cuisine, description)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13,
+        $14, $15, $16, $17, $18, $19, $20, $21)
+RETURNING id, tenant_id, name, slug, address, phone, currency, timezone, opening_hours, ocr_import_limit, created_at, updated_at, active_menu_id, wifi_available, wifi_ssid, wifi_password, wifi_access, venue_type, city, postal_code, country, latitude, longitude, cuisine, description
 `
 
 type CreateVenueParams struct {
@@ -34,6 +36,14 @@ type CreateVenueParams struct {
 	WifiSsid      string          `json:"wifi_ssid"`
 	WifiPassword  string          `json:"wifi_password"`
 	WifiAccess    string          `json:"wifi_access"`
+	VenueType     string          `json:"venue_type"`
+	City          string          `json:"city"`
+	PostalCode    string          `json:"postal_code"`
+	Country       string          `json:"country"`
+	Latitude      *float64        `json:"latitude"`
+	Longitude     *float64        `json:"longitude"`
+	Cuisine       []string        `json:"cuisine"`
+	Description   string          `json:"description"`
 }
 
 // Tenant filtering is explicit in every query AND enforced by RLS.
@@ -52,6 +62,14 @@ func (q *Queries) CreateVenue(ctx context.Context, arg CreateVenueParams) (Venue
 		arg.WifiSsid,
 		arg.WifiPassword,
 		arg.WifiAccess,
+		arg.VenueType,
+		arg.City,
+		arg.PostalCode,
+		arg.Country,
+		arg.Latitude,
+		arg.Longitude,
+		arg.Cuisine,
+		arg.Description,
 	)
 	var i Venue
 	err := row.Scan(
@@ -72,6 +90,14 @@ func (q *Queries) CreateVenue(ctx context.Context, arg CreateVenueParams) (Venue
 		&i.WifiSsid,
 		&i.WifiPassword,
 		&i.WifiAccess,
+		&i.VenueType,
+		&i.City,
+		&i.PostalCode,
+		&i.Country,
+		&i.Latitude,
+		&i.Longitude,
+		&i.Cuisine,
+		&i.Description,
 	)
 	return i, err
 }
@@ -94,7 +120,7 @@ func (q *Queries) DeleteVenue(ctx context.Context, arg DeleteVenueParams) (int64
 }
 
 const getVenue = `-- name: GetVenue :one
-SELECT id, tenant_id, name, slug, address, phone, currency, timezone, opening_hours, ocr_import_limit, created_at, updated_at, active_menu_id, wifi_available, wifi_ssid, wifi_password, wifi_access FROM venues WHERE tenant_id = $1 AND id = $2
+SELECT id, tenant_id, name, slug, address, phone, currency, timezone, opening_hours, ocr_import_limit, created_at, updated_at, active_menu_id, wifi_available, wifi_ssid, wifi_password, wifi_access, venue_type, city, postal_code, country, latitude, longitude, cuisine, description FROM venues WHERE tenant_id = $1 AND id = $2
 `
 
 type GetVenueParams struct {
@@ -123,12 +149,20 @@ func (q *Queries) GetVenue(ctx context.Context, arg GetVenueParams) (Venue, erro
 		&i.WifiSsid,
 		&i.WifiPassword,
 		&i.WifiAccess,
+		&i.VenueType,
+		&i.City,
+		&i.PostalCode,
+		&i.Country,
+		&i.Latitude,
+		&i.Longitude,
+		&i.Cuisine,
+		&i.Description,
 	)
 	return i, err
 }
 
 const listVenues = `-- name: ListVenues :many
-SELECT id, tenant_id, name, slug, address, phone, currency, timezone, opening_hours, ocr_import_limit, created_at, updated_at, active_menu_id, wifi_available, wifi_ssid, wifi_password, wifi_access FROM venues WHERE tenant_id = $1 ORDER BY created_at, id
+SELECT id, tenant_id, name, slug, address, phone, currency, timezone, opening_hours, ocr_import_limit, created_at, updated_at, active_menu_id, wifi_available, wifi_ssid, wifi_password, wifi_access, venue_type, city, postal_code, country, latitude, longitude, cuisine, description FROM venues WHERE tenant_id = $1 ORDER BY created_at, id
 `
 
 func (q *Queries) ListVenues(ctx context.Context, tenantID uuid.UUID) ([]Venue, error) {
@@ -158,6 +192,14 @@ func (q *Queries) ListVenues(ctx context.Context, tenantID uuid.UUID) ([]Venue, 
 			&i.WifiSsid,
 			&i.WifiPassword,
 			&i.WifiAccess,
+			&i.VenueType,
+			&i.City,
+			&i.PostalCode,
+			&i.Country,
+			&i.Latitude,
+			&i.Longitude,
+			&i.Cuisine,
+			&i.Description,
 		); err != nil {
 			return nil, err
 		}
@@ -181,9 +223,18 @@ UPDATE venues SET
     wifi_available = COALESCE($8, wifi_available),
     wifi_ssid     = COALESCE($9, wifi_ssid),
     wifi_password = COALESCE($10, wifi_password),
-    wifi_access   = COALESCE($11, wifi_access)
-WHERE tenant_id = $12 AND id = $13
-RETURNING id, tenant_id, name, slug, address, phone, currency, timezone, opening_hours, ocr_import_limit, created_at, updated_at, active_menu_id, wifi_available, wifi_ssid, wifi_password, wifi_access
+    wifi_access   = COALESCE($11, wifi_access),
+    venue_type    = COALESCE($12, venue_type),
+    city          = COALESCE($13, city),
+    postal_code   = COALESCE($14, postal_code),
+    country       = COALESCE($15, country),
+    -- Coordinates can be cleared, so they are written (even as NULL) whenever set_location is true.
+    latitude      = CASE WHEN $16::boolean THEN $17 ELSE latitude END,
+    longitude     = CASE WHEN $16::boolean THEN $18 ELSE longitude END,
+    cuisine       = COALESCE($19::text[], cuisine),
+    description   = COALESCE($20, description)
+WHERE tenant_id = $21 AND id = $22
+RETURNING id, tenant_id, name, slug, address, phone, currency, timezone, opening_hours, ocr_import_limit, created_at, updated_at, active_menu_id, wifi_available, wifi_ssid, wifi_password, wifi_access, venue_type, city, postal_code, country, latitude, longitude, cuisine, description
 `
 
 type UpdateVenueParams struct {
@@ -198,6 +249,15 @@ type UpdateVenueParams struct {
 	WifiSsid      *string   `json:"wifi_ssid"`
 	WifiPassword  *string   `json:"wifi_password"`
 	WifiAccess    *string   `json:"wifi_access"`
+	VenueType     *string   `json:"venue_type"`
+	City          *string   `json:"city"`
+	PostalCode    *string   `json:"postal_code"`
+	Country       *string   `json:"country"`
+	SetLocation   bool      `json:"set_location"`
+	Latitude      *float64  `json:"latitude"`
+	Longitude     *float64  `json:"longitude"`
+	Cuisine       []string  `json:"cuisine"`
+	Description   *string   `json:"description"`
 	TenantID      uuid.UUID `json:"tenant_id"`
 	ID            uuid.UUID `json:"id"`
 }
@@ -215,6 +275,15 @@ func (q *Queries) UpdateVenue(ctx context.Context, arg UpdateVenueParams) (Venue
 		arg.WifiSsid,
 		arg.WifiPassword,
 		arg.WifiAccess,
+		arg.VenueType,
+		arg.City,
+		arg.PostalCode,
+		arg.Country,
+		arg.SetLocation,
+		arg.Latitude,
+		arg.Longitude,
+		arg.Cuisine,
+		arg.Description,
 		arg.TenantID,
 		arg.ID,
 	)
@@ -237,6 +306,14 @@ func (q *Queries) UpdateVenue(ctx context.Context, arg UpdateVenueParams) (Venue
 		&i.WifiSsid,
 		&i.WifiPassword,
 		&i.WifiAccess,
+		&i.VenueType,
+		&i.City,
+		&i.PostalCode,
+		&i.Country,
+		&i.Latitude,
+		&i.Longitude,
+		&i.Cuisine,
+		&i.Description,
 	)
 	return i, err
 }

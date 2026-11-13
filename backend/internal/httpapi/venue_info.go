@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"regexp"
+	"slices"
+	"strings"
 	"unicode/utf8"
 )
 
@@ -113,4 +115,89 @@ func buildPublicWifi(available bool, ssid, password, access string) *publicWifi 
 		w.Password = password
 	}
 	return w
+}
+
+// Kinds of venue; each maps to a schema.org type on the guest menu page.
+const venueTypeOther = "other"
+
+var venueTypes = map[string]bool{
+	"restaurant": true, "cafe": true, "bar": true, "fast_food": true,
+	"bakery": true, "pastry_shop": true, venueTypeOther: true,
+}
+
+var countryRe = regexp.MustCompile(`^[A-Z]{2}$`)
+
+const (
+	maxCityLen        = 80
+	maxPostalCodeLen  = 16
+	maxCuisines       = 5
+	maxCuisineLen     = 40
+	maxDescriptionLen = 300
+)
+
+// normalizeSEO validates the fields search engines read: type, city, postal
+// code, country, coordinates, cuisine and description.
+func (in *venueInput) normalizeSEO() *APIError {
+	if in.VenueType != nil && !venueTypes[*in.VenueType] {
+		return errValidation("venue_type must be restaurant, cafe, bar, fast_food, bakery, pastry_shop or other")
+	}
+	if in.City != nil && utf8.RuneCountInString(*in.City) > maxCityLen {
+		return errValidation("city must be at most 80 characters")
+	}
+	if in.PostalCode != nil && utf8.RuneCountInString(*in.PostalCode) > maxPostalCodeLen {
+		return errValidation("postal_code must be at most 16 characters")
+	}
+	if in.Country != nil {
+		*in.Country = strings.ToUpper(*in.Country)
+		if !countryRe.MatchString(*in.Country) {
+			return errValidation("country must be an ISO 3166-1 alpha-2 code, e.g. RS")
+		}
+	}
+	if in.Description != nil && utf8.RuneCountInString(*in.Description) > maxDescriptionLen {
+		return errValidation("description must be at most 300 characters")
+	}
+	if in.Cuisine != nil {
+		out := make([]string, 0, len(*in.Cuisine))
+		for _, c := range *in.Cuisine {
+			c = trim(c)
+			if c == "" || slices.ContainsFunc(out, func(o string) bool { return strings.EqualFold(o, c) }) {
+				continue
+			}
+			if utf8.RuneCountInString(c) > maxCuisineLen {
+				return errValidation("each cuisine must be at most 40 characters")
+			}
+			out = append(out, c)
+		}
+		if len(out) > maxCuisines {
+			return errValidation("cuisine may list at most 5 entries")
+		}
+		*in.Cuisine = out
+	}
+	return in.normalizeLocation()
+}
+
+func (in *venueInput) normalizeLocation() *APIError {
+	if in.Latitude == nil && in.Longitude == nil {
+		return nil
+	}
+	errPair := errValidation("latitude and longitude must be sent together: two numbers, or two nulls to clear")
+	if in.Latitude == nil || in.Longitude == nil {
+		return errPair
+	}
+	var lat, lng *float64
+	if json.Unmarshal(in.Latitude, &lat) != nil || json.Unmarshal(in.Longitude, &lng) != nil || (lat == nil) != (lng == nil) {
+		return errPair
+	}
+	if lat != nil && (*lat < -90 || *lat > 90 || *lng < -180 || *lng > 180) {
+		return errValidation("latitude must be within -90..90 and longitude within -180..180")
+	}
+	in.setLocation, in.lat, in.lng = true, lat, lng
+	return nil
+}
+
+func cuisineOr(p *[]string) []string {
+	if p == nil {
+		return []string{}
+	}
+	return *p
 }
