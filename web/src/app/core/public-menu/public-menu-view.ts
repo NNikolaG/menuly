@@ -6,7 +6,6 @@ import {
   Component,
   computed,
   DestroyRef,
-  effect,
   ElementRef,
   inject,
   Injector,
@@ -26,7 +25,7 @@ import {
 } from '@lucide/angular';
 import { ALLERGENS, DIET_TAGS, isHighlight, labelOf } from '../menus/menu-labels';
 import { hasOpeningHours } from '../venues/opening-hours';
-import { DEFAULT_MENU_THEME, grainMood, MENU_FONTS, type MenuTheme } from '../menus/menu-theme';
+import { DEFAULT_MENU_THEME, grainMood, type MenuTheme } from '../menus/menu-theme';
 import {
   AppButterflies,
   AppButton,
@@ -140,7 +139,7 @@ let crayonCount = 0;
                 <img [src]="t.cover_url" alt="" [style.filter]="crayonFilter" />
               </div>
             } @else {
-              <img class="cover" [src]="t.cover_url" alt="" />
+              <img class="cover" [src]="t.cover_url" alt="" fetchpriority="high" />
             }
           } @else if (t.show_pattern) {
             <div class="art">
@@ -445,7 +444,13 @@ let crayonCount = 0;
                   >
                 }
                 @if (showPhoto(item)) {
-                  <img class="menu-item__photo" [src]="item.image_url" alt="" loading="lazy" />
+                  <img
+                    class="menu-item__photo"
+                    [src]="item.image_url"
+                    [alt]="item.name"
+                    loading="lazy"
+                    decoding="async"
+                  />
                 }
                 <div class="menu-item__text">
                   <h3 class="menu-item__name">
@@ -588,7 +593,13 @@ let crayonCount = 0;
             <span class="promo__pill" i18n="@@publicMenu.combo">Kombo</span>
           </div>
         } @else if (promo.image_url && t.show_images) {
-          <img class="promo__photo" [src]="promo.image_url" alt="" loading="lazy" />
+          <img
+            class="promo__photo"
+            [src]="promo.image_url"
+            [alt]="promo.name"
+            loading="lazy"
+            decoding="async"
+          />
         } @else if (t.template === 'etiketa') {
           <!-- Two items overlap into one combo: the shared part is striped. -->
           <svg class="promo__venn" viewBox="0 0 120 80" aria-hidden="true">
@@ -843,7 +854,6 @@ export class PublicMenuView {
 
   constructor() {
     // Load the menu's font only when it isn't the default one already in index.html.
-    effect(() => this.loadFont(this.theme().font));
 
     const destroyRef = inject(DestroyRef);
     if (typeof matchMedia === 'function') {
@@ -968,18 +978,6 @@ export class PublicMenuView {
       autoFocus: 'dialog',
       restoreFocus: true,
     });
-  }
-
-  private loadFont(font: MenuTheme['font']): void {
-    const family = MENU_FONTS.find((f) => f.value === font)?.family;
-    if (!family || font === 'onest') return;
-    const id = `menu-font-${font}`;
-    if (this.document.getElementById(id)) return;
-    const link = this.document.createElement('link');
-    link.id = id;
-    link.rel = 'stylesheet';
-    link.href = `https://fonts.googleapis.com/css2?family=${family.replaceAll(' ', '+')}:wght@300;400;500;600;700&display=swap`;
-    this.document.head.appendChild(link);
   }
 
   protected goToLanguage(event: Event): void {

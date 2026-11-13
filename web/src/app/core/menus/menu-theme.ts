@@ -104,11 +104,11 @@ export const MENU_ACCENTS: readonly { value: MenuAccent; label: string }[] = [
   { value: 'roze', label: $localize`:@@theme.accent.roze:Roze` },
 ];
 
-/** `family` is the Google Fonts family, loaded only when a menu uses it. */
-export const MENU_FONTS: readonly { value: MenuFont; label: string; family: string }[] = [
-  { value: 'onest', label: 'Onest', family: 'Onest' },
-  { value: 'manrope', label: 'Manrope', family: 'Manrope' },
-  { value: 'plex', label: 'IBM Plex Sans', family: 'IBM Plex Sans' },
+/** Every family here needs its `@font-face` rules in `index.html` and files in `public/fonts`. */
+export const MENU_FONTS: readonly { value: MenuFont; label: string }[] = [
+  { value: 'onest', label: 'Onest' },
+  { value: 'manrope', label: 'Manrope' },
+  { value: 'plex', label: 'IBM Plex Sans' },
 ];
 
 export const MENU_PATTERNS: readonly { value: MenuPattern; label: string }[] = [
