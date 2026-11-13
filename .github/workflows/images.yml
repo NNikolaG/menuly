@@ -118,6 +118,8 @@ jobs:
           # Guest page rendered on the server: the venue's name is in the HTML itself.
           curl -fsS -H 'Host: demo.demo.test' http://localhost:8000/mornar | grep -q '<h1'
           test "$(curl -s -o /dev/null -w '%{http_code}' -H 'Host: demo.demo.test' http://localhost:8000/nema-ga)" = 404
+          curl -fsS -H 'Host: demo.demo.test' http://localhost:8000/robots.txt | grep -q 'Sitemap: http://demo.demo.test/sitemap.xml'
+          curl -fsS -H 'Host: demo.demo.test' http://localhost:8000/sitemap.xml | grep -q '<urlset'
           curl -fsS http://localhost:8000/api/v1/public/menus/demo/mornar > /dev/null
           docker stats --no-stream --format 'table {{.Name}}\t{{.MemUsage}}'
       - name: Logs

@@ -14,6 +14,11 @@ export const routes: Routes = [
     // Guest menu ships in the initial bundle: no lazy chunk chain before the menu on 3G (decision #40).
     children: [
       {
+        path: '',
+        pathMatch: 'full',
+        loadComponent: () => import('./features/public-menu/tenant-page'),
+      },
+      {
         path: ':venueSlug',
         title: $localize`:@@publicMenu.pageTitle:Meni`,
         component: PublicMenuPage,

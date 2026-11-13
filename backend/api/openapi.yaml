@@ -78,6 +78,54 @@ paths:
       responses:
         "200": { description: HTML page }
 
+  /v1/public/tenants/{tenantSlug}:
+    get:
+      tags: [Public]
+      operationId: getPublicTenant
+      summary: A tenant and its venues with a published menu (no auth)
+      description: |
+        What the tenant's own page (`{tenantSlug}.menuly.app/`) lists and what its `sitemap.xml`
+        is built from. Venues without a published menu are left out; a suspended or unknown
+        tenant is `404`. Cached: `Cache-Control: public, max-age=30, stale-while-revalidate=60`.
+      security: []
+      parameters:
+        - { name: tenantSlug, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [tenant, venues]
+                properties:
+                  tenant:
+                    type: object
+                    required: [name, slug]
+                    properties:
+                      name: { type: string }
+                      slug: { type: string }
+                  venues:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, slug, type, address, city, languages, updated_at]
+                      properties:
+                        name: { type: string }
+                        slug: { type: string }
+                        type: { $ref: "#/components/schemas/VenueType" }
+                        address: { type: string }
+                        city: { type: string }
+                        languages:
+                          type: array
+                          description: Language codes of the published menu, Serbian first.
+                          items: { type: string }
+                        updated_at:
+                          type: string
+                          format: date-time
+                          description: Last change of the venue or its menu.
+        "404": { $ref: "#/components/responses/Error" }
+
   /v1/public/menus/{tenantSlug}/{venueSlug}:
     get:
       tags: [Public]

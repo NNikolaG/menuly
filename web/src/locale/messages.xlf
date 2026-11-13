@@ -6,39 +6,39 @@
         <source>Meni</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.routes.ts</context>
-          <context context-type="linenumber">18</context>
+          <context context-type="linenumber">23</context>
         </context-group>
       </trans-unit>
       <trans-unit id="notFound.pageTitle" datatype="html">
         <source>Stranica nije pronađena</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.routes.ts</context>
-          <context context-type="linenumber">23</context>
+          <context context-type="linenumber">28</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.routes.ts</context>
-          <context context-type="linenumber">116</context>
+          <context context-type="linenumber">121</context>
         </context-group>
       </trans-unit>
       <trans-unit id="auth.login.pageTitle" datatype="html">
         <source>Prijava</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.routes.ts</context>
-          <context context-type="linenumber">30</context>
+          <context context-type="linenumber">35</context>
         </context-group>
       </trans-unit>
       <trans-unit id="auth.register.pageTitle" datatype="html">
         <source>Registracija</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.routes.ts</context>
-          <context context-type="linenumber">36</context>
+          <context context-type="linenumber">41</context>
         </context-group>
       </trans-unit>
       <trans-unit id="auth.forgot.heading" datatype="html">
         <source>Zaboravljena lozinka</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.routes.ts</context>
-          <context context-type="linenumber">42</context>
+          <context context-type="linenumber">47</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/auth/forgot-password-page.ts</context>
@@ -49,7 +49,7 @@
         <source>Nova lozinka</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.routes.ts</context>
-          <context context-type="linenumber">49</context>
+          <context context-type="linenumber">54</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/auth/reset-password-page.ts</context>
@@ -60,7 +60,7 @@
         <source>Poziv u tim</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.routes.ts</context>
-          <context context-type="linenumber">54</context>
+          <context context-type="linenumber">59</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/auth/invite-page.ts</context>
@@ -71,7 +71,7 @@
         <source>Kombo ponude</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.routes.ts</context>
-          <context context-type="linenumber">72</context>
+          <context context-type="linenumber">77</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
@@ -86,7 +86,7 @@
         <source>Nova kombo ponuda</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.routes.ts</context>
-          <context context-type="linenumber">78</context>
+          <context context-type="linenumber">83</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
@@ -97,7 +97,7 @@
         <source>Izmena kombo ponude</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.routes.ts</context>
-          <context context-type="linenumber">84</context>
+          <context context-type="linenumber">89</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/promotions/promotion-form-page.ts</context>
@@ -108,7 +108,7 @@
         <source>Uvoz menija sa slike</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.routes.ts</context>
-          <context context-type="linenumber">90</context>
+          <context context-type="linenumber">95</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
@@ -123,7 +123,7 @@
         <source>Pregled uvoza</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.routes.ts</context>
-          <context context-type="linenumber">96</context>
+          <context context-type="linenumber">101</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/imports/import-review-page.ts</context>
@@ -134,7 +134,7 @@
         <source>Tim</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.routes.ts</context>
-          <context context-type="linenumber">103</context>
+          <context context-type="linenumber">108</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/team/team-page.ts</context>
@@ -145,7 +145,7 @@
         <source>Administracija</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.routes.ts</context>
-          <context context-type="linenumber">109</context>
+          <context context-type="linenumber">114</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/admin-page.ts</context>
@@ -813,49 +813,49 @@
         <source><x id="venue" equiv-text="venue.name"/>, <x id="city" equiv-text="venue.city"/> · meni i cene</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/core/public-menu/menu-seo.ts</context>
-          <context context-type="linenumber">82</context>
+          <context context-type="linenumber">71</context>
         </context-group>
       </trans-unit>
       <trans-unit id="seo.menu.title" datatype="html">
         <source><x id="venue" equiv-text="venue.name"/> · meni i cene</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/core/public-menu/menu-seo.ts</context>
-          <context context-type="linenumber">83</context>
+          <context context-type="linenumber">72</context>
         </context-group>
       </trans-unit>
       <trans-unit id="seo.menu.descriptionLead" datatype="html">
         <source>Meni <x id="venue" equiv-text="venue.name"/></source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/core/public-menu/menu-seo.ts</context>
-          <context context-type="linenumber">95</context>
+          <context context-type="linenumber">84</context>
         </context-group>
       </trans-unit>
       <trans-unit id="seo.menu.descriptionTail" datatype="html">
         <source>Cene u <x id="currency" equiv-text="venue.currency"/>, radno vreme i adresa: <x id="address" equiv-text="address"/>.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/core/public-menu/menu-seo.ts</context>
-          <context context-type="linenumber">98</context>
+          <context context-type="linenumber">87</context>
         </context-group>
       </trans-unit>
       <trans-unit id="seo.menu.descriptionTailNoAddress" datatype="html">
         <source>Cene u <x id="currency" equiv-text="venue.currency"/> i radno vreme.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/core/public-menu/menu-seo.ts</context>
-          <context context-type="linenumber">99</context>
+          <context context-type="linenumber">88</context>
         </context-group>
       </trans-unit>
       <trans-unit id="seo.menu.combos" datatype="html">
         <source>Kombo ponude</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/core/public-menu/menu-seo.ts</context>
-          <context context-type="linenumber">139</context>
+          <context context-type="linenumber">128</context>
         </context-group>
       </trans-unit>
       <trans-unit id="seo.menu.allergens" datatype="html">
         <source>Alergeni: <x id="allergens" equiv-text="item.allergens.map(labelOf).join(&apos;, &apos;)"/>.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/core/public-menu/menu-seo.ts</context>
-          <context context-type="linenumber">220</context>
+          <context context-type="linenumber">209</context>
         </context-group>
       </trans-unit>
       <trans-unit id="publicMenu.search" datatype="html">
@@ -1323,6 +1323,10 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/public-menu/public-menu-page.ts</context>
           <context context-type="linenumber">41,44</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/public-menu/tenant-page.ts</context>
+          <context context-type="linenumber">40,43</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/team/team-page.ts</context>
@@ -4266,12 +4270,24 @@
           <context context-type="sourcefile">src/app/features/public-menu/public-menu-page.ts</context>
           <context context-type="linenumber">29,30</context>
         </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/public-menu/tenant-page.ts</context>
+          <context context-type="linenumber">32,34</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/public-menu/tenant-page.ts</context>
+          <context context-type="linenumber">35,36</context>
+        </context-group>
       </trans-unit>
       <trans-unit id="publicMenu.notFoundBody" datatype="html">
         <source> Proveri adresu ili pitaj osoblje za novi QR kod. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/public-menu/public-menu-page.ts</context>
           <context context-type="linenumber">31,33</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/public-menu/tenant-page.ts</context>
+          <context context-type="linenumber">37,39</context>
         </context-group>
       </trans-unit>
       <trans-unit id="publicMenu.loadError" datatype="html">
