@@ -1,4 +1,5 @@
 import { Component, inject, RESPONSE_INIT } from '@angular/core';
+import { Meta } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-not-found-page',
@@ -12,5 +13,6 @@ export default class NotFoundPage {
     // Server-rendered (tenant host): a real 404, so search engines drop the URL.
     const response = inject(RESPONSE_INIT, { optional: true });
     if (response) response.status = 404;
+    inject(Meta).updateTag({ name: 'robots', content: 'noindex, nofollow' });
   }
 }
