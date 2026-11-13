@@ -26,8 +26,16 @@ import {
 } from '@lucide/angular';
 import { ALLERGENS, DIET_TAGS, isHighlight, labelOf } from '../menus/menu-labels';
 import { hasOpeningHours } from '../venues/opening-hours';
-import { DEFAULT_MENU_THEME, MENU_FONTS, type MenuTheme } from '../menus/menu-theme';
-import { AppButton, AppChipGroup, AppMosaic, AppPattern, AppStripes } from '../../shared/ui';
+import { DEFAULT_MENU_THEME, grainMood, MENU_FONTS, type MenuTheme } from '../menus/menu-theme';
+import {
+  AppButterflies,
+  AppButton,
+  AppChipGroup,
+  AppGrain,
+  AppMosaic,
+  AppPattern,
+  AppStripes,
+} from '../../shared/ui';
 import {
   activeFilterCount,
   filterMenu,
@@ -45,6 +53,7 @@ type Mode = 'light' | 'dark';
 
 /** Unique ids for the stamp's text path when several menus render (editor preview). */
 let stampCount = 0;
+let crayonCount = 0;
 
 /**
  * A published menu drawn with its theme: template, accent, font, light/dark, plus what a printed menu
@@ -61,6 +70,8 @@ let stampCount = 0;
     AppPattern,
     AppStripes,
     AppMosaic,
+    AppGrain,
+    AppButterflies,
     AppCategoryArt,
     LucideMapPin,
     LucideMoon,
@@ -81,20 +92,75 @@ let stampCount = 0;
     @let data = menu();
     @let t = theme();
     <div class="page">
+      @let hero = t.show_pattern && t.pattern === 'zrno' && !(t.show_images && t.cover_url);
       <header class="head">
-        @if (t.show_images && t.cover_url) {
-          <img class="cover" [src]="t.cover_url" alt="" />
-        } @else if (t.show_pattern) {
-          <div class="art">
-            @if (t.pattern === 'trake') {
-              <app-stripes [seed]="data.venue.name" />
-            } @else if (t.pattern === 'mozaik') {
-              <app-mosaic [seed]="data.venue.name" />
-            } @else {
-              <app-pattern [seed]="data.venue.name" [cols]="8" [rows]="2" [fluid]="true" />
-            }
+        @if (hero) {
+          <!-- "Zrno": the header is a white card resting on drifting grain. -->
+          <div class="hero" [attr.data-mood]="mood()">
+            <div class="hero__card">
+              <p class="hero__meta">{{ heroMeta() }}</p>
+              <ng-container *ngTemplateOutlet="headBody" />
+            </div>
+            <app-grain class="hero__grain" [seed]="data.venue.name" [mood]="mood()" />
           </div>
+        } @else {
+          @if (t.show_images && t.cover_url) {
+            @if (t.template === 'pastel') {
+              <!-- "Pastel": the photo redrawn as soft crayon on paper. -->
+              <div class="cover cover--pastel">
+                <svg class="visually-hidden" aria-hidden="true" focusable="false">
+                  <!-- Wobble the photo, flatten it into a few crayon tones, fade toward pastel. -->
+                  <filter
+                    [attr.id]="crayonId"
+                    x="0"
+                    y="0"
+                    width="100%"
+                    height="100%"
+                    color-interpolation-filters="sRGB"
+                  >
+                    <feTurbulence
+                      type="fractalNoise"
+                      baseFrequency="0.06"
+                      numOctaves="2"
+                      seed="3"
+                    />
+                    <feDisplacementMap
+                      in="SourceGraphic"
+                      scale="7"
+                      xChannelSelector="R"
+                      yChannelSelector="G"
+                    />
+                    <feComponentTransfer>
+                      <feFuncR type="discrete" tableValues="0.3 0.5 0.66 0.8 0.92 1" />
+                      <feFuncG type="discrete" tableValues="0.32 0.52 0.68 0.82 0.93 1" />
+                      <feFuncB type="discrete" tableValues="0.38 0.56 0.72 0.85 0.95 1" />
+                    </feComponentTransfer>
+                  </filter>
+                </svg>
+                <img [src]="t.cover_url" alt="" [style.filter]="crayonFilter" />
+              </div>
+            } @else {
+              <img class="cover" [src]="t.cover_url" alt="" />
+            }
+          } @else if (t.show_pattern) {
+            <div class="art">
+              @if (t.pattern === 'trake') {
+                <app-stripes [seed]="data.venue.name" />
+              } @else if (t.pattern === 'mozaik') {
+                <app-mosaic [seed]="data.venue.name" />
+              } @else if (t.pattern === 'leptiri') {
+                <app-butterflies [seed]="data.venue.name" />
+              } @else if (t.pattern === 'zrno') {
+                <app-grain [seed]="data.venue.name" [mood]="mood()" />
+              } @else {
+                <app-pattern [seed]="data.venue.name" [cols]="8" [rows]="2" [fluid]="true" />
+              }
+            </div>
+          }
+          <ng-container *ngTemplateOutlet="headBody" />
         }
+      </header>
+      <ng-template #headBody>
         <div class="title-row">
           @if (t.logo_url) {
             <img class="logo" [src]="t.logo_url" alt="" />
@@ -171,7 +237,7 @@ let stampCount = 0;
         @if (hasVenueInfo()) {
           <app-venue-info [venue]="data.venue" />
         }
-      </header>
+      </ng-template>
 
       @for (promo of featured(); track promo.id) {
         <ng-container
@@ -508,10 +574,12 @@ let stampCount = 0;
 
     <ng-template #promoCard let-promo let-featured="featured">
       @let mosaicCard = featured && t.pattern === 'mozaik';
+      @let grainCard = featured && t.pattern === 'zrno';
       <article
         class="promo"
         [attr.data-featured]="featured ? '' : null"
         [attr.data-mosaic]="mosaicCard ? '' : null"
+        [attr.data-grain]="grainCard ? '' : null"
         [attr.data-status]="promo.is_available ? null : 'unavailable'"
       >
         @if (mosaicCard) {
@@ -548,9 +616,15 @@ let stampCount = 0;
             />
           </svg>
         }
+        @if (t.template === 'pastel' && !mosaicCard && !grainCard) {
+          <span class="promo__holes" aria-hidden="true"></span>
+        }
         <div class="promo__body">
+          @if (grainCard) {
+            <p class="hero__meta" i18n="@@publicMenu.comboMeta">kombo • izdvojeno</p>
+          }
           <div class="row" data-gap="2">
-            @if (!mosaicCard) {
+            @if (!mosaicCard && !grainCard) {
               <span class="badge" data-tone="accent" data-plain i18n="@@publicMenu.combo"
                 >Kombo</span
               >
@@ -602,6 +676,9 @@ let stampCount = 0;
             </p>
           }
         </div>
+        @if (grainCard) {
+          <app-grain class="promo__grain" [seed]="promo.name" [mood]="mood()" />
+        }
       </article>
     </ng-template>
   `,
@@ -624,6 +701,14 @@ export class PublicMenuView {
   protected readonly labelOf = labelOf;
   protected readonly isHighlight = isHighlight;
   protected readonly artKindFor = artKindFor;
+  protected readonly mood = computed(() => grainMood(this.theme().accent));
+  /** "Zrno" card's small top line: menu • address, lowercase like the rest of the card. */
+  protected readonly heroMeta = computed(() => {
+    const { menu, venue } = this.menu();
+    return [menu.name, venue.address].filter(Boolean).join(' • ').toLocaleLowerCase();
+  });
+  protected readonly crayonId = `menu-crayon-${++crayonCount}`;
+  protected readonly crayonFilter = `url(#${this.crayonId}) saturate(0.85)`;
 
   // ---- Light / dark: the menu's setting, until the guest switches ----
   private readonly guestMode = signal<Mode | null>(null);
@@ -893,7 +978,7 @@ export class PublicMenuView {
     const link = this.document.createElement('link');
     link.id = id;
     link.rel = 'stylesheet';
-    link.href = `https://fonts.googleapis.com/css2?family=${family.replaceAll(' ', '+')}:wght@400;500;600;700&display=swap`;
+    link.href = `https://fonts.googleapis.com/css2?family=${family.replaceAll(' ', '+')}:wght@300;400;500;600;700&display=swap`;
     this.document.head.appendChild(link);
   }
 

@@ -5350,6 +5350,46 @@
           <context context-type="linenumber">675</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="theme.template.pastel" datatype="html">
+        <source>Pastel</source>
+        <target>Pastel</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-theme.ts</context>
+          <context context-type="linenumber">89</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="theme.template.pastelBody" datatype="html">
+        <source>Krem papir sa zrnom krede, tanka krupna slova, kombo kao list iz sveske i naslovna slika kao crtež pastelom. Za mirne bašte i kafiće.</source>
+        <target>Cream paper with chalk grain, light large type, combos as a notebook page and the cover photo redrawn in pastel. For calm gardens and cafés.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-theme.ts</context>
+          <context context-type="linenumber">90</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="theme.pattern.zrno" datatype="html">
+        <source>Zrno</source>
+        <target>Grain</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-theme.ts</context>
+          <context context-type="linenumber">118</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="theme.pattern.leptiri" datatype="html">
+        <source>Leptiri</source>
+        <target>Butterflies</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/menus/menu-theme.ts</context>
+          <context context-type="linenumber">119</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="publicMenu.comboMeta" datatype="html">
+        <source>kombo • izdvojeno</source>
+        <target>combo • featured</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/public-menu/public-menu-view.ts</context>
+          <context context-type="linenumber">601,603</context>
+        </context-group>
+      </trans-unit>
     </body>
   </file>
 </xliff>

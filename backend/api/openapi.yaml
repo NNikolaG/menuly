@@ -2242,8 +2242,8 @@ components:
       properties:
         template:
           type: string
-          enum: [racun, galerija, tabla, etiketa, plakat]
-          description: "racun: one column text list; galerija: photo cards; tabla: compact board with variant columns; etiketa: spec labels with item codes, category color stripes and combo tickets; plakat: poster with black capsule category heads and one accent dot"
+          enum: [racun, galerija, tabla, etiketa, plakat, pastel]
+          description: "racun: one column text list; galerija: photo cards; tabla: compact board with variant columns; etiketa: spec labels with item codes, category color stripes and combo tickets; plakat: poster with black capsule category heads and one accent dot; pastel: airy cream page with crayon grain, light large type and a notebook-page combo"
         accent: { type: string, enum: [tinta, narandza, espresso, bordo, maslina, teget, kobalt, smaragd, senf, roze] }
         font: { type: string, enum: [onest, manrope, plex] }
         color_mode: { type: string, enum: [auto, light, dark], description: "Starting theme; guests can still switch" }
@@ -2251,7 +2251,7 @@ components:
         show_descriptions: { type: boolean }
         show_pattern: { type: boolean, description: "Venue's generated pattern band in the header" }
         show_illustrations: { type: boolean, description: "Geometric category illustrations, picked by the client from the category name" }
-        pattern: { type: string, enum: [bauhaus, trake, mozaik], description: "Which generated band: bauhaus shapes, trake (color bars) or mozaik (animated glyph tiles; featured combos become a dark mosaic card)" }
+        pattern: { type: string, enum: [bauhaus, trake, mozaik, zrno, leptiri], description: "Which generated band: bauhaus shapes, trake (color bars), mozaik (animated glyph tiles; featured combos become a dark mosaic card), zrno (drifting stippled grain waves under a white header card, warm or cool from the accent) or leptiri (butterflies flying across a pastel sky)" }
         logo_url: { type: string, description: "Empty or an http(s) URL" }
         cover_url: { type: string, description: "Empty or an http(s) URL" }
     PublicMenu:

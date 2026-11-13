@@ -144,6 +144,71 @@ describe('PublicMenuPage', () => {
     expect(cards[0].querySelector('.promo__pill')!.textContent!.trim()).toBe('Kombo');
   });
 
+  it('rests the header on "zrno" grain as a card, warm or cool from the accent', async () => {
+    const menu = publicMenuFixture();
+    menu.theme = { ...DEFAULT_MENU_THEME, pattern: 'zrno', accent: 'narandza' };
+    const promo = {
+      id: 'p1',
+      name: 'Doručak za dvoje',
+      description: '',
+      image_url: '',
+      price_minor: 69000,
+      regular_price_minor: 84000,
+      savings_minor: 15000,
+      ends_at: null,
+      is_featured: true,
+      is_available: true,
+      slots: [],
+    };
+    menu.promotions = [promo];
+    const fixture = await render((url) => http.expectOne(url).flush(menu));
+    const root: HTMLElement = fixture.nativeElement;
+    const hero = root.querySelector<HTMLElement>('.hero')!;
+    expect(hero.dataset['mood']).toBe('warm');
+    expect(hero.querySelector('.hero__card h1')!.textContent).toContain('Kafana Zora');
+    expect(hero.querySelector('app-grain')).not.toBeNull();
+    expect(root.querySelector('.art')).toBeNull();
+    expect(root.querySelector('.promo[data-grain] app-grain')).not.toBeNull();
+
+    menu.theme = { ...menu.theme, accent: 'kobalt' };
+    const cool = await render((url) => http.expectOne(url).flush(menu));
+    expect(
+      (cool.nativeElement as HTMLElement).querySelector<HTMLElement>('.hero')!.dataset['mood'],
+    ).toBe('cool');
+  });
+
+  it('draws "pastel" with butterflies, notebook combos and a crayon cover', async () => {
+    const menu = publicMenuFixture();
+    menu.theme = { ...DEFAULT_MENU_THEME, template: 'pastel', pattern: 'leptiri' };
+    menu.promotions = [
+      {
+        id: 'p1',
+        name: 'Kafa i kolač',
+        description: '',
+        image_url: '',
+        price_minor: 40000,
+        regular_price_minor: 45000,
+        savings_minor: 5000,
+        ends_at: null,
+        is_featured: false,
+        is_available: true,
+        slots: [],
+      },
+    ];
+    const fixture = await render((url) => http.expectOne(url).flush(menu));
+    const root: HTMLElement = fixture.nativeElement;
+    expect(root.querySelectorAll('.art app-butterflies .flyer').length).toBe(7);
+    expect(root.querySelector('.promo .promo__holes')).not.toBeNull();
+
+    menu.theme = { ...menu.theme, cover_url: 'https://cdn.example.com/c.jpg' };
+    const covered = await render((url) => http.expectOne(url).flush(menu));
+    const img = (covered.nativeElement as HTMLElement).querySelector<HTMLImageElement>(
+      '.cover--pastel img',
+    )!;
+    const id = img.style.filter.match(/url\("?#([^")]+)/)![1];
+    expect((covered.nativeElement as HTMLElement).querySelector(`filter#${id}`)).not.toBeNull();
+  });
+
   it('signs the "racun" receipt with a stamp of the venue name', async () => {
     const menu = publicMenuFixture();
     menu.theme = { ...DEFAULT_MENU_THEME, template: 'racun' };

@@ -8,6 +8,8 @@ export { AppMenu, type AppMenuItem } from './menu/menu';
 export { AppPattern } from './pattern/pattern';
 export { AppStripes } from './stripes/stripes';
 export { AppMosaic } from './mosaic/mosaic';
+export { AppGrain } from './grain/grain';
+export { AppButterflies } from './butterflies/butterflies';
 export { AppSearch } from './search/search';
 export { AppSearchPicker } from './search-picker/search-picker';
 export { AppSelect, type AppSelectOption } from './select/select';

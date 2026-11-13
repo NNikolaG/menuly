@@ -14,11 +14,11 @@ import (
 // presets of the Receipt design system (web: [data-tenant], font presets).
 // Venues pick from these lists only, so every menu stays readable.
 var (
-	themeTemplates  = []string{"racun", "galerija", "tabla", "etiketa", "plakat"}
+	themeTemplates  = []string{"racun", "galerija", "tabla", "etiketa", "plakat", "pastel"}
 	themeAccents    = []string{"tinta", "narandza", "espresso", "bordo", "maslina", "teget", "kobalt", "smaragd", "senf", "roze"}
 	themeFonts      = []string{"onest", "manrope", "plex"}
 	themeColorModes = []string{"auto", "light", "dark"}
-	themePatterns   = []string{"bauhaus", "trake", "mozaik"}
+	themePatterns   = []string{"bauhaus", "trake", "mozaik", "zrno", "leptiri"}
 )
 
 // themeDTO is the theme as admin and public clients see it.

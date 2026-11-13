@@ -3,7 +3,7 @@
  * Every value is a key of the Receipt design system, never a raw color or font,
  * so any combination a venue picks stays readable.
  */
-export type MenuTemplate = 'racun' | 'galerija' | 'tabla' | 'etiketa' | 'plakat';
+export type MenuTemplate = 'racun' | 'galerija' | 'tabla' | 'etiketa' | 'plakat' | 'pastel';
 export type MenuAccent =
   | 'tinta'
   | 'narandza'
@@ -17,8 +17,11 @@ export type MenuAccent =
   | 'roze';
 export type MenuFont = 'onest' | 'manrope' | 'plex';
 export type MenuColorMode = 'auto' | 'light' | 'dark';
-/** Generated header band: Bauhaus shapes, "trake" (color bars) or "mozaik" (animated glyph tiles). */
-export type MenuPattern = 'bauhaus' | 'trake' | 'mozaik';
+/**
+ * Generated header band: Bauhaus shapes, "trake" (color bars), "mozaik" (animated glyph tiles),
+ * "zrno" (drifting grain waves under a white header card) or "leptiri" (butterflies in a pastel sky).
+ */
+export type MenuPattern = 'bauhaus' | 'trake' | 'mozaik' | 'zrno' | 'leptiri';
 
 export interface MenuTheme {
   template: MenuTemplate;
@@ -81,6 +84,11 @@ export const MENU_TEMPLATES: readonly MenuTemplateOption[] = [
     label: $localize`:@@theme.template.plakat:Plakat`,
     description: $localize`:@@theme.template.plakatBody:Crne kapsule za kategorije, krem papir i jedna tačka boje za preporuke. Za lokale sa jakim karakterom.`,
   },
+  {
+    value: 'pastel',
+    label: $localize`:@@theme.template.pastel:Pastel`,
+    description: $localize`:@@theme.template.pastelBody:Krem papir sa zrnom krede, tanka krupna slova, kombo kao list iz sveske i naslovna slika kao crtež pastelom. Za mirne bašte i kafiće.`,
+  },
 ];
 
 export const MENU_ACCENTS: readonly { value: MenuAccent; label: string }[] = [
@@ -107,7 +115,14 @@ export const MENU_PATTERNS: readonly { value: MenuPattern; label: string }[] = [
   { value: 'bauhaus', label: $localize`:@@theme.pattern.bauhaus:Bauhaus` },
   { value: 'trake', label: $localize`:@@theme.pattern.trake:Trake` },
   { value: 'mozaik', label: $localize`:@@theme.pattern.mozaik:Mozaik` },
+  { value: 'zrno', label: $localize`:@@theme.pattern.zrno:Zrno` },
+  { value: 'leptiri', label: $localize`:@@theme.pattern.leptiri:Leptiri` },
 ];
+
+/** "Zrno" follows the accent: warm accents get warm waves, the rest cool ones. */
+export function grainMood(accent: MenuAccent): 'cool' | 'warm' {
+  return ['narandza', 'espresso', 'bordo', 'senf', 'roze'].includes(accent) ? 'warm' : 'cool';
+}
 
 export const MENU_COLOR_MODES: readonly { value: MenuColorMode; label: string }[] = [
   { value: 'auto', label: $localize`:@@theme.mode.auto:Po telefonu` },
