@@ -70,7 +70,7 @@ describe('PublicMenuPage', () => {
     expect(root.textContent).toMatch(/180\sRSD/);
     expect(root.textContent).toContain('veliko');
     expect(root.textContent).toContain('A7');
-    expect(TestBed.inject(Title).getTitle()).toBe('Kafana Zora · Menuly');
+    expect(TestBed.inject(Title).getTitle()).toBe('Kafana Zora · meni i cene');
   });
 
   it('counts items with the Serbian plural forms', async () => {

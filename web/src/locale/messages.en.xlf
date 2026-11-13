@@ -5390,6 +5390,54 @@
           <context context-type="linenumber">601,603</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="seo.menu.title" datatype="html">
+        <source><x id="venue" equiv-text="venue.name"/> · meni i cene</source>
+        <target><x id="venue" equiv-text="venue.name"/> · menu and prices</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/public-menu/menu-seo.ts</context>
+          <context context-type="linenumber">70</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="seo.menu.descriptionLead" datatype="html">
+        <source>Meni <x id="venue" equiv-text="venue.name"/></source>
+        <target><x id="venue" equiv-text="venue.name"/> menu</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/public-menu/menu-seo.ts</context>
+          <context context-type="linenumber">82</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="seo.menu.descriptionTail" datatype="html">
+        <source>Cene u <x id="currency" equiv-text="venue.currency"/>, radno vreme i adresa: <x id="address" equiv-text="venue.address"/>.</source>
+        <target>Prices in <x id="currency" equiv-text="venue.currency"/>, opening hours and address: <x id="address" equiv-text="venue.address"/>.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/public-menu/menu-seo.ts</context>
+          <context context-type="linenumber">84</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="seo.menu.descriptionTailNoAddress" datatype="html">
+        <source>Cene u <x id="currency" equiv-text="venue.currency"/> i radno vreme.</source>
+        <target>Prices in <x id="currency" equiv-text="venue.currency"/> and opening hours.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/public-menu/menu-seo.ts</context>
+          <context context-type="linenumber">85</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="seo.menu.combos" datatype="html">
+        <source>Kombo ponude</source>
+        <target>Combo deals</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/public-menu/menu-seo.ts</context>
+          <context context-type="linenumber">125</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="seo.menu.allergens" datatype="html">
+        <source>Alergeni: <x id="allergens" equiv-text="item.allergens.map(labelOf).join(&apos;, &apos;)"/>.</source>
+        <target>Allergens: <x id="allergens" equiv-text="item.allergens.map(labelOf).join(&apos;, &apos;)"/>.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/public-menu/menu-seo.ts</context>
+          <context context-type="linenumber">186</context>
+        </context-group>
+      </trans-unit>
     </body>
   </file>
 </xliff>

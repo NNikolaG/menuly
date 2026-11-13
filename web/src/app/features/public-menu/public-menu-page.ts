@@ -8,10 +8,10 @@ import {
   PLATFORM_ID,
   RESPONSE_INIT,
 } from '@angular/core';
-import { Title } from '@angular/platform-browser';
 import { toApiError } from '../../core/api/api-error';
 import { APP_HOST } from '../../core/host/app-host';
 import { PublicMenuApi } from './public-menu-api';
+import { MenuSeo } from '../../core/public-menu/menu-seo';
 import { PublicMenuView } from '../../core/public-menu/public-menu-view';
 
 /** Guest view of a venue's published menu at `{tenant}.menuly.app/{venue}`. */
@@ -68,7 +68,7 @@ import { PublicMenuView } from '../../core/public-menu/public-menu-view';
 })
 export default class PublicMenuPage {
   private readonly host = inject(APP_HOST);
-  private readonly title = inject(Title);
+  private readonly seo = inject(MenuSeo);
 
   readonly venueSlug = input.required<string>();
   /** `?lang=de`: a menu language the app itself has no texts for (see PublicMenuView). */
@@ -95,9 +95,11 @@ export default class PublicMenuPage {
         if (!this.notFound()) response.headers = { 'Retry-After': '30' };
       });
     }
+    // Title, description, canonical/hreflang, Open Graph and the JSON-LD menu.
     effect(() => {
-      const venue = this.data()?.venue.name;
-      if (venue) this.title.setTitle(`${venue} · Menuly`);
+      const data = this.data();
+      if (data) this.seo.apply(data);
+      else if (this.menu.error()) this.seo.noindex();
     });
     // One count per guest visit: once per tab session, not on refresh or language switch.
     // Browser only, so server renders (and the crawlers behind them) don't count.

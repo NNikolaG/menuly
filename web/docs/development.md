@@ -127,6 +127,7 @@ One app serves two hosts (`core/host/app-host.ts`):
 - `npm start` renders guest pages on the server too: open `http://{tenant}.localhost:4200/{venue}`; on the server the API is `API_INTERNAL_URL` (default `http://localhost:8080`).
 - Code that runs while rendering a guest page must not touch browser-only APIs (`localStorage`, `sessionStorage`, `matchMedia`, `IntersectionObserver`, canvas) outside `afterNextRender`/`afterRenderEffect` or a `isPlatformBrowser` check. Side effects that should happen once per real visit (counting a view) run only in the browser.
 - Status codes go through `RESPONSE_INIT` (optional inject; it is null in the browser).
+- The head of a guest page (title, description, canonical, hreflang, Open Graph, JSON-LD) is written only by `MenuSeo` (decision #42); a new menu field that search engines or agents should see goes into `menuJsonLd`. On the server the DOM is not a browser's: set attributes with `setAttribute` (no `dataset`).
 - Production: `npm run build`, then `npm run serve:ssr` (port 4000) behind nginx; env `API_INTERNAL_URL`, `BASE_DOMAIN`, `NG_ALLOWED_HOSTS` (`*.{domain}`), `NG_TRUST_PROXY_HEADERS`.
 
 ## Auth
