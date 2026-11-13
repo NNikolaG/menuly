@@ -39,7 +39,9 @@ import { weekdayNames } from '../../core/venues/opening-hours';
 import {
   type OpeningHours,
   type Venue,
+  VENUE_TYPES,
   type VenueInput,
+  type VenueType,
   type Weekday,
   WEEKDAYS,
 } from '../../core/venues/venue';
@@ -63,8 +65,17 @@ interface VenueModel {
   name: string;
   slug: string;
   address: string;
+  city: string;
+  postal_code: string;
+  country: string;
   phone: string;
   currency: string;
+  venue_type: string;
+  /** Comma-separated. */
+  cuisine: string;
+  description: string;
+  /** "44.8176, 20.4569", as Google Maps copies it; empty = not set. */
+  coordinates: string;
   days: DayModel[];
   wifi_available: boolean;
   wifi_ssid: string;
@@ -81,15 +92,47 @@ const MAX_SSID_BYTES = 32;
 /** Currencies of the region first; a venue's existing other code is kept in the list. */
 const CURRENCIES = ['RSD', 'EUR', 'BAM', 'MKD', 'HUF', 'RON', 'BGN', 'ALL', 'CHF', 'USD', 'GBP'];
 
+/** Countries of the region first; a venue's existing other code is kept in the list. */
+const COUNTRIES = ['RS', 'ME', 'BA', 'HR', 'MK', 'SI', 'HU', 'RO', 'BG', 'AL', 'GR', 'AT', 'DE'];
+const MAX_CUISINES = 5;
+const MAX_CUISINE_LENGTH = 40;
+
 const SLUG = /^([a-z0-9]+(-[a-z0-9]+)*)?$/;
+
+/** "44.8176, 20.4569" → both numbers; `null` when empty; `undefined` when it is not a place on Earth. */
+function parseCoordinates(text: string): [number, number] | null | undefined {
+  if (!text.trim()) return null;
+  const match = /^\s*(-?\d+(?:\.\d+)?)\s*[,;\s]\s*(-?\d+(?:\.\d+)?)\s*$/.exec(text);
+  if (!match) return undefined;
+  const latitude = Number(match[1]);
+  const longitude = Number(match[2]);
+  return Math.abs(latitude) <= 90 && Math.abs(longitude) <= 180 ? [latitude, longitude] : undefined;
+}
+
+function parseCuisine(text: string): string[] {
+  return text
+    .split(',')
+    .map((part) => part.trim())
+    .filter(Boolean);
+}
 
 function toModel(venue: Venue | undefined): VenueModel {
   return {
     name: venue?.name ?? '',
     slug: venue?.slug ?? '',
     address: venue?.address ?? '',
+    city: venue?.city ?? '',
+    postal_code: venue?.postal_code ?? '',
+    country: venue?.country ?? 'RS',
     phone: venue?.phone ?? '',
     currency: venue?.currency ?? 'RSD',
+    venue_type: venue?.venue_type ?? 'other',
+    cuisine: venue?.cuisine.join(', ') ?? '',
+    description: venue?.description ?? '',
+    coordinates:
+      venue && venue.latitude !== null && venue.longitude !== null
+        ? `${venue.latitude}, ${venue.longitude}`
+        : '',
     days: WEEKDAYS.map((day) => {
       const intervals = venue?.opening_hours[day] ?? [];
       return {
@@ -180,6 +223,46 @@ function toOpeningHours(days: DayModel[]): OpeningHours {
                 [formField]="form.address"
               />
             </app-field>
+            <div class="row place" data-gap="4">
+              <app-field
+                i18n-label="@@venues.field.city"
+                label="Grad"
+                controlId="venue-city"
+                [field]="form.city"
+              >
+                <input
+                  appInput
+                  id="venue-city"
+                  autocomplete="address-level2"
+                  [formField]="form.city"
+                />
+              </app-field>
+              <app-field
+                i18n-label="@@venues.field.postalCode"
+                label="Poštanski broj"
+                controlId="venue-postal-code"
+                [field]="form.postal_code"
+              >
+                <input
+                  appInput
+                  id="venue-postal-code"
+                  autocomplete="postal-code"
+                  [formField]="form.postal_code"
+                />
+              </app-field>
+              <app-field
+                i18n-label="@@venues.field.country"
+                label="Država"
+                controlId="venue-country"
+                [field]="form.country"
+              >
+                <app-select
+                  controlId="venue-country"
+                  [options]="countries()"
+                  [formField]="form.country"
+                />
+              </app-field>
+            </div>
             <div class="row" data-gap="4">
               <app-field
                 i18n-label="@@venues.field.phone"
@@ -208,6 +291,73 @@ function toOpeningHours(days: DayModel[]): OpeningHours {
                 />
               </app-field>
             </div>
+          </section>
+
+          <section class="card stack" data-gap="5" aria-labelledby="venue-search">
+            <div class="stack" data-gap="1">
+              <h2 id="venue-search" class="card__title" i18n="@@venues.section.search">
+                Vidljivost u pretrazi
+              </h2>
+              <p class="meta" i18n="@@venues.search.hint">
+                Po ovome Google i AI asistenti znaju šta je objekat i gde se nalazi.
+              </p>
+            </div>
+            <div class="row place" data-gap="4">
+              <app-field
+                i18n-label="@@venues.field.type"
+                label="Tip objekta"
+                controlId="venue-type"
+                [field]="form.venue_type"
+              >
+                <app-select
+                  controlId="venue-type"
+                  [options]="venueTypes"
+                  [formField]="form.venue_type"
+                />
+              </app-field>
+              <app-field
+                i18n-label="@@venues.field.cuisine"
+                label="Kuhinja"
+                controlId="venue-cuisine"
+                i18n-hint="@@venues.field.cuisineHint"
+                hint="Do 5, odvojeno zarezom, npr. Srpska kuhinja, Roštilj."
+                [field]="form.cuisine"
+              >
+                <input appInput id="venue-cuisine" [formField]="form.cuisine" />
+              </app-field>
+            </div>
+            <app-field
+              i18n-label="@@venues.field.description"
+              label="Kratak opis"
+              controlId="venue-description"
+              i18n-hint="@@venues.field.descriptionHint"
+              hint="Jedna ili dve rečenice, do 300 znakova. Prikazuje se u rezultatima pretrage."
+              [field]="form.description"
+            >
+              <textarea
+                appInput
+                id="venue-description"
+                rows="3"
+                [formField]="form.description"
+              ></textarea>
+            </app-field>
+            <app-field
+              i18n-label="@@venues.field.coordinates"
+              label="Koordinate"
+              controlId="venue-coordinates"
+              i18n-hint="@@venues.field.coordinatesHint"
+              hint="U Google mapama desni klik na objekat, pa klik na brojeve da ih kopiraš."
+              [field]="form.coordinates"
+            >
+              <input
+                appInput
+                id="venue-coordinates"
+                inputmode="text"
+                placeholder="44.8176, 20.4569"
+                autocomplete="off"
+                [formField]="form.coordinates"
+              />
+            </app-field>
           </section>
 
           <section class="card stack" data-gap="4" aria-labelledby="venue-hours">
@@ -383,6 +533,15 @@ function toOpeningHours(days: DayModel[]): OpeningHours {
       max-inline-size: 48rem;
     }
 
+    .place {
+      flex-wrap: wrap;
+      align-items: start;
+    }
+
+    .place > * {
+      flex: 1 1 12rem;
+    }
+
     .section-head {
       display: flex;
       flex-wrap: wrap;
@@ -484,6 +643,27 @@ export default class VenueFormPage {
     pattern(path.currency, /^[A-Z]{3}$/, {
       message: $localize`:@@venues.field.currencyPattern:Unesi troslovnu oznaku, npr. RSD.`,
     });
+    maxLength(path.city, 80);
+    maxLength(path.postal_code, 16);
+    maxLength(path.description, 300);
+    validate(path.cuisine, ({ value }) => {
+      const cuisines = parseCuisine(value());
+      return cuisines.length > MAX_CUISINES ||
+        cuisines.some((cuisine) => cuisine.length > MAX_CUISINE_LENGTH)
+        ? {
+            kind: 'cuisine',
+            message: $localize`:@@venues.field.cuisineInvalid:Najviše 5 kuhinja, svaka do 40 znakova.`,
+          }
+        : undefined;
+    });
+    validate(path.coordinates, ({ value }) =>
+      parseCoordinates(value()) === undefined
+        ? {
+            kind: 'coordinates',
+            message: $localize`:@@venues.field.coordinatesInvalid:Upiši širinu i dužinu, npr. 44.8176, 20.4569.`,
+          }
+        : undefined,
+    );
     applyEach(path.days, (day) => {
       applyWhen(
         day,
@@ -543,6 +723,17 @@ export default class VenueFormPage {
     return codes.map((code) => ({ value: code, label: code, hint: this.currencyNames.of(code) }));
   });
 
+  private readonly regionNames = new Intl.DisplayNames([inject(LOCALE_ID)], { type: 'region' });
+  protected readonly countries = computed<AppSelectOption[]>(() => {
+    const current = this.model().country;
+    const codes = current && !COUNTRIES.includes(current) ? [current, ...COUNTRIES] : COUNTRIES;
+    return codes.map((code) => ({ value: code, label: this.regionNames.of(code) ?? code }));
+  });
+  protected readonly venueTypes: AppSelectOption[] = VENUE_TYPES.map((value) => ({
+    value,
+    label: venueTypeLabel(value),
+  }));
+
   protected readonly heading = computed(() =>
     this.isEdit()
       ? (this.venue.value()?.name ?? $localize`:@@venues.editHeading:Izmena objekta`)
@@ -563,10 +754,15 @@ export default class VenueFormPage {
     event.preventDefault();
     this.error.set('');
     await submit(this.form, async (field) => {
-      const { days, ...value } = field().value();
+      const { days, coordinates, cuisine, venue_type, ...value } = field().value();
+      const [latitude, longitude] = parseCoordinates(coordinates) ?? [null, null];
       const input: VenueInput = {
         ...value,
         slug: value.slug || undefined,
+        venue_type: venue_type as VenueType,
+        cuisine: parseCuisine(cuisine),
+        latitude,
+        longitude,
         wifi_access: value.wifi_access === 'menu' ? 'menu' : 'staff',
         opening_hours: toOpeningHours(days),
       };
@@ -638,6 +834,25 @@ export default class VenueFormPage {
       ...value,
       days: value.days.map((day, i) => (i === index ? change(day) : day)),
     }));
+  }
+}
+
+function venueTypeLabel(type: VenueType): string {
+  switch (type) {
+    case 'restaurant':
+      return $localize`:@@venues.type.restaurant:Restoran`;
+    case 'cafe':
+      return $localize`:@@venues.type.cafe:Kafić`;
+    case 'bar':
+      return $localize`:@@venues.type.bar:Bar ili pab`;
+    case 'fast_food':
+      return $localize`:@@venues.type.fastFood:Brza hrana`;
+    case 'bakery':
+      return $localize`:@@venues.type.bakery:Pekara`;
+    case 'pastry_shop':
+      return $localize`:@@venues.type.pastryShop:Poslastičarnica`;
+    case 'other':
+      return $localize`:@@venues.type.other:Drugo`;
   }
 }
 

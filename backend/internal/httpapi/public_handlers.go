@@ -57,12 +57,22 @@ type publicMenu struct {
 		Slug string `json:"slug"`
 	} `json:"tenant"`
 	Venue struct {
-		Name     string `json:"name"`
-		Slug     string `json:"slug"`
-		Address  string `json:"address"`
-		Phone    string `json:"phone"`
-		Currency string `json:"currency"`
-		Timezone string `json:"timezone"`
+		Name string `json:"name"`
+		Slug string `json:"slug"`
+		// Kind of venue: restaurant, cafe, bar, fast_food, bakery, pastry_shop or other.
+		Type string `json:"type"`
+		// Street line; city, postal code and country (ISO alpha-2) are separate.
+		Address     string   `json:"address"`
+		City        string   `json:"city"`
+		PostalCode  string   `json:"postal_code"`
+		Country     string   `json:"country"`
+		Latitude    *float64 `json:"latitude"`
+		Longitude   *float64 `json:"longitude"`
+		Cuisine     []string `json:"cuisine"`
+		Description string   `json:"description"`
+		Phone       string   `json:"phone"`
+		Currency    string   `json:"currency"`
+		Timezone    string   `json:"timezone"`
 		// {"mon": [["08:00", "23:00"]], ...}; {} when not set.
 		OpeningHours json.RawMessage `json:"opening_hours"`
 		Wifi         *publicWifi     `json:"wifi"`
@@ -135,6 +145,9 @@ func (s *Server) handlePublicMenu(w http.ResponseWriter, r *http.Request) {
 		out.Tenant.Name, out.Tenant.Slug = t.Name, t.Slug
 		out.Venue.Name, out.Venue.Slug, out.Venue.Address, out.Venue.Phone = v.Name, v.Slug, v.Address, v.Phone
 		out.Venue.Currency, out.Venue.Timezone = v.Currency, v.Timezone
+		out.Venue.Type, out.Venue.City, out.Venue.PostalCode, out.Venue.Country = v.VenueType, v.City, v.PostalCode, v.Country
+		out.Venue.Latitude, out.Venue.Longitude = v.Latitude, v.Longitude
+		out.Venue.Cuisine, out.Venue.Description = v.Cuisine, v.Description
 		out.Venue.OpeningHours = v.OpeningHours
 		out.Venue.Wifi = buildPublicWifi(v.WifiAvailable, v.WifiSsid, v.WifiPassword, v.WifiAccess)
 		out.Menu.ID, out.Menu.Name, out.Menu.PublishedAt = tree.ID, tree.Name, tree.PublishedAt

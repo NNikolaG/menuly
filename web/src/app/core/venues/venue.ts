@@ -5,6 +5,18 @@ export interface Venue {
   name: string;
   slug: string;
   address: string;
+  city: string;
+  postal_code: string;
+  /** ISO 3166-1 alpha-2. */
+  country: string;
+  /** Both set or both `null`. */
+  latitude: number | null;
+  longitude: number | null;
+  venue_type: VenueType;
+  /** Up to 5, e.g. "Roštilj". */
+  cuisine: string[];
+  /** One or two sentences for search engines and agents. */
+  description: string;
   phone: string;
   currency: string;
   timezone: string;
@@ -27,6 +39,14 @@ export type VenueInput = Partial<
     | 'name'
     | 'slug'
     | 'address'
+    | 'city'
+    | 'postal_code'
+    | 'country'
+    | 'latitude'
+    | 'longitude'
+    | 'venue_type'
+    | 'cuisine'
+    | 'description'
     | 'phone'
     | 'currency'
     | 'timezone'
@@ -37,6 +57,17 @@ export type VenueInput = Partial<
     | 'wifi_access'
   >
 >;
+
+export const VENUE_TYPES = [
+  'restaurant',
+  'cafe',
+  'bar',
+  'fast_food',
+  'bakery',
+  'pastry_shop',
+  'other',
+] as const;
+export type VenueType = (typeof VENUE_TYPES)[number];
 
 export const WEEKDAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const;
 export type Weekday = (typeof WEEKDAYS)[number];

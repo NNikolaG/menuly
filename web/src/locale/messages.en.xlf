@@ -5407,8 +5407,8 @@
         </context-group>
       </trans-unit>
       <trans-unit id="seo.menu.descriptionTail" datatype="html">
-        <source>Cene u <x id="currency" equiv-text="venue.currency"/>, radno vreme i adresa: <x id="address" equiv-text="venue.address"/>.</source>
-        <target>Prices in <x id="currency" equiv-text="venue.currency"/>, opening hours and address: <x id="address" equiv-text="venue.address"/>.</target>
+        <source>Cene u <x id="currency" equiv-text="venue.currency"/>, radno vreme i adresa: <x id="address" equiv-text="address"/>.</source>
+        <target>Prices in <x id="currency" equiv-text="venue.currency"/>, opening hours and address: <x id="address" equiv-text="address"/>.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/core/public-menu/menu-seo.ts</context>
           <context context-type="linenumber">84</context>
@@ -5436,6 +5436,182 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/core/public-menu/menu-seo.ts</context>
           <context context-type="linenumber">186</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="seo.menu.titleCity" datatype="html">
+        <source><x id="venue" equiv-text="venue.name"/>, <x id="city" equiv-text="venue.city"/> · meni i cene</source>
+        <target><x id="venue" equiv-text="venue.name"/>, <x id="city" equiv-text="venue.city"/> · menu and prices</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/public-menu/menu-seo.ts</context>
+          <context context-type="linenumber">82</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.field.city" datatype="html">
+        <source>Grad</source>
+        <target>City</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">230</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.field.postalCode" datatype="html">
+        <source>Poštanski broj</source>
+        <target>Postal code</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">242,243</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.field.country" datatype="html">
+        <source>Država</source>
+        <target>Country</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">256</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.section.search" datatype="html">
+        <source> Vidljivost u pretrazi </source>
+        <target> Search visibility </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">299,301</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.search.hint" datatype="html">
+        <source> Po ovome Google i AI asistenti znaju šta je objekat i gde se nalazi. </source>
+        <target> This tells Google and AI assistants what the venue is and where to find it. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">302,303</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.field.type" datatype="html">
+        <source>Tip objekta</source>
+        <target>Venue type</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">308,309</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.field.cuisine" datatype="html">
+        <source>Kuhinja</source>
+        <target>Cuisine</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">321</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.field.cuisineHint" datatype="html">
+        <source>Do 5, odvojeno zarezom, npr. Srpska kuhinja, Roštilj.</source>
+        <target>Up to 5, separated by commas, e.g. Serbian, Grill.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">323,324</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.field.description" datatype="html">
+        <source>Kratak opis</source>
+        <target>Short description</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">331,332</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.field.descriptionHint" datatype="html">
+        <source>Jedna ili dve rečenice, do 300 znakova. Prikazuje se u rezultatima pretrage.</source>
+        <target>One or two sentences, up to 300 characters. Shown in search results.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">334,336</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.field.coordinates" datatype="html">
+        <source>Koordinate</source>
+        <target>Coordinates</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">346,347</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.field.coordinatesHint" datatype="html">
+        <source>U Google mapama desni klik na objekat, pa klik na brojeve da ih kopiraš.</source>
+        <target>In Google Maps, right-click the venue, then click the numbers to copy them.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">349,351</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.field.cuisineInvalid" datatype="html">
+        <source>Najviše 5 kuhinja, svaka do 40 znakova.</source>
+        <target>At most 5 cuisines, up to 40 characters each.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">655</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.field.coordinatesInvalid" datatype="html">
+        <source>Upiši širinu i dužinu, npr. 44.8176, 20.4569.</source>
+        <target>Enter latitude and longitude, e.g. 44.8176, 20.4569.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">663</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.type.restaurant" datatype="html">
+        <source>Restoran</source>
+        <target>Restaurant</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">843</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.type.cafe" datatype="html">
+        <source>Kafić</source>
+        <target>Café</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">845</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.type.bar" datatype="html">
+        <source>Bar ili pab</source>
+        <target>Bar or pub</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">847</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.type.fastFood" datatype="html">
+        <source>Brza hrana</source>
+        <target>Fast food</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">849</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.type.bakery" datatype="html">
+        <source>Pekara</source>
+        <target>Bakery</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">851</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.type.pastryShop" datatype="html">
+        <source>Poslastičarnica</source>
+        <target>Pastry shop</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">853</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="venues.type.other" datatype="html">
+        <source>Drugo</source>
+        <target>Other</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/venues/venue-form-page.ts</context>
+          <context context-type="linenumber">855</context>
         </context-group>
       </trans-unit>
     </body>

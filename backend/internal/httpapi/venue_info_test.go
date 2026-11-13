@@ -1,7 +1,9 @@
 package httpapi_test
 
 import (
+	"fmt"
 	"net/http"
+	"strings"
 	"testing"
 )
 
@@ -111,5 +113,66 @@ func TestPublicMenuVenueInfo(t *testing.T) {
 	expect(t, call(t, "PATCH", "/v1/venues/"+f.venue, tok, map[string]any{"wifi_access": "menu"}), http.StatusOK)
 	if w := venue()["wifi"].(map[string]any); w["password"] != "lozinka1" {
 		t.Fatalf("menu wifi shows the password: %v", w)
+	}
+}
+
+func TestVenueSEOFields(t *testing.T) {
+	needDB(t)
+	f := newMenuFixture(t)
+	tok := f.owner.access
+	path := "/v1/venues/" + f.venue
+
+	r := call(t, "GET", path, tok, nil)
+	expect(t, r, http.StatusOK)
+	if r.body["venue_type"] != "other" || r.body["country"] != "RS" || r.body["latitude"] != nil || len(r.body["cuisine"].([]any)) != 0 {
+		t.Fatalf("defaults: %v", r.body)
+	}
+
+	for _, bad := range []map[string]any{
+		{"venue_type": "hotel"},
+		{"country": "Srbija"},
+		{"latitude": 44.8},
+		{"latitude": 44.8, "longitude": nil},
+		{"latitude": 91, "longitude": 20},
+		{"latitude": "44.8", "longitude": "20.4"},
+		{"cuisine": []string{"a", "b", "c", "d", "e", "f"}},
+		{"description": strings.Repeat("š", 301)},
+	} {
+		expect(t, call(t, "PATCH", path, tok, bad), http.StatusUnprocessableEntity)
+	}
+
+	r = call(t, "PATCH", path, tok, map[string]any{
+		"venue_type": "cafe", "address": " Knez Mihailova 1 ", "city": " Beograd ", "postal_code": "11000", "country": "rs",
+		"latitude": 44.8176, "longitude": 20.4569,
+		"cuisine": []string{" Kafa ", "kafa", "", "Kolači"}, "description": " Kafa i kolači u centru. ",
+	})
+	expect(t, r, http.StatusOK)
+	if r.body["venue_type"] != "cafe" || r.body["city"] != "Beograd" || r.body["country"] != "RS" ||
+		r.body["latitude"] != 44.8176 || r.body["longitude"] != 20.4569 ||
+		fmt.Sprint(r.body["cuisine"]) != "[Kafa Kolači]" || r.body["description"] != "Kafa i kolači u centru." {
+		t.Fatalf("saved: %v", r.body)
+	}
+
+	// Another field alone leaves the coordinates; two nulls clear them.
+	r = call(t, "PATCH", path, tok, map[string]any{"city": "Novi Sad"})
+	expect(t, r, http.StatusOK)
+	if r.body["latitude"] != 44.8176 {
+		t.Fatalf("coordinates lost: %v", r.body)
+	}
+
+	// Guests (and crawlers) get them with the public menu.
+	expect(t, call(t, "POST", "/v1/menus/"+f.menu+"/publish", tok, nil), http.StatusOK)
+	pub := call(t, "GET", "/v1/public/menus/"+tenantSlug(t, f.owner)+"/"+venueSlug(t, f.owner, f.venue), "", nil)
+	expect(t, pub, http.StatusOK)
+	venue := pub.body["venue"].(map[string]any)
+	if venue["type"] != "cafe" || venue["city"] != "Novi Sad" || venue["postal_code"] != "11000" || venue["country"] != "RS" ||
+		venue["latitude"] != 44.8176 || fmt.Sprint(venue["cuisine"]) != "[Kafa Kolači]" || venue["description"] != "Kafa i kolači u centru." {
+		t.Fatalf("public venue: %v", venue)
+	}
+
+	r = call(t, "PATCH", path, tok, map[string]any{"latitude": nil, "longitude": nil})
+	expect(t, r, http.StatusOK)
+	if r.body["latitude"] != nil || r.body["longitude"] != nil {
+		t.Fatalf("coordinates not cleared: %v", r.body)
 	}
 }

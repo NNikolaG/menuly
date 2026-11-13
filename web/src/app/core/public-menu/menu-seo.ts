@@ -1,7 +1,7 @@
 import { DOCUMENT, inject, Injectable } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { labelOf } from '../menus/menu-labels';
-import { WEEKDAYS, type Weekday } from '../venues/venue';
+import { type VenueType, WEEKDAYS, type Weekday } from '../venues/venue';
 import type { PublicItem, PublicMenu, PublicPromotion } from './public-menu';
 
 /** The seeded demo tenant (backend `seed.TenantSlug`): made-up venues, kept out of search engines. */
@@ -25,6 +25,17 @@ const SCHEMA_DIETS: Record<string, string> = {
   vegetarijansko: 'VegetarianDiet',
   'bez glutena': 'GlutenFreeDiet',
   'bez laktoze': 'LowLactoseDiet',
+};
+
+/** The most specific schema.org type per venue type; schema.org has none for a pastry shop. */
+const SCHEMA_VENUES: Record<VenueType, string> = {
+  restaurant: 'Restaurant',
+  cafe: 'CafeOrCoffeeShop',
+  bar: 'BarOrPub',
+  fast_food: 'FastFoodRestaurant',
+  bakery: 'Bakery',
+  pastry_shop: 'Bakery',
+  other: 'FoodEstablishment',
 };
 
 const OG_LOCALES: Record<string, string> = { sr: 'sr_RS', en: 'en_US' };
@@ -67,7 +78,9 @@ export function menuHead(menu: PublicMenu, origin: string): MenuHead {
         ]
       : [];
   return {
-    title: $localize`:@@seo.menu.title:${venue.name}:venue: · meni i cene`,
+    title: venue.city
+      ? $localize`:@@seo.menu.titleCity:${venue.name}:venue:, ${venue.city}:city: · meni i cene`
+      : $localize`:@@seo.menu.title:${venue.name}:venue: · meni i cene`,
     description: describe(menu),
     canonical: menuUrl(origin, venue.slug, menu.lang),
     alternates,
@@ -80,8 +93,9 @@ function describe(menu: PublicMenu): string {
   const { venue } = menu;
   const categories = menu.menu.categories.map((category) => category.name).filter(Boolean);
   const lead = $localize`:@@seo.menu.descriptionLead:Meni ${venue.name}:venue:`;
-  const tail = venue.address
-    ? $localize`:@@seo.menu.descriptionTail:Cene u ${venue.currency}:currency:, radno vreme i adresa: ${venue.address}:address:.`
+  const address = [venue.address, venue.city].filter(Boolean).join(', ');
+  const tail = address
+    ? $localize`:@@seo.menu.descriptionTail:Cene u ${venue.currency}:currency:, radno vreme i adresa: ${address}:address:.`
     : $localize`:@@seo.menu.descriptionTailNoAddress:Cene u ${venue.currency}:currency: i radno vreme.`;
   // As many category names as fit; the venue and the closing sentence always stay.
   let list = '';
@@ -101,7 +115,7 @@ function firstImage(menu: PublicMenu): string {
 }
 
 /**
- * schema.org description of the venue and its whole menu (`FoodEstablishment` → `Menu` →
+ * schema.org description of the venue and its whole menu (`Restaurant` or another venue type → `Menu` →
  * `MenuSection` → `MenuItem` → `Offer`), for search engines and AI agents.
  */
 export function menuJsonLd(menu: PublicMenu, origin: string): Record<string, unknown> {
@@ -131,12 +145,19 @@ export function menuJsonLd(menu: PublicMenu, origin: string): Record<string, unk
     '@context': 'https://schema.org',
     '@graph': [
       compact({
-        '@type': 'FoodEstablishment',
+        '@type': SCHEMA_VENUES[venue.type] ?? 'FoodEstablishment',
         '@id': `${venueUrl}#venue`,
         name: venue.name,
+        // Written by the venue in Serbian, so only the Serbian page states it.
+        description: menu.lang === 'sr' ? venue.description : '',
         url: venueUrl,
         telephone: venue.phone,
-        address: venue.address,
+        address: postalAddress(menu),
+        geo:
+          venue.latitude !== null && venue.longitude !== null
+            ? { '@type': 'GeoCoordinates', latitude: venue.latitude, longitude: venue.longitude }
+            : null,
+        servesCuisine: venue.cuisine,
         image: head.image,
         logo: menu.theme?.logo_url,
         currenciesAccepted: venue.currency,
@@ -155,6 +176,19 @@ export function menuJsonLd(menu: PublicMenu, origin: string): Record<string, unk
       }),
     ],
   };
+}
+
+/** Without a street or city there is no address to state, only a country. */
+function postalAddress(menu: PublicMenu): Record<string, unknown> | null {
+  const { venue } = menu;
+  if (!venue.address && !venue.city) return null;
+  return compact({
+    '@type': 'PostalAddress',
+    streetAddress: venue.address,
+    addressLocality: venue.city,
+    postalCode: venue.postal_code,
+    addressCountry: venue.country,
+  });
 }
 
 function openingHours(menu: PublicMenu): unknown[] {

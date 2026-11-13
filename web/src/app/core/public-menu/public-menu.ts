@@ -1,5 +1,5 @@
 import type { MenuTheme } from '../menus/menu-theme';
-import type { OpeningHours, WifiAccess } from '../venues/venue';
+import type { OpeningHours, VenueType, WifiAccess } from '../venues/venue';
 
 /**
  * Guest view of a venue's published menu: `GET /v1/public/menus/{tenantSlug}/{venueSlug}`.
@@ -17,6 +17,14 @@ export interface PublicMenu {
     name: string;
     slug: string;
     address: string;
+    type: VenueType;
+    city: string;
+    postal_code: string;
+    country: string;
+    latitude: number | null;
+    longitude: number | null;
+    cuisine: string[];
+    description: string;
     phone: string;
     currency: string;
     /** IANA zone the opening hours are in. */

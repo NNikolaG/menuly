@@ -54,5 +54,10 @@ sql:
             go_type:
               type: int64
               pointer: true
+          - db_type: pg_catalog.float8
+            nullable: true
+            go_type:
+              type: float64
+              pointer: true
           - db_type: jsonb
             go_type: encoding/json.RawMessage

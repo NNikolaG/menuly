@@ -282,6 +282,7 @@ func TestRLSWithoutAppFilters(t *testing.T) {
 		_, err := q.CreateVenue(ctx, sqlc.CreateVenueParams{
 			ID: uuid.Must(uuid.NewV7()), TenantID: tb, Name: "sneaky", Slug: "sneaky-" + uuid.NewString()[:8],
 			Currency: "RSD", Timezone: "Europe/Belgrade", OpeningHours: json.RawMessage(`{}`),
+			WifiAccess: "staff", VenueType: "other", Country: "RS", Cuisine: []string{},
 		})
 		return err
 	})

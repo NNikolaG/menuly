@@ -270,4 +270,12 @@ type Venue struct {
 	WifiSsid       string          `json:"wifi_ssid"`
 	WifiPassword   string          `json:"wifi_password"`
 	WifiAccess     string          `json:"wifi_access"`
+	VenueType      string          `json:"venue_type"`
+	City           string          `json:"city"`
+	PostalCode     string          `json:"postal_code"`
+	Country        string          `json:"country"`
+	Latitude       *float64        `json:"latitude"`
+	Longitude      *float64        `json:"longitude"`
+	Cuisine        []string        `json:"cuisine"`
+	Description    string          `json:"description"`
 }

@@ -79,6 +79,40 @@ describe('menuHead', () => {
 });
 
 describe('menuJsonLd', () => {
+  it('states the venue type, city, coordinates and cuisine the owner filled in', () => {
+    const menu = publicMenuFixture();
+    Object.assign(menu.venue, {
+      type: 'restaurant',
+      city: 'Beograd',
+      postal_code: '11000',
+      latitude: 44.8176,
+      longitude: 20.4569,
+      cuisine: ['Roštilj'],
+      description: 'Domaća kuhinja u centru.',
+    });
+    const [venue] = menuJsonLd(menu, ORIGIN)['@graph'] as Record<string, unknown>[];
+    expect(venue).toMatchObject({
+      '@type': 'Restaurant',
+      description: 'Domaća kuhinja u centru.',
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: 'Knez Mihailova 1',
+        addressLocality: 'Beograd',
+        postalCode: '11000',
+        addressCountry: 'RS',
+      },
+      geo: { '@type': 'GeoCoordinates', latitude: 44.8176, longitude: 20.4569 },
+      servesCuisine: ['Roštilj'],
+    });
+    const head = menuHead(menu, ORIGIN);
+    expect(head.title).toBe('Kafana Zora, Beograd · meni i cene');
+    expect(head.description).toContain('adresa: Knez Mihailova 1, Beograd.');
+
+    menu.lang = 'en';
+    const [english] = menuJsonLd(menu, ORIGIN)['@graph'] as Record<string, unknown>[];
+    expect(english['description']).toBeUndefined();
+  });
+
   it('describes the venue with its opening hours and links it to the menu', () => {
     const menu = publicMenuFixture();
     menu.venue.phone = '+381 11 123';
@@ -89,7 +123,11 @@ describe('menuJsonLd', () => {
       '@id': 'https://zora.menuly.app/centar#venue',
       name: 'Kafana Zora',
       telephone: '+381 11 123',
-      address: 'Knez Mihailova 1',
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: 'Knez Mihailova 1',
+        addressCountry: 'RS',
+      },
       currenciesAccepted: 'RSD',
       hasMenu: { '@id': 'https://zora.menuly.app/centar#menu' },
     });

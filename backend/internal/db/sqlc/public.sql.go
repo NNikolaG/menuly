@@ -30,7 +30,7 @@ func (q *Queries) GetPublicTenantBySlug(ctx context.Context, slug string) (GetPu
 }
 
 const getVenueBySlug = `-- name: GetVenueBySlug :one
-SELECT id, tenant_id, name, slug, address, phone, currency, timezone, opening_hours, ocr_import_limit, created_at, updated_at, active_menu_id, wifi_available, wifi_ssid, wifi_password, wifi_access FROM venues WHERE tenant_id = $1 AND slug = $2
+SELECT id, tenant_id, name, slug, address, phone, currency, timezone, opening_hours, ocr_import_limit, created_at, updated_at, active_menu_id, wifi_available, wifi_ssid, wifi_password, wifi_access, venue_type, city, postal_code, country, latitude, longitude, cuisine, description FROM venues WHERE tenant_id = $1 AND slug = $2
 `
 
 type GetVenueBySlugParams struct {
@@ -59,6 +59,14 @@ func (q *Queries) GetVenueBySlug(ctx context.Context, arg GetVenueBySlugParams) 
 		&i.WifiSsid,
 		&i.WifiPassword,
 		&i.WifiAccess,
+		&i.VenueType,
+		&i.City,
+		&i.PostalCode,
+		&i.Country,
+		&i.Latitude,
+		&i.Longitude,
+		&i.Cuisine,
+		&i.Description,
 	)
 	return i, err
 }
