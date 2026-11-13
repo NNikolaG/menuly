@@ -121,6 +121,14 @@ One app serves two hosts (`core/host/app-host.ts`):
 - Route paths are Serbian (`/prijava`, `/pregled`), code names English.
 - An empty-path parent whose children don't match still matches an empty URL and renders nothing; give guest routes their own path instead of an empty-path wrapper.
 
+## Server rendering (guest pages)
+
+- Tenant-subdomain pages render on the server, app-host pages in the browser only (`app.routes.server.ts`, decision #41). A new app-host route gets a `RenderMode.Client` entry there, or `ng serve` renders it on the server.
+- `npm start` renders guest pages on the server too: open `http://{tenant}.localhost:4200/{venue}`; on the server the API is `API_INTERNAL_URL` (default `http://localhost:8080`).
+- Code that runs while rendering a guest page must not touch browser-only APIs (`localStorage`, `sessionStorage`, `matchMedia`, `IntersectionObserver`, canvas) outside `afterNextRender`/`afterRenderEffect` or a `isPlatformBrowser` check. Side effects that should happen once per real visit (counting a view) run only in the browser.
+- Status codes go through `RESPONSE_INIT` (optional inject; it is null in the browser).
+- Production: `npm run build`, then `npm run serve:ssr` (port 4000) behind nginx; env `API_INTERNAL_URL`, `BASE_DOMAIN`, `NG_ALLOWED_HOSTS` (`*.{domain}`), `NG_TRUST_PROXY_HEADERS`.
+
 ## Auth
 
 - `AuthStore` (`core/auth/`) owns the session: access + refresh token from `/v1/auth/*`, persisted in `localStorage`, exposed as signals (`isAuthenticated`, `role`, `tenantId`) and `me` (`httpResource` of `/v1/me`, reloads on tenant switch).

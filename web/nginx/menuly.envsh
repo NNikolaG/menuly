@@ -1,0 +1,5 @@
+#!/bin/sh
+# Sourced by the nginx image's entrypoint before it fills the templates.
+export BASE_DOMAIN="${BASE_DOMAIN:-menuly.app}"
+BASE_DOMAIN_RE=$(printf '%s' "$BASE_DOMAIN" | sed 's/\./\\./g')
+export BASE_DOMAIN_RE

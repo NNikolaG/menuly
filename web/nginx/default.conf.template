@@ -1,44 +1,61 @@
+# Two kinds of host (see src/app/core/host/app-host.ts):
+# - a tenant subdomain, {tenant}.${BASE_DOMAIN} or {tenant}.localhost: guest
+#   menu pages, rendered by the SSR server (web-ssr) so crawlers, link
+#   previews and AI agents get the whole menu as HTML;
+# - anything else (the app host): sign-in and admin, a client-side SPA.
+# ${BASE_DOMAIN_RE} is BASE_DOMAIN with escaped dots (menuly.envsh).
+
+# Rendered guest pages, kept a minute: most visits never reach Node, and a
+# published change shows within 60 s (the API caches its menu for 30 s too).
+proxy_cache_path /var/cache/nginx/ssr levels=1:2 keys_zone=ssr:4m max_size=64m inactive=10m use_temp_path=off;
+
+# Caddy terminates HTTPS and says so; without it the request was plain HTTP.
+map $http_x_forwarded_proto $forwarded_proto {
+  default $http_x_forwarded_proto;
+  "" $scheme;
+}
+
 server {
   listen 80;
-  root /usr/share/nginx/html;
+  server_name "~^(?!(www|api|app|admin|mail|static|cdn|docs|help|support|status|blog)\.)[a-z0-9]+(-[a-z0-9]+)*\.${BASE_DOMAIN_RE}$"
+              "~^[a-z0-9]+(-[a-z0-9]+)*\.localhost$";
+  include /etc/nginx/conf.d/menuly/common.inc;
 
-  # Compressed JS/CSS: about a fifth of the bytes, which is what a phone on 3G waits for.
-  gzip on;
-  gzip_comp_level 6;
-  gzip_min_length 1024;
-  gzip_vary on;
-  gzip_proxied any;
-  gzip_types application/javascript text/css application/json image/svg+xml application/manifest+json;
+  # Static files as they are; every page goes to the SSR server.
+  location / {
+    try_files $uri @ssr;
+  }
 
-  # /api/v1/... -> ${API_UPSTREAM}/v1/...
-  location /api/ {
-    proxy_pass ${API_UPSTREAM}/;
+  location @ssr {
+    proxy_pass ${SSR_UPSTREAM};
     proxy_set_header Host $host;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
-  }
-
-  # Runtime settings read by index.html before the app starts, so one image
-  # works on any domain. `ng serve` serves the empty public/app-config.js.
-  location = /app-config.js {
-    default_type application/javascript;
+    proxy_set_header X-Forwarded-Proto $forwarded_proto;
+    proxy_cache ssr;
+    proxy_cache_key $host$request_uri;
+    proxy_cache_valid 200 60s;
+    proxy_cache_valid 404 30s;
+    proxy_cache_lock on;
+    proxy_cache_background_update on;
+    proxy_cache_use_stale updating error timeout http_500 http_502 http_503 http_504;
+    add_header X-Cache $upstream_cache_status;
+    # Browsers ask again each time: the page names the current build's hashed bundles.
     add_header Cache-Control "no-cache";
-    return 200 'window.menulyConfig = { baseDomain: "${BASE_DOMAIN}" };';
   }
+}
+
+server {
+  listen 80 default_server;
+  include /etc/nginx/conf.d/menuly/common.inc;
 
   location /en/ {
-    try_files $uri $uri/ /en/index.html;
+    try_files $uri /en/index.csr.html;
   }
 
   location / {
-    try_files $uri $uri/ /index.html;
+    try_files $uri /index.csr.html;
   }
 
-  location ~ ^/(en/)?index\.html$ {
+  location ~ ^/(en/)?index\.csr\.html$ {
     add_header Cache-Control "no-cache";
-  }
-
-  location ~* \.(?:js|css|woff2?)$ {
-    add_header Cache-Control "public, max-age=31536000, immutable";
   }
 }

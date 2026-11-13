@@ -24,13 +24,17 @@
                 "input": "public"
               }
             ],
-            "styles": [
-              "src/styles.css"
-            ],
-            "polyfills": [
-              "@angular/localize/init"
-            ],
-            "i18nMissingTranslation": "error"
+            "styles": ["src/styles.css"],
+            "polyfills": ["@angular/localize/init"],
+            "i18nMissingTranslation": "error",
+            "server": "src/main.server.ts",
+            "outputMode": "server",
+            "security": {
+              "allowedHosts": ["localhost", "*.localhost", "127.0.0.1"]
+            },
+            "ssr": {
+              "entry": "src/server.ts"
+            }
           },
           "configurations": {
             "production": {
@@ -61,9 +65,7 @@
               ]
             },
             "en": {
-              "localize": [
-                "en"
-              ]
+              "localize": ["en"]
             }
           },
           "defaultConfiguration": "production"
@@ -83,7 +85,8 @@
           },
           "defaultConfiguration": "development",
           "options": {
-            "proxyConfig": "proxy.conf.json"
+            "proxyConfig": "proxy.conf.json",
+            "allowedHosts": ["localhost", ".localhost", "127.0.0.1"]
           }
         },
         "test": {

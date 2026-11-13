@@ -1,0 +1,30 @@
+# Shared by both server blocks in default.conf.
+root /usr/share/nginx/html;
+
+# Compressed JS/CSS/HTML: about a fifth of the bytes, which is what a phone on 3G waits for.
+gzip on;
+gzip_comp_level 6;
+gzip_min_length 1024;
+gzip_vary on;
+gzip_proxied any;
+gzip_types application/javascript text/css application/json image/svg+xml application/manifest+json;
+
+# /api/v1/... -> ${API_UPSTREAM}/v1/...
+location /api/ {
+  proxy_pass ${API_UPSTREAM}/;
+  proxy_set_header Host $host;
+  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  proxy_set_header X-Forwarded-Proto $scheme;
+}
+
+# Runtime settings read by index.html before the app starts, so one image
+# works on any domain. `ng serve` serves the empty public/app-config.js.
+location = /app-config.js {
+  default_type application/javascript;
+  add_header Cache-Control "no-cache";
+  return 200 'window.menulyConfig = { baseDomain: "${BASE_DOMAIN}" };';
+}
+
+location ~* \.(?:js|css|woff2?)$ {
+  add_header Cache-Control "public, max-age=31536000, immutable";
+}

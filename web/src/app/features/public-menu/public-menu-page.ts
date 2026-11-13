@@ -1,4 +1,13 @@
-import { Component, computed, effect, inject, input } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  PLATFORM_ID,
+  RESPONSE_INIT,
+} from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { toApiError } from '../../core/api/api-error';
 import { APP_HOST } from '../../core/host/app-host';
@@ -77,14 +86,25 @@ export default class PublicMenuPage {
   protected readonly notFound = computed(() => toApiError(this.menu.error()).status === 404);
 
   constructor() {
+    // Server render: a missing menu is a real 404 and a failed API call a 503, never a 200 error page.
+    const response = inject(RESPONSE_INIT, { optional: true });
+    if (response) {
+      effect(() => {
+        if (!this.menu.error()) return;
+        response.status = this.notFound() ? 404 : 503;
+        if (!this.notFound()) response.headers = { 'Retry-After': '30' };
+      });
+    }
     effect(() => {
       const venue = this.data()?.venue.name;
       if (venue) this.title.setTitle(`${venue} · Menuly`);
     });
     // One count per guest visit: once per tab session, not on refresh or language switch.
+    // Browser only, so server renders (and the crawlers behind them) don't count.
+    const browser = isPlatformBrowser(inject(PLATFORM_ID));
     effect(() => {
       const data = this.data();
-      if (!data) return;
+      if (!data || !browser) return;
       const key = `menuly.viewed.${data.tenant.slug}/${data.venue.slug}`;
       if (readFlag(key)) return;
       writeFlag(key);

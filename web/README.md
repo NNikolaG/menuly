@@ -11,19 +11,19 @@ Angular 22 (zoneless, signals) · Angular Aria + CDK · TypeScript · plain CSS 
 
 ## Commands
 
-| Command                                                                                  | What it does                                                                            |
-| ---------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| `npm install`                                                                            | Install dependencies                                                                    |
-| `npm start`                                                                              | Dev server on http://localhost:4200 (Serbian); `/api` is proxied to the API on :8080    |
-| `npm run start:en`                                                                       | Dev server in English                                                                   |
-| `npm run test:ci`                                                                        | Run tests once                                                                          |
-| `npm run lint`                                                                           | Lint                                                                                    |
-| `npm run build`                                                                          | Production build: Serbian in `dist/menuly/browser`, English in `dist/menuly/browser/en` |
-| `npm run i18n:extract`                                                                   | Extract UI text to `src/locale/messages.xlf`                                            |
-| `docker build -t menuly-web .`                                                           | Build the container image                                                               |
-| `docker run --rm -p 8081:80 -e API_UPSTREAM=http://host.docker.internal:8080 menuly-web` | Serve the image on http://localhost:8081                                                |
+| Command                                         | What it does                                                                            |
+| ----------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `npm install`                                   | Install dependencies                                                                    |
+| `npm start`                                     | Dev server on http://localhost:4200 (Serbian); `/api` is proxied to the API on :8080    |
+| `npm run start:en`                              | Dev server in English                                                                   |
+| `npm run test:ci`                               | Run tests once                                                                          |
+| `npm run lint`                                  | Lint                                                                                    |
+| `npm run build`                                 | Production build: Serbian in `dist/menuly/browser`, English in `dist/menuly/browser/en` |
+| `npm run i18n:extract`                          | Extract UI text to `src/locale/messages.xlf`                                            |
+| `docker build -t menuly-web .`                  | Build the nginx image (static files, API proxy, routing)                                |
+| `docker build --target ssr -t menuly-web-ssr .` | Build the server-rendering image for guest menu pages                                   |
 
-The whole stack (database, API, this app on http://localhost:8000, demo data) starts with `docker compose up -d --build` from the repo root; see the root README.
+Guest menu pages ({tenant}.localhost) are rendered on the server, so the nginx image needs the SSR one next to it (`SSR_UPSTREAM`); the compose files wire them up. The whole stack (database, API, this app on http://localhost:8000, demo data) starts with `docker compose up -d --build` from the repo root; see the root README.
 
 Admin and login run on `localhost`; a tenant's public menu runs on its subdomain, e.g. http://zora.localhost:4200/centar.
 

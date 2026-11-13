@@ -78,14 +78,26 @@ services:
         condition: service_completed_successfully
 
   # Web app (admin + guest menu) behind nginx, which proxies /api to the API.
+  # Renders guest menu pages ({tenant}.localhost:8000/{venue}) for nginx.
+  web-ssr:
+    build:
+      context: ./web
+      target: ssr
+    environment:
+      API_INTERNAL_URL: http://api:8080
+    depends_on:
+      - api
+
   web:
     build: ./web
     environment:
       API_UPSTREAM: http://api:8080
+      SSR_UPSTREAM: http://web-ssr:4000
     ports:
       - "8000:80"
     depends_on:
       - api
+      - web-ssr
 
 volumes:
   pgdata:
