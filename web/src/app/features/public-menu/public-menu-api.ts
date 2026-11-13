@@ -2,6 +2,7 @@ import { inject, Injectable, LOCALE_ID } from '@angular/core';
 import type { Observable } from 'rxjs';
 import { ApiClient } from '../../core/api/api-client';
 import type { PublicMenu } from '../../core/public-menu/public-menu';
+import type { PublicTenant } from '../../core/public-menu/public-tenant';
 
 @Injectable({ providedIn: 'root' })
 export class PublicMenuApi {
@@ -26,6 +27,14 @@ export class PublicMenuApi {
         path: `/v1/public/menus/${encodeURIComponent(tenant)}/${encodeURIComponent(venue)}`,
         query: { lang: lang() || this.localeLang },
       };
+    });
+  }
+
+  /** The tenant's venues with a published menu; 404 when there is no such tenant. */
+  tenantResource(tenantSlug: () => string | undefined) {
+    return this.api.resource<PublicTenant>(() => {
+      const tenant = tenantSlug();
+      return tenant ? { path: `/v1/public/tenants/${encodeURIComponent(tenant)}` } : undefined;
     });
   }
 

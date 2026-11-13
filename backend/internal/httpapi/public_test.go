@@ -174,3 +174,33 @@ func TestPublicMenuNotFoundAndIsolation(t *testing.T) {
 	// (Both fixtures use random venue slugs, so A has no venue with B's slug.)
 	expect(t, call(t, "GET", "/v1/public/menus/"+ta+"/"+vb, "", nil), http.StatusNotFound)
 }
+
+func TestPublicTenant(t *testing.T) {
+	needDB(t)
+	f := newMenuFixture(t)
+	ts, vs := tenantSlug(t, f.owner), venueSlug(t, f.owner, f.venue)
+	path := "/v1/public/tenants/" + ts
+
+	// Known tenant, nothing published: no venues to list.
+	r := call(t, "GET", path, "", nil)
+	expect(t, r, http.StatusOK)
+	if n := len(r.body["venues"].([]any)); n != 0 {
+		t.Fatalf("want no venues before publish, got %d", n)
+	}
+	expect(t, call(t, "GET", "/v1/public/tenants/nema-ga", "", nil), http.StatusNotFound)
+
+	expect(t, call(t, "POST", "/v1/menus/"+f.menu+"/publish", f.owner.access, nil), http.StatusOK)
+	r = call(t, "GET", path, "", nil)
+	expect(t, r, http.StatusOK)
+	venues := r.body["venues"].([]any)
+	if len(venues) != 1 {
+		t.Fatalf("want 1 venue, got %d", len(venues))
+	}
+	v := venues[0].(map[string]any)
+	if v["slug"] != vs || v["languages"].([]any)[0] != "sr" || v["updated_at"] == "" {
+		t.Fatalf("venue: %v", v)
+	}
+	if r.body["tenant"].(map[string]any)["slug"] != ts {
+		t.Fatalf("tenant: %v", r.body["tenant"])
+	}
+}

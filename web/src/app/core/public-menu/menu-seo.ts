@@ -1,11 +1,10 @@
 import { DOCUMENT, inject, Injectable } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { labelOf } from '../menus/menu-labels';
+import { DEMO_TENANT_SLUG, menuUrl } from './menu-url';
 import { type VenueType, WEEKDAYS, type Weekday } from '../venues/venue';
 import type { PublicItem, PublicMenu, PublicPromotion } from './public-menu';
 
-/** The seeded demo tenant (backend `seed.TenantSlug`): made-up venues, kept out of search engines. */
-const DEMO_TENANT_SLUG = 'demo';
 const DESCRIPTION_MAX = 155;
 const JSON_LD_ID = 'menu-jsonld';
 
@@ -40,6 +39,8 @@ const SCHEMA_VENUES: Record<VenueType, string> = {
 
 const OG_LOCALES: Record<string, string> = { sr: 'sr_RS', en: 'en_US' };
 
+export { menuUrl };
+
 export interface MenuHead {
   title: string;
   description: string;
@@ -49,18 +50,6 @@ export interface MenuHead {
   image: string;
   /** False for the demo tenant. */
   indexable: boolean;
-}
-
-/**
- * Address of a venue's menu in one of its languages: Serbian at the root, English under `/en/`,
- * any other menu language on the English build with `?lang=` (same rule as the language picker).
- */
-export function menuUrl(origin: string, venueSlug: string, lang: string): string {
-  const slug = encodeURIComponent(venueSlug);
-  if (lang === 'sr') return `${origin}/${slug}`;
-  return lang === 'en'
-    ? `${origin}/en/${slug}`
-    : `${origin}/en/${slug}?lang=${encodeURIComponent(lang)}`;
 }
 
 /** Title, description and links of a guest menu page, all derived from the menu itself. */

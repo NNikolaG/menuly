@@ -97,6 +97,7 @@ func (s *Server) Handler(opts Options) http.Handler {
 	}
 
 	r.Route("/v1", func(r chi.Router) {
+		r.Get("/public/tenants/{tenantSlug}", s.handlePublicTenant)
 		r.Get("/public/menus/{tenantSlug}/{venueSlug}", s.handlePublicMenu)
 		r.Post("/public/menus/{tenantSlug}/{venueSlug}/views", s.handlePublicMenuView)
 		r.Get("/public/media/{tenantID}/{name}", s.handlePublicMedia)

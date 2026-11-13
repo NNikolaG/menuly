@@ -7,6 +7,8 @@ package sqlc
 
 import (
 	"context"
+	"encoding/json"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -69,4 +71,52 @@ func (q *Queries) GetVenueBySlug(ctx context.Context, arg GetVenueBySlugParams) 
 		&i.Description,
 	)
 	return i, err
+}
+
+const listPublicVenues = `-- name: ListPublicVenues :many
+SELECT v.name, v.slug, v.venue_type, v.address, v.city,
+       m.languages, GREATEST(v.updated_at, m.updated_at)::timestamptz AS updated_at
+FROM venues v
+JOIN menus m ON m.id = v.active_menu_id AND m.status = 'published'
+WHERE v.tenant_id = $1
+ORDER BY v.name, v.slug
+`
+
+type ListPublicVenuesRow struct {
+	Name      string          `json:"name"`
+	Slug      string          `json:"slug"`
+	VenueType string          `json:"venue_type"`
+	Address   string          `json:"address"`
+	City      string          `json:"city"`
+	Languages json.RawMessage `json:"languages"`
+	UpdatedAt time.Time       `json:"updated_at"`
+}
+
+// Venues guests can open: the ones whose active menu is published.
+func (q *Queries) ListPublicVenues(ctx context.Context, tenantID uuid.UUID) ([]ListPublicVenuesRow, error) {
+	rows, err := q.db.Query(ctx, listPublicVenues, tenantID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListPublicVenuesRow{}
+	for rows.Next() {
+		var i ListPublicVenuesRow
+		if err := rows.Scan(
+			&i.Name,
+			&i.Slug,
+			&i.VenueType,
+			&i.Address,
+			&i.City,
+			&i.Languages,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

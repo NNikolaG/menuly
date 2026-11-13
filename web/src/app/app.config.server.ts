@@ -3,13 +3,8 @@ import { DOCUMENT, inject, mergeApplicationConfig, type ApplicationConfig } from
 import { provideServerRendering, withRoutes } from '@angular/ssr';
 import { appConfig } from './app.config';
 import { API_BASE_URL } from './core/api/api-client';
+import { apiInternalUrl } from './core/api/api-internal-url';
 import { serverRoutes } from './app.routes.server';
-
-/** Where the server reaches the API directly (compose service), instead of the public `/api` proxy. */
-const apiInternalUrl = (process.env['API_INTERNAL_URL'] || 'http://localhost:8080').replace(
-  /\/$/,
-  '',
-);
 
 const serverConfig: ApplicationConfig = {
   providers: [
